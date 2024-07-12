@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1099631041085290321}
+  - component: {fileID: 2802747110221758678}
   - component: {fileID: 3554239821410486802}
   - component: {fileID: 5405466115121967044}
-  - component: {fileID: 9054713960104977186}
   - component: {fileID: 408207368519376462}
   m_Layer: 5
   m_Name: Hurt
@@ -39,6 +39,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2802747110221758678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6516444726443623700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53916bb14e63b1459e4e1d2be249eaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!222 &3554239821410486802
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -76,7 +88,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 65415
+    rgba: 4278255495
   m_fontColor: {r: 0.5288411, g: 1, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -136,18 +148,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &9054713960104977186
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6516444726443623700}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09a859a33e61e8643a7e442a164407c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!95 &408207368519376462
 Animator:
   serializedVersion: 5

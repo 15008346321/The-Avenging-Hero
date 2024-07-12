@@ -14,7 +14,7 @@ public class BattleMgr : MonoBehaviour
     public Dictionary<int,Unit> IDUnitPiar = new();
     public Unit player, AtkU, CombU, AtkedU;
     public GameObject unit, HurtFont, ourObj, eneObj, 击退Pos1, 击退Pos2, 布阵提示, CombDetailPrefab;
-    public Transform OurCombDetail, EneCombDetail;
+    public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount = 0,CombDetailCount;
     public string bonus, 当前追打状态;
     public bool isOurTurn,正在战斗,正在追打;
@@ -49,10 +49,11 @@ public class BattleMgr : MonoBehaviour
         for (int i = 0; i < TeamManager.Ins.TeamData.Count; i++)
         {
             string uname = TeamManager.Ins.TeamData[i].Name;
-            Unit u = Instantiate(Resources.Load("Prefabs/Unit/" + uname + "/" + uname) as GameObject).GetComponent<Unit>();
+            Unit u = Instantiate(Resources.Load("Prefabs/Unit/" + uname + "/" + uname) as GameObject).transform.GetChild(0).GetComponent<Unit>();
 
             u.Cell = TeamManager.Ins.TeamData[i].Cell;
-            u.transform.SetParent(ourObj.transform.GetChild(u.Cell - 1));
+            //ourObj.transform.GetChild(u.Cell - 1)
+            u.transform.SetParent(OurRunningPos.GetChild(i));
             u.transform.localPosition = Vector2.zero;
             u.TeamInitAttr(TeamManager.Ins.TeamData[i]);
             u.tag = "Our";
@@ -64,25 +65,86 @@ public class BattleMgr : MonoBehaviour
             TeamMain.Add(u);
             AllUnit.Add(u);
         }
+        OurTeamRun();
+    }
+
+    public void OurTeamIdle()
+    {
+        TeamIdle(Team);
+    }
+
+    public void EneTeamIdle()
+    {
+        TeamIdle(Enemys);
+    }
+
+    private void TeamIdle(List<Unit> l)
+    {
+        foreach (var item in l)
+        {
+            item.Animator.Play("idle");
+        }
+    }
+    public void OurTeamRun()
+    {
+        TeamRun(Team);
+    }
+
+    public void EneTeamRun()
+    {
+        TeamRun(Enemys);
+    }
+    private void TeamRun(List<Unit> L)
+    {
+        foreach (var item in L)
+        {
+            item.Animator.Play("run");
+        }
+    }
+    public void OurTeamMoveToCell()
+    {
+        TeamMoveToCell(Team);
+    }
+
+    public void EneTeamMoveToCell()
+    {
+        TeamMoveToCell(Enemys);
+    }
+
+    public void TeamMoveToCell(List<Unit> L)
+    {
+        GameObject side;
+        if (L[0].CompareTag("Our")) side = ourObj;
+        else side = eneObj;
+        foreach (var item in L)
+        {
+            Vector2 tarPos = side.transform.GetChild(item.Cell - 1).position;
+            print(tarPos.x + " " + tarPos.y);
+            item.transform.parent.DOMove(side.transform.GetChild(item.Cell - 1).position, 1f).OnComplete
+                (
+                   () => {
+                       item.Animator.Play("idle");
+                       item.transform.parent.SetParent(side.transform.GetChild(item.Cell - 1));
+                       }
+                );;
+        }
     }
 
     public void InitBattle(string monsters)
     {
         //哥布林P1,哥布林P7,投石哥布林P5
 
-        eneObj.SetActive(true);
-        eneObj.transform.localPosition = new Vector2(1300, -140);
+        EneRunningPos.transform.localPosition = new Vector2(1300, -140);
         var enemys = monsters.Split('&');
-        foreach (string enemy in enemys)
+        for(int i = 0; i < enemys.Length; i++)
         {
-            string eName = enemy.Split('P')[0];
-            int Pos = int.Parse(enemy.Split('P')[1]);
-            Unit u = Instantiate(Resources.Load("Prefabs/Unit/" + eName + "/" +eName) as GameObject).GetComponent<Unit>();
+            string eName = enemys[i].Split('P')[0];
+            int Pos = int.Parse(enemys[i].Split('P')[1]);
+            Unit u = Instantiate(Resources.Load("Prefabs/Unit/" + eName + "/" +eName) as GameObject).transform.GetChild(0).GetComponent<Unit>();
             u.tag = "Enemy";
             //棋盘位置
             u.Cell = Pos;
-            var 棋盘 = u.CompareTag("Our") == true ? ourObj : eneObj;
-            u.transform.SetParent(棋盘.transform.GetChild(u.Cell-1));
+            u.transform.SetParent(EneRunningPos.GetChild(i));
             u.transform.localPosition = Vector2.zero;
             u.transform.localScale = new Vector2(-1, 1);
             u.EnemyInitAttr(eName);
@@ -94,6 +156,7 @@ public class BattleMgr : MonoBehaviour
             IDCount += 1;
             IDUnitPiar.Add(u.ID, u);
         }
+        EneTeamRun();
         EnterBattle();
     }
 
@@ -232,23 +295,23 @@ public class BattleMgr : MonoBehaviour
         if (new[] { 1, 4, 7 }.Contains(AtkU.Cell))
         {
             //受击单位第一排
-            if (SearchFor.transform.GetChild(0).childCount > 0) return SearchFor.transform.GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(3).childCount > 0) return SearchFor.transform.GetChild(3).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(6).childCount > 0) return SearchFor.transform.GetChild(6).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(0).childCount > 0) return SearchFor.transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(3).childCount > 0) return SearchFor.transform.GetChild(3).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(6).childCount > 0) return SearchFor.transform.GetChild(6).GetChild(0).GetChild(0).GetComponent<Unit>();
         }
         else if (new[] { 2, 5, 8 }.Contains(AtkU.Cell))
         {
             //第二排
-            if (SearchFor.transform.GetChild(1).childCount > 0) return SearchFor.transform.GetChild(1).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(4).childCount > 0) return SearchFor.transform.GetChild(4).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(7).childCount > 0) return SearchFor.transform.GetChild(7).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(1).childCount > 0) return SearchFor.transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(4).childCount > 0) return SearchFor.transform.GetChild(4).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(7).childCount > 0) return SearchFor.transform.GetChild(7).GetChild(0).GetChild(0).GetComponent<Unit>();
         }
         else
         {
             //第三排
-            if (SearchFor.transform.GetChild(2).childCount > 0) return SearchFor.transform.GetChild(2).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(5).childCount > 0) return SearchFor.transform.GetChild(5).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(8).childCount > 0) return SearchFor.transform.GetChild(8).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(2).childCount > 0) return SearchFor.transform.GetChild(2).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(5).childCount > 0) return SearchFor.transform.GetChild(5).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(8).childCount > 0) return SearchFor.transform.GetChild(8).GetChild(0).GetChild(0).GetComponent<Unit>();
         }
         return null;
     }

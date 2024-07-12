@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ScrollBg : MonoBehaviour
 {
-    public Transform bg1, bg2, roadsNode,enemyNode;
+    public Transform bg1, bg2, roadsNode,EnemyRunningNode;
     public float BgSpeed,EnemySpeed;
     public bool MoveBg = true, MoveEnemy = false;
     public static ScrollBg Ins;
@@ -38,18 +38,21 @@ public class ScrollBg : MonoBehaviour
             if (roadsNode.gameObject.activeInHierarchy && roadsNode.transform.localPosition.x <= 700)
             {
                 MoveBg = false;
+                BattleMgr.Ins.OurTeamIdle();
             }
             
         }
         if (MoveEnemy)
         {
             float offset = Time.deltaTime * EnemySpeed;
-            enemyNode.transform.localPosition = new Vector2(enemyNode.transform.localPosition.x - offset, -140);
-            if (enemyNode.gameObject.activeInHierarchy && enemyNode.transform.localPosition.x <= 550)
+            EnemyRunningNode.transform.localPosition = new Vector2(EnemyRunningNode.transform.localPosition.x - offset, -140);
+            if (EnemyRunningNode.transform.localPosition.x <= 550)
             {
                 BattleMgr.Ins.SetPosSlotAlpha(0.4f);
                 MoveEnemy = false;
                 BattleMgr.Ins.BattleBtn.gameObject.SetActive(true);
+                BattleMgr.Ins.OurTeamMoveToCell();
+                BattleMgr.Ins.EneTeamMoveToCell();
             }
         }
     }

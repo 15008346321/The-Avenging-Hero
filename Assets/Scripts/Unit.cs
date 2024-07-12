@@ -167,7 +167,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
     public void UnitMove(int TargetCell)
     {
-        Transform moveParent = GameObject.Find("ForMove").transform;
+        Transform moveParent = transform.parent;
         GameObject Our;
         GameObject Ene;
         if (CompareTag("Our"))
@@ -180,12 +180,10 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
             Our = BattleMgr.Ins.eneObj;
             Ene = BattleMgr.Ins.ourObj;
         }
-        moveParent.position = Our.transform.GetChild(Cell - 1).position;
-        transform.SetParent(moveParent);
         moveParent.DOMove(Our.transform.GetChild(TargetCell - 1).position, 1f).OnComplete(
             () => 
             {
-                transform.SetParent(Our.transform.GetChild(TargetCell - 1));
+                moveParent.SetParent(Our.transform.GetChild(TargetCell - 1));
                 Cell = TargetCell;
              }
         );
@@ -419,7 +417,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         {
             BattleMgr.Ins.ExitBattle();
         }
-        Destroy(gameObject);
+        Destroy(transform.parent.gameObject);
         //throw new Exception("msg " + name + " Dead!");
     }
     public void ShowSkillName(string SkillName)
