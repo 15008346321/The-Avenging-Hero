@@ -31,6 +31,8 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         gra = FindObjectOfType<GraphicRaycaster>();
     }
 
+
+
     public void EnemyInitAttr(string Mname)
     {
         //0id 1名称2最大生命值3攻击4火5水6风7雷8土9特性10普攻11追打12被动
@@ -159,10 +161,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
     public void TakeDamage(int damage)
     {
-        //添加各种减伤效果
-        BattleMgr.Ins.ShowDamage(this, damage.ToString());
-        Hp -= damage;
-        if (Hp <= 0) UnitDead();
+        BattleMgr.Ins.ShowDamage(this, damage);
     }
 
     public void UnitMove(int TargetCell)
@@ -383,6 +382,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         StartCoroutine(BattleMgr.Ins.PlayFirsrtAnimInQueue());
     }
 
+    //在伤害字体动画时事件调用
     public void UnitDead()
     {
         if (!CompareTag("Our"))

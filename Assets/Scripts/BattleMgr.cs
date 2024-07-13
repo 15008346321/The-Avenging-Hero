@@ -22,6 +22,7 @@ public class BattleMgr : MonoBehaviour
     public Image[] PosSlots = new Image[9], CombDetailImgs = new Image[6];
     public TextMeshProUGUI[] CombDetailTMP = new TextMeshProUGUI[6];
     private Coroutine fadeCoroutine1 = null, fadeCoroutine2 = null;
+    public Dictionary<string, GameObject> UnitObj = new();
 
     public static BattleMgr Ins;
     private void Awake()
@@ -44,17 +45,34 @@ public class BattleMgr : MonoBehaviour
         //unit = Resources.Load("Prefabs/Unit/Unit") as GameObject;
         HurtFont = Resources.Load("Prefabs/HurtFont/Hurt") as GameObject;
     }
+    public GameObject GetUnitObj(string name)
+    {
+        if (UnitObj.TryGetValue(name, out GameObject u))
+        {
+
+            print("msg1");
+            return u;
+        }
+        else
+        {
+            print("msg2");
+            GameObject g = Resources.Load("Prefabs/Unit/" + name + "/" + name) as GameObject;
+            UnitObj.Add(name, g);
+            return g;
+        }
+    }
     public void InitTeam()
     {
         for (int i = 0; i < TeamManager.Ins.TeamData.Count; i++)
         {
             string uname = TeamManager.Ins.TeamData[i].Name;
-            Unit u = Instantiate(Resources.Load("Prefabs/Unit/" + uname + "/" + uname) as GameObject).transform.GetChild(0).GetComponent<Unit>();
+            GameObject g = GetUnitObj(uname);
+            Unit u = Instantiate(g).transform.GetChild(0).GetComponent<Unit>();
 
             u.Cell = TeamManager.Ins.TeamData[i].Cell;
             //ourObj.transform.GetChild(u.Cell - 1)
-            u.transform.SetParent(OurRunningPos.GetChild(i));
-            u.transform.localPosition = Vector2.zero;
+            u.transform.parent.SetParent(OurRunningPos.GetChild(i));
+            u.transform.parent.localPosition = Vector2.zero;
             u.TeamInitAttr(TeamManager.Ins.TeamData[i]);
             u.tag = "Our";
             u.ID = IDCount;
@@ -140,13 +158,13 @@ public class BattleMgr : MonoBehaviour
         {
             string eName = enemys[i].Split('P')[0];
             int Pos = int.Parse(enemys[i].Split('P')[1]);
-            Unit u = Instantiate(Resources.Load("Prefabs/Unit/" + eName + "/" +eName) as GameObject).transform.GetChild(0).GetComponent<Unit>();
+            Unit u = Instantiate(GetUnitObj(eName)).transform.GetChild(0).GetComponent<Unit>();
             u.tag = "Enemy";
             //棋盘位置
             u.Cell = Pos;
-            u.transform.SetParent(EneRunningPos.GetChild(i));
-            u.transform.localPosition = Vector2.zero;
-            u.transform.localScale = new Vector2(-1, 1);
+            u.transform.parent.SetParent(EneRunningPos.GetChild(i));
+            u.transform.parent.localPosition = Vector2.zero;
+            u.transform.parent.localScale = new Vector2(-1, 1);
             u.EnemyInitAttr(eName);
             //加进list
             Enemys.Add(u);
@@ -376,26 +394,25 @@ public class BattleMgr : MonoBehaviour
         CombDetailCount = 0;
     }
 
-    public void ShowDamage(Unit u, string DamageValue)
+    public void ShowDamage(Unit u, int DamageValue)
     {
         ShowFont(u, DamageValue);
     }
 
-    public void ShowHeal(Unit u, string healValue)
+    public void ShowHeal(Unit u, int healValue)
     {
         ShowFont(u, healValue,"Heal");
     }
 
-    public void ShowFont(Unit u, string value, string type = "Damage")
+    public void ShowFont(Unit u, int value, string type = "Damage")
     {
         GameObject font = Instantiate(HurtFont);
-        TextMeshProUGUI tmp = font.GetComponent<TextMeshProUGUI>();
-        tmp.text = value;
-        Animator a = font.GetComponent<Animator>();
+        HurtFont hf = font.GetComponent<HurtFont>();
+        hf.HurtValue = value;
         font.transform.SetParent(u.transform.Find("FontPos"));
         font.transform.localPosition = Vector2.zero;
-        if (type == "Damage") a.Play("hurt");
-        else a.Play("heal");
+        if (type == "Damage") hf.PlayHurt();
+        else hf.PlayHeal();
     }
 
     public void OnTurnEnd()
