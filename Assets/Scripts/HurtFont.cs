@@ -7,6 +7,7 @@ public class HurtFont : MonoBehaviour
 {
     public int HurtValue;
     public int HealValue;
+    public Unit u;
     //在伤害字体动画时事件调用
 
     public void PlayHurt()
@@ -16,14 +17,23 @@ public class HurtFont : MonoBehaviour
         Animator animator = GetComponent<Animator>();
         animator.Play("hurt");
     }
-    //动画事件 在hurt动画最后一帧调用
-    public void UnitTakeDamage()
+    //动画事件 在hurt动画第一帧调用
+    public void UpdateHpBar()
     {
-        Unit u = transform.parent.parent.GetComponent<Unit>();
+        u = transform.parent.parent.GetComponent<Unit>();
         u.Hp -= HurtValue;
+        u.UpdateHpBar();
         if (u.Hp < 0)
         {
             u.UnitDead();
+        }
+    }
+    //动画事件 在hurt动画最后一帧调用
+    public void UnitCheckDeath()
+    {
+        if (u.isDead)
+        {
+            Destroy(u.transform.parent.gameObject);
         }
         else
         {

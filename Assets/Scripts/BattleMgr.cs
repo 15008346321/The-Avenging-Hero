@@ -17,7 +17,7 @@ public class BattleMgr : MonoBehaviour
     public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount = 0,CombDetailCount;
     public string bonus, 当前追打状态;
-    public bool isOurTurn,正在战斗,正在追打;
+    public bool isOurTurn,正在战斗,正在追打,BattleEnd;
     public Button BattleBtn;
     public Image[] PosSlots = new Image[9], CombDetailImgs = new Image[6];
     public TextMeshProUGUI[] CombDetailTMP = new TextMeshProUGUI[6];
@@ -50,12 +50,10 @@ public class BattleMgr : MonoBehaviour
         if (UnitObj.TryGetValue(name, out GameObject u))
         {
 
-            print("msg1");
             return u;
         }
         else
         {
-            print("msg2");
             GameObject g = Resources.Load("Prefabs/Unit/" + name + "/" + name) as GameObject;
             UnitObj.Add(name, g);
             return g;
@@ -63,12 +61,13 @@ public class BattleMgr : MonoBehaviour
     }
     public void InitTeam()
     {
+        print("InitTeam");
         for (int i = 0; i < TeamManager.Ins.TeamData.Count; i++)
         {
             string uname = TeamManager.Ins.TeamData[i].Name;
             GameObject g = GetUnitObj(uname);
             Unit u = Instantiate(g).transform.GetChild(0).GetComponent<Unit>();
-
+            u.OriData = TeamManager.Ins.TeamData[i];
             u.Cell = TeamManager.Ins.TeamData[i].Cell;
             //ourObj.transform.GetChild(u.Cell - 1)
             u.transform.parent.SetParent(OurRunningPos.GetChild(i));
@@ -80,7 +79,6 @@ public class BattleMgr : MonoBehaviour
             IDCount += 1;
             IDUnitPiar.Add(u.ID, u);
             Team.Add(u);
-            TeamMain.Add(u);
             AllUnit.Add(u);
         }
         OurTeamRun();
@@ -151,7 +149,7 @@ public class BattleMgr : MonoBehaviour
     public void InitBattle(string monsters)
     {
         //哥布林P1,哥布林P7,投石哥布林P5
-
+        BattleEnd = false;
         EneRunningPos.transform.localPosition = new Vector2(1300, -140);
         var enemys = monsters.Split('&');
         for(int i = 0; i < enemys.Length; i++)
@@ -265,8 +263,6 @@ public class BattleMgr : MonoBehaviour
 
     public IEnumerator PlayFirsrtAnimInQueue(int waitfor = 0)
     {
-
-        print("msgPlayFirsrtAnimInQueue");
         if (waitfor != 0)
         {
             yield return new WaitForSeconds(waitfor);
@@ -423,14 +419,39 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
+    public void ResetBattle()
+    {
+        IDUnitPiar.Clear();
+        IDCount = 0;
+        AllUnit.Clear();
+        Team.Clear();
+        Enemys.Clear();
+        AnimQueue.Clear();
+        for (int i = 0; i < ourObj.transform.childCount - 1; i++)
+        {
+            if (ourObj.transform.GetChild(i).childCount > 0)
+            {
+                Destroy(ourObj.transform.GetChild(i).GetChild(0).gameObject);
+            }
+        }
+        for (int i = 0; i < eneObj.transform.childCount - 1; i++)
+        {
+            if (eneObj.transform.GetChild(i).childCount > 0)
+            {
+                Destroy(eneObj.transform.GetChild(i).GetChild(0).gameObject);
+            }
+        }
+    }
     public void ExitBattle()
     {
+        //避免同时多人死亡 调用多次
+        if (BattleEnd) return;
+        BattleEnd = true;
         //EventsMgr.Instance.BattleDetail.gameObject.SetActive(false);
-        AnimQueue.Clear();
-        ourObj.SetActive(false);
-        eneObj.SetActive(false);
+        ResetBattle();
         //TODO 战后结算
         //Bonus.Ins.ShowBonus();
+        InitTeam();
         EventsMgr.Ins.GenNewRoom();
     }
 }

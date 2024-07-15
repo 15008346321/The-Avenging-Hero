@@ -25,13 +25,12 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     private EventSystem _EventSystem;
     private GraphicRaycaster gra;
     public Unit target;
+    public UnitData OriData;
     private void Awake()
     {
         _EventSystem = FindObjectOfType<EventSystem>();
         gra = FindObjectOfType<GraphicRaycaster>();
     }
-
-
 
     public void EnemyInitAttr(string Mname)
     {
@@ -74,7 +73,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         Earth = data.Earth;
     }
 
-    public void UpdateHpbar()
+    public void UpdateHpBar()
     {
         //c# int1/int3 = 0
         HpBar.fillAmount = (float)Hp / (float)MaxHp;
@@ -126,6 +125,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
                 print("enter slot");
                 transform.SetParent(item.gameObject.transform);
                 transform.GetComponent<Unit>().Cell = int.Parse(transform.parent.name);
+                transform.GetComponent<Unit>().OriData.Cell = int.Parse(transform.parent.name);
                 print("msg " + transform.name + "当前位置: " + transform.GetComponent<Unit>().Cell);
                 transform.localPosition = Vector2.zero;
             }
@@ -141,7 +141,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     private void ChangePos(Unit unit1, Unit unit2)
     {
         (unit2.Cell, unit1.Cell) = (unit1.Cell, unit2.Cell);
-
+        (unit2.OriData.Cell, unit1.OriData.Cell) = (unit1.OriData.Cell, unit2.OriData.Cell);
         print("msg " + unit1.name + "当前位置: " + unit1.Cell);
         print("msg " + unit2.name + "当前位置: " + unit2.Cell);
     }
@@ -377,14 +377,13 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     }
     public void OnFinishAtk()
     {
-
-        print("msgOnFinishAtk");
         StartCoroutine(BattleMgr.Ins.PlayFirsrtAnimInQueue());
     }
 
     //在伤害字体动画时事件调用
     public void UnitDead()
     {
+        isDead = true;
         if (!CompareTag("Our"))
         {
             BattleMgr.Ins.Enemys.Remove(this);
@@ -417,7 +416,6 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         {
             BattleMgr.Ins.ExitBattle();
         }
-        Destroy(transform.parent.gameObject);
         //throw new Exception("msg " + name + " Dead!");
     }
     public void ShowSkillName(string SkillName)

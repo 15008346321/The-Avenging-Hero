@@ -102,6 +102,17 @@ MonoBehaviour:
   StartParent: {fileID: 0}
   CanvasGroup: {fileID: 9182642256774721149}
   target: {fileID: 0}
+  OriData:
+    MaxHp: 0
+    Atk: 0
+    Fire: 0
+    Water: 0
+    Wind: 0
+    Thunder: 0
+    Earth: 0
+    Cell: 0
+    Name: 
+    sprite: {fileID: 0}
 --- !u!95 &2778995353347806314
 Animator:
   serializedVersion: 5

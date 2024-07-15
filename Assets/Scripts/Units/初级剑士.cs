@@ -33,7 +33,6 @@ public class 初级剑士 : Unit
         }
         else
         {
-
             print("msg " + "play closeAtk1");
             Animator.Play("closeAtk1");//动画帧后段会计算伤害 在这之前获取目标
             ShowSkillName("斩击");
@@ -53,12 +52,12 @@ public class 初级剑士 : Unit
 
         print("msg " + name + " CaculDamageOnAtk");
         BattleMgr.Ins.AtkedU.CaculDamageOnAtked(damage);
-        BattleMgr.Ins.AtkedU.UpdateHpbar();
     }
     public override void AddAtkEffect()
     {
+        if (BattleMgr.Ins.AtkedU.isDead) return;
 
-        print("AddAtkEffect");
+        print("BattleMgr.Ins.AtkedU.isDead + " + BattleMgr.Ins.AtkedU.isDead);
         if (BattleMgr.Ins.AtkedU != null)
         {
             //添加流血buff 已经有了就加层数
@@ -80,7 +79,6 @@ public class 初级剑士 : Unit
     {
         var damage = Mathf.RoundToInt(0.3f*Atk);
         BattleMgr.Ins.AtkedU.CaculDamageOnAtked(damage);
-        BattleMgr.Ins.AtkedU.UpdateHpbar();
     }
     //被攻击时计算减伤buff
     public override void CaculDamageOnAtked(int damage)
