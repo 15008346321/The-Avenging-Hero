@@ -159,11 +159,6 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         return results;
     }
 
-    public void TakeDamage(int damage)
-    {
-        BattleMgr.Ins.ShowDamage(this, damage);
-    }
-
     public void UnitMove(int TargetCell)
     {
         Transform moveParent = transform.parent;
@@ -392,13 +387,6 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         {
             BattleMgr.Ins.Team.Remove(this);
         }
-        foreach (var item in BattleMgr.Ins.AnimQueue)
-        {
-            if (item.Split(":")[0] == ID.ToString())
-            {
-
-            }
-        }
         //把死了就不需要执行的行动删除
         if (BattleMgr.Ins.AnimQueue.Count > 0)
         {
@@ -411,12 +399,6 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
             }
         }
         BattleMgr.Ins.AllUnit.Remove(this);
-        //如果一个阵营死完 战斗结束
-        if (BattleMgr.Ins.Enemys.Count == 0 || BattleMgr.Ins.Team.Count == 0)
-        {
-            BattleMgr.Ins.ExitBattle();
-        }
-        //throw new Exception("msg " + name + " Dead!");
     }
     public void ShowSkillName(string SkillName)
     {

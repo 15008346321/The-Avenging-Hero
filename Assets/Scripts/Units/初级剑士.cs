@@ -83,7 +83,7 @@ public class 初级剑士 : Unit
     //被攻击时计算减伤buff
     public override void CaculDamageOnAtked(int damage)
     {
-        TakeDamage(damage);
+        BattleMgr.Ins.ShowFont(this, damage, "Damage");
     }
     public override void OnTurnEnd()
     {

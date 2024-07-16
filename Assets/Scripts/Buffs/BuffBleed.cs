@@ -44,7 +44,7 @@ public class BuffBleed : Buff
     public override void OnTurnEnd()
     {
         //流血暂定掉血0.2攻击力
-        BuffTarget.TakeDamage(Mathf.RoundToInt(BuffFrom.Atk*0.2f)*CurrStack);
+        BattleMgr.Ins.ShowFont(BuffTarget, Mathf.RoundToInt(BuffFrom.Atk * 0.2f) * CurrStack, "Bleed");
     }
 
     public override void OnTurnStart()
