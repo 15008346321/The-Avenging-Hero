@@ -75,7 +75,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
     public void UpdateHpBar()
     {
-        //c# int1/int3 = 0
+        //c# int 1/int 3 = 0
         HpBar.fillAmount = (float)Hp / (float)MaxHp;
     }
 

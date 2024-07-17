@@ -7,35 +7,15 @@ using UnityEngine;
 public class HurtFont : MonoBehaviour
 {
     public int Value;
-    public int HealValue;
     public Unit u;
     public TextMeshProUGUI tmp;
-    //在伤害字体动画时事件调用
-
-    public void PlayHurt()
-    {
-        print("msg 2");
-        tmp.text = Value.ToString();
-        Animator animator = GetComponent<Animator>();
-        animator.Play("hurt");
-    }
-    public void PlayHeal()
-    {
-        tmp.text = HealValue.ToString();
-        Animator animator = GetComponent<Animator>();
-        animator.Play("heal");
-    }
-    public void PlayBleed()
-    {
-        tmp.text = Value.ToString();
-        Animator animator = GetComponent<Animator>();
-        animator.Play("Bleed");
-    }
+    public Animator animator;
+    
     //heal动画帧上调用
     public void UnitHeal()
     {
         Unit u = transform.parent.parent.GetComponent<Unit>();
-        u.Hp += HealValue;
+        u.Hp += Value;
         Destroy(gameObject);
     }
     //动画事件 在hurt动画第一帧调用

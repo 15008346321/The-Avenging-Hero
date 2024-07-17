@@ -12,7 +12,6 @@ public abstract class Buff:MonoBehaviour
     public string Dscrp;
     public Unit BuffFrom, BuffTarget;
 
-
     public abstract void Init(Unit from, Unit target);
     public abstract void AddLayer();
     public abstract void OnAttack();

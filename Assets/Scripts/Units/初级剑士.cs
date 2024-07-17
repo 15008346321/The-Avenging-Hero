@@ -60,6 +60,7 @@ public class 初级剑士 : Unit
         print("BattleMgr.Ins.AtkedU.isDead + " + BattleMgr.Ins.AtkedU.isDead);
         if (BattleMgr.Ins.AtkedU != null)
         {
+            BattleMgr.Ins.ShowFont(BattleMgr.Ins.AtkedU,0,"GetBleed");
             //添加流血buff 已经有了就加层数
             if (BattleMgr.Ins.AtkedU.GetComponent<BuffBleed>() == null)
             {
@@ -83,7 +84,7 @@ public class 初级剑士 : Unit
     //被攻击时计算减伤buff
     public override void CaculDamageOnAtked(int damage)
     {
-        BattleMgr.Ins.ShowFont(this, damage, "Damage");
+        BattleMgr.Ins.ShowFont(this, damage, "Hurt");
     }
     public override void OnTurnEnd()
     {

@@ -20356,6 +20356,7 @@ MonoBehaviour:
   isOurTurn: 0
   "\u6B63\u5728\u6218\u6597": 0
   "\u6B63\u5728\u8FFD\u6253": 0
+  BattleEnd: 0
   BattleBtn: {fileID: 1436346658}
   PosSlots:
   - {fileID: 1439354304}

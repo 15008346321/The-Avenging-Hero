@@ -390,16 +390,17 @@ public class BattleMgr : MonoBehaviour
         CombDetailCount = 0;
     }
 
-    public void ShowFont(Unit u, int value, string type = "Damage")
+    public void ShowFont(Unit u, int value, string type)
     {
+
+        print("ShowFont type" + type);
         GameObject font = Instantiate(HurtFont);
         HurtFont hf = font.GetComponent<HurtFont>();
         hf.Value = value;
+        hf.tmp.text = value.ToString();
         font.transform.SetParent(u.transform.Find("FontPos"));
         font.transform.localPosition = Vector2.zero;
-        if (type == "Damage") hf.PlayHurt();
-        else if (type == "Heal") hf.PlayHeal();
-        else if (type == "Bleed") hf.PlayBleed();
+        hf.animator.Play(type);
     }
 
     public void CheckBattleEnd()
