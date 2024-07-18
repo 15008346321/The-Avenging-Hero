@@ -135,7 +135,6 @@ public class BattleMgr : MonoBehaviour
         foreach (var item in L)
         {
             Vector2 tarPos = side.transform.GetChild(item.Cell - 1).position;
-            print(tarPos.x + " " + tarPos.y);
             item.transform.parent.DOMove(side.transform.GetChild(item.Cell - 1).position, 1f).OnComplete
                 (
                    () => {
@@ -163,6 +162,7 @@ public class BattleMgr : MonoBehaviour
             u.transform.parent.SetParent(EneRunningPos.GetChild(i));
             u.transform.parent.localPosition = Vector2.zero;
             u.transform.parent.localScale = new Vector2(-1, 1);
+            u.TMPNameNode.localScale = new Vector2(-1, 1);
             u.EnemyInitAttr(eName);
             //加进list
             Enemys.Add(u);
@@ -211,8 +211,7 @@ public class BattleMgr : MonoBehaviour
         {
             item.Reload();
         }
-        SortBySpeed();
-        AddAtkBySpeed();
+        FindNextActionUnit();
     }
 
     public void SortBySpeed()
@@ -225,18 +224,21 @@ public class BattleMgr : MonoBehaviour
         AllUnit.Sort((u1, u2) => u2.Speed.CompareTo(u1.Speed));
     }
 
-    public void AddAtkBySpeed()
+    public void FindNextActionUnit(int wait = 0)
     {
+        SortBySpeed();
         foreach (var item in AllUnit)
         {
-            for (int i = 0; i < item.RemainAtkCount; i++)
+            if(item.RemainAtkCount > 0)
             {
                 //用ID遍历AllUnit找到对应的Unit调用普攻
                 AnimQueue.Add(item.ID + ":NormalAtk");
+                item.RemainAtkCount -= 1;
+                break;
             }
-            item.RemainAtkCount = 0;
         }
-        StartCoroutine(PlayFirsrtAnimInQueue());
+        //PlayFirsrtAnimInQueue会判断没有行动 则回合结束
+        StartCoroutine(PlayFirsrtAnimInQueue(wait));
     }
 
     public void CheckComb(Unit u,string currDebuff)
@@ -263,6 +265,7 @@ public class BattleMgr : MonoBehaviour
 
     public IEnumerator PlayFirsrtAnimInQueue(int waitfor = 0)
     {
+        print("PlayFirsrtAnimInQueue");
         if (waitfor != 0)
         {
             yield return new WaitForSeconds(waitfor);
@@ -392,7 +395,6 @@ public class BattleMgr : MonoBehaviour
 
     public void ShowFont(Unit u, int value, string type)
     {
-
         print("ShowFont type" + type);
         GameObject font = Instantiate(HurtFont);
         HurtFont hf = font.GetComponent<HurtFont>();
@@ -401,6 +403,16 @@ public class BattleMgr : MonoBehaviour
         font.transform.SetParent(u.transform.Find("FontPos"));
         font.transform.localPosition = Vector2.zero;
         hf.animator.Play(type);
+    }
+
+    public void ShowFont(Unit u, string text)
+    {
+        GameObject font = Instantiate(HurtFont);
+        HurtFont hf = font.GetComponent<HurtFont>();
+        hf.tmp.text = text;
+        font.transform.SetParent(u.transform.Find("FontPos"));
+        font.transform.localPosition = Vector2.zero;
+        hf.animator.Play("ShowString");
     }
 
     public void CheckBattleEnd()

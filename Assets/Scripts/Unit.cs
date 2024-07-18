@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +20,7 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     public Animator Animator;
     public Image HpBar,Icon;
     public Transform CloseAtkPos,StartParent;
+    public RectTransform TMPNameNode;
     public CanvasGroup CanvasGroup;
     private EventSystem _EventSystem;
     private GraphicRaycaster gra;
@@ -367,17 +367,22 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
     public void Reload()
     {
+
+        print("Reload" + name);
         RemainAtkCount = TotalAtkCount;
         RemainCombCount = TotalCombCount;
+
+        print("RemainAtkCount" + name + RemainAtkCount);
     }
-    public void OnFinishAtk()
+    public void FindNextActionUnit()
     {
-        StartCoroutine(BattleMgr.Ins.PlayFirsrtAnimInQueue());
+        BattleMgr.Ins.FindNextActionUnit();
     }
 
     //在伤害字体动画时事件调用
     public void UnitDead()
     {
+        print("set" + name + " isdead true");
         isDead = true;
         if (!CompareTag("Our"))
         {
@@ -404,11 +409,60 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     {
         BattleMgr.Ins.ShowSkillName(this,SkillName);
     }
+    public bool TrySuccess(float successRate)
+    {
+        // 生成一个0到1之间的随机数（不包括1）  
+        float randomValue = Random.Range(0f, 1f);
+
+        // 如果随机数小于或等于成功率，则返回true，表示成功  
+        if (randomValue <= successRate)
+        {
+
+            print("判定成功");
+            return true;
+        }
+        // 否则返回false，表示失败  
+
+        print("判定失败");
+        return false;
+    }
+
+    public void GetRandomMagic(int value)
+    {
+        var r = Random.Range(0, 5);
+        if (r == 0)
+        {
+            Fire += value;
+            BattleMgr.Ins.ShowFont(this, "火属性+" + value);
+        }
+        else if (r == 1)
+        {
+            Water += value;
+            BattleMgr.Ins.ShowFont(this, "水属性+" + value);
+        }
+        else if (r == 2)
+        {
+            Wind += value;
+            BattleMgr.Ins.ShowFont(this, "风属性+" + value);
+        }
+        else if (r == 3)
+        {
+            Thunder += value;
+            BattleMgr.Ins.ShowFont(this, "雷属性+" + value);
+        }
+        else if (r == 4)
+        {
+            Earth += value;
+            BattleMgr.Ins.ShowFont(this, "土属性+" + value);
+        }
+    }
     public abstract void ExecuteAtk();
-    public abstract void AddAtkEffect();//在动画帧攻击之后调用
+    public abstract void AddAtkEffectOnAtk();//在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等)
+    public abstract void CaculDamageOnAtk();//输出的攻击伤害
     public abstract void ExecuteComb();
-    public abstract void CaculDamageOnAtk();
-    public abstract void CaculDamageOnComb();
-    public abstract void CaculDamageOnAtked(int DamageValueFromAtker);
+    public abstract void AddAtkEffectOnComb();//在动画帧攻击之后调用 加追打时特效(Debuff 追打养成等)
+    public abstract void CaculDamageOnComb();//输出的追打伤害
+    public abstract void CaculDamageOnAtked(int DamageValueFromAtker);//被攻击时特效 减伤 养成
+    public abstract void CaculDamageOnCombed(int DamageValueFromAtker);//被追打时特效 减伤 养成
     public abstract void OnTurnEnd();
 }

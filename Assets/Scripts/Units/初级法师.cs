@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class 初级剑士 : Unit
+public class 初级法师 : Unit
 {
     //public List<Buff> Buffs = new();
     private void Start()
@@ -18,8 +18,10 @@ public class 初级剑士 : Unit
         RemainAtkCount = 1;
         TotalCombCount = 1;
         RemainCombCount = 1;
-        CombTypes.Add("BuffBleed");
+        //不同角色不同追打
+        CombTypes.Add("BuffBurning");
     }
+    
     public override void ExecuteAtk()
     {
         BattleMgr.Ins.AtkU = this;
@@ -33,29 +35,17 @@ public class 初级剑士 : Unit
         {
             print("msg " + "play closeAtk1");
             Animator.Play("closeAtk1");//动画帧后段会计算伤害 在这之前获取目标
-            ShowSkillName("斩击");
-            
+            //不同角色不同技能名
+            ShowSkillName("火球");
+            GetRandomMagic(1);
         }
     }
-    //在普攻动画的帧上调用!!!
-    //攻击时计算增伤buff
-    public override void CaculDamageOnAtk()
-    {
-        var damage = Atk;
-
-        print("msg " + name + " CaculDamageOnAtk");
-        BattleMgr.Ins.AtkedU.CaculDamageOnAtked(damage);
-    }
+    //动画帧上调用
     public override void AddAtkEffectOnAtk()
     {
         print("check" + BattleMgr.Ins.AtkedU.name + " if isdead");
-
-        //特性:攻击之后攻击力提升
-        Atk++;
-        BattleMgr.Ins.ShowFont(this, "攻击力+1");
-        //加流血buff
         if (BattleMgr.Ins.AtkedU.isDead) return;
-        if (!TrySuccess(0.3f)) return;
+        if (!TrySuccess(0.5f)) return;
         if (BattleMgr.Ins.AtkedU != null)
         {
             BattleMgr.Ins.ShowFont(BattleMgr.Ins.AtkedU, 0, "GetBleed");
@@ -73,13 +63,23 @@ public class 初级剑士 : Unit
             BattleMgr.Ins.CheckComb(this, "BuffBleed");
         }
     }
+    //在普攻动画的帧上调用!!!
+    //攻击时计算增伤buff
+    public override void CaculDamageOnAtk()
+    {
+        var damage = Atk;
+
+        print("msg " + name + " CaculDamageOnAtk");
+        BattleMgr.Ins.AtkedU.CaculDamageOnAtked(damage);
+    }
     public override void ExecuteComb()
     {
         BattleMgr.Ins.CombU = this;
         Animator.Play("closeAtk2");
-        ShowSkillName("血刃");
+        //不同角色不同追打
+        ShowSkillName("熏风");
+        GetRandomMagic(1);
     }
-    //动画帧上调用
     //在追打动画的帧上调用!!!
     public override void CaculDamageOnComb()
     {
@@ -90,7 +90,6 @@ public class 初级剑士 : Unit
     {
         throw new NotImplementedException();
     }
-   
     //被攻击时计算减伤buff
     public override void CaculDamageOnAtked(int damage)
     {
@@ -110,9 +109,11 @@ public class 初级剑士 : Unit
             item.OnTurnEnd();
         }
     }
+
     public void Test()
     {
 
         print("test");
     }
+
 }
