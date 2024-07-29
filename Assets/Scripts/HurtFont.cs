@@ -14,7 +14,7 @@ public class HurtFont : MonoBehaviour
     //heal动画帧上调用
     public void UnitHeal()
     {
-        Unit u = transform.parent.parent.GetComponent<Unit>();
+        u = transform.parent.parent.GetComponent<Unit>();
         u.Hp += Value;
         Destroy(gameObject);
     }
@@ -24,7 +24,7 @@ public class HurtFont : MonoBehaviour
         u = transform.parent.parent.GetComponent<Unit>();
         u.Hp -= Value;
         u.UpdateHpBar();
-        if (u.Hp < 0)
+        if (u.Hp <= 0)
         {
             u.UnitDead();
         }
@@ -32,10 +32,10 @@ public class HurtFont : MonoBehaviour
     //动画事件 在hurt动画最后一帧调用
     public void UnitCheckDeath()
     {
+        u = transform.parent.parent.GetComponent<Unit>();
         if (u.isDead)
         {
             Destroy(u.transform.parent.gameObject);
-            BattleMgr.Ins.CheckBattleEnd();
         }
         else
         {

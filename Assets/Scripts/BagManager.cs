@@ -9,7 +9,6 @@ public class BagManager : MonoBehaviour
     public int CurrSlot,CurrMbr, Gold, ReptFire;
     public Button[] MbrBtns = new Button[4];
     public Image[] MbrImgs = new Image[4];
-    public List<Relic> RelicLt = new();
     public List<Item> BagLt = new();
     public TextMeshProUGUI DscrpTMP,DscrpNameTMP, UseNameTMP, OwnedTMP, SelTMP;
     public int[] BagPoint = { 0, 0, 0, 0, 0 }, BagPointMax = { 0, 0, 0, 0, 0 };
@@ -100,11 +99,6 @@ public class BagManager : MonoBehaviour
 
         BagPoint[idx] += num;
         BagPointMax[idx] += num;
-    }
-    public void AddRelics(string name)
-    {
-        RelicLt.Add(new Relic(name));
-        //TODO update ui
     }
 
     //绑定在UI/bagbtn上调用
@@ -245,23 +239,5 @@ public class Item
             Img = Resources.Load<Sprite>("Texture/Icon/Items/" + Name);
             Dscrp = CSVManager.Ins.全物品表[Name][2];
         }
-    }
-}
-
-[System.Serializable]
-public class Relic
-{
-    public string Name { get; }
-    public Sprite Img { get; }
-    public string Dscrp { get; }
-
-    public string Code { get; }
-    public Relic(string name)
-    {
-        Name = name;
-        string[] data = CSVManager.Ins.全遗物表[name];
-        Dscrp = data[3];
-        Code = data[3];
-        Img = Resources.Load<Sprite>(data[6]);
     }
 }

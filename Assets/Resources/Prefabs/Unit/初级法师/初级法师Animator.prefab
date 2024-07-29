@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3980820232128483769}
   - component: {fileID: 7133220625343294684}
   - component: {fileID: 9182642256774721149}
-  - component: {fileID: 5078115631693418888}
+  - component: {fileID: 3736973018563918386}
   - component: {fileID: 2778995353347806314}
   m_Layer: 5
   m_Name: "\u521D\u7EA7\u6CD5\u5E08Animator"
@@ -62,7 +62,7 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &5078115631693418888
+--- !u!114 &3736973018563918386
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -71,7 +71,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 279632705322490797}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a7debeeaa9707643a0fbe1134a781b5, type: 3}
+  m_Script: {fileID: 11500000, guid: e0aa8c5d517e1734cad2720441e9003b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Hp: 0
@@ -100,6 +100,7 @@ MonoBehaviour:
   Icon: {fileID: 0}
   CloseAtkPos: {fileID: 0}
   StartParent: {fileID: 0}
+  TMPNameNode: {fileID: 0}
   CanvasGroup: {fileID: 9182642256774721149}
   target: {fileID: 0}
   OriData:
@@ -309,7 +310,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u521D\u7EA7\u5251\u58EB"
+  m_text: "\u521D\u7EA7\u6CD5\u5E08"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 19aa96bbaf89c1a4fb7243ef415a56b3, type: 2}
   m_sharedMaterial: {fileID: -3841733724593954167, guid: 19aa96bbaf89c1a4fb7243ef415a56b3, type: 2}

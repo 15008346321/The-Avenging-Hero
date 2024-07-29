@@ -103,7 +103,7 @@ public class Shop : MonoBehaviour
             GoodsNode.GetChild(GoodsIndex).gameObject.SetActive(false);
             DetailTitleTMP.text = "再来点什么";
             DetailContentTMP.text = null;
-            ExecuteMgr.Ins.ExecuteCode(GoodsList[GoodsIndex][5]);
+            //ExecuteMgr.Ins.ExecuteCode(GoodsList[GoodsIndex][5]);
 
         }
         else

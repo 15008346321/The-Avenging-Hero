@@ -13,7 +13,7 @@ public class BattleMgr : MonoBehaviour
     public float TimeCout, CurrTime;
     public Dictionary<int,Unit> IDUnitPiar = new();
     public Unit player, AtkU, CombU, AtkedU;
-    public GameObject unit, HurtFont, ourObj, eneObj, 击退Pos1, 击退Pos2, 布阵提示, CombDetailPrefab;
+    public GameObject UnitObj, HurtFont, ourObj, eneObj, 击退Pos1, 击退Pos2, 布阵提示, CombDetailPrefab;
     public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount = 0,CombDetailCount;
     public string bonus, 当前追打状态;
@@ -22,7 +22,6 @@ public class BattleMgr : MonoBehaviour
     public Image[] PosSlots = new Image[9], CombDetailImgs = new Image[6];
     public TextMeshProUGUI[] CombDetailTMP = new TextMeshProUGUI[6];
     private Coroutine fadeCoroutine1 = null, fadeCoroutine2 = null;
-    public Dictionary<string, GameObject> UnitObj = new();
 
     public static BattleMgr Ins;
     private void Awake()
@@ -44,30 +43,16 @@ public class BattleMgr : MonoBehaviour
         BattleBtn.onClick.AddListener(OnBattleClick);
         //unit = Resources.Load("Prefabs/Unit/Unit") as GameObject;
         HurtFont = Resources.Load("Prefabs/HurtFont/Hurt") as GameObject;
+        UnitObj = Resources.Load("Prefabs/Unit/GameObject") as GameObject;
     }
-    public GameObject GetUnitObj(string name)
-    {
-        if (UnitObj.TryGetValue(name, out GameObject u))
-        {
 
-            return u;
-        }
-        else
-        {
-            GameObject g = Resources.Load("Prefabs/Unit/" + name + "/" + name) as GameObject;
-            UnitObj.Add(name, g);
-            return g;
-        }
-    }
     public void InitTeam()
     {
-        print("InitTeam");
         for (int i = 0; i < TeamManager.Ins.TeamData.Count; i++)
         {
             string uname = TeamManager.Ins.TeamData[i].Name;
-            GameObject g = GetUnitObj(uname);
-            Unit u = Instantiate(g).transform.GetChild(0).GetComponent<Unit>();
-            u.OriData = TeamManager.Ins.TeamData[i];
+            Unit u = Instantiate(UnitObj).transform.GetChild(0).GetComponent<Unit>();
+            u.OriData = TeamManager.Ins.TeamData[i];//修改属性 存档时修改
             u.Cell = TeamManager.Ins.TeamData[i].Cell;
             //ourObj.transform.GetChild(u.Cell - 1)
             u.transform.parent.SetParent(OurRunningPos.GetChild(i));
@@ -83,7 +68,36 @@ public class BattleMgr : MonoBehaviour
         }
         OurTeamRun();
     }
-
+    public void InitEnemys(string monsters)
+    {
+        //哥布林P1,哥布林P7,投石哥布林P5
+        BattleEnd = false;
+        EneRunningPos.transform.localPosition = new Vector2(1300, -140);
+        var enemys = monsters.Split('&');
+        for (int i = 0; i < enemys.Length; i++)
+        {
+            string eName = enemys[i].Split('P')[0];
+            int Pos = int.Parse(enemys[i].Split('P')[1]);
+            Unit u = Instantiate(UnitObj).transform.GetChild(0).GetComponent<Unit>();
+            u.tag = "Enemy";
+            //棋盘位置
+            u.Cell = Pos;
+            u.transform.parent.SetParent(EneRunningPos.GetChild(i));
+            u.transform.parent.localPosition = Vector2.zero;
+            u.transform.parent.localScale = new Vector2(-1, 1);
+            u.TMPNameNode.localScale = new Vector2(-1, 1);
+            u.EnemyInitAttr(eName);
+            //加进list
+            Enemys.Add(u);
+            AllUnit.Add(u);
+            u.ID = IDCount;
+            u.name = eName + u.ID;
+            IDCount += 1;
+            IDUnitPiar.Add(u.ID, u);
+        }
+        EneTeamRun();
+        EnterBattle();
+    }
     public void OurTeamIdle()
     {
         TeamIdle(Team);
@@ -145,36 +159,7 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public void InitBattle(string monsters)
-    {
-        //哥布林P1,哥布林P7,投石哥布林P5
-        BattleEnd = false;
-        EneRunningPos.transform.localPosition = new Vector2(1300, -140);
-        var enemys = monsters.Split('&');
-        for(int i = 0; i < enemys.Length; i++)
-        {
-            string eName = enemys[i].Split('P')[0];
-            int Pos = int.Parse(enemys[i].Split('P')[1]);
-            Unit u = Instantiate(GetUnitObj(eName)).transform.GetChild(0).GetComponent<Unit>();
-            u.tag = "Enemy";
-            //棋盘位置
-            u.Cell = Pos;
-            u.transform.parent.SetParent(EneRunningPos.GetChild(i));
-            u.transform.parent.localPosition = Vector2.zero;
-            u.transform.parent.localScale = new Vector2(-1, 1);
-            u.TMPNameNode.localScale = new Vector2(-1, 1);
-            u.EnemyInitAttr(eName);
-            //加进list
-            Enemys.Add(u);
-            AllUnit.Add(u);
-            u.ID = IDCount;
-            u.name = eName + u.ID;
-            IDCount += 1;
-            IDUnitPiar.Add(u.ID, u);
-        }
-        EneTeamRun();
-        EnterBattle();
-    }
+    
 
     public void SetPosSlotAlpha(float alpha)
     {
@@ -224,16 +209,16 @@ public class BattleMgr : MonoBehaviour
         AllUnit.Sort((u1, u2) => u2.Speed.CompareTo(u1.Speed));
     }
 
-    public void FindNextActionUnit(int wait = 0)
+    public void FindNextActionUnit(float wait = 0.5f)
     {
         SortBySpeed();
         foreach (var item in AllUnit)
         {
-            if(item.RemainAtkCount > 0)
+            if(item.AtkSkill.RemainAtkCount > 0)
             {
                 //用ID遍历AllUnit找到对应的Unit调用普攻
                 AnimQueue.Add(item.ID + ":NormalAtk");
-                item.RemainAtkCount -= 1;
+                item.AtkSkill.RemainAtkCount -= 1;
                 break;
             }
         }
@@ -241,31 +226,8 @@ public class BattleMgr : MonoBehaviour
         StartCoroutine(PlayFirsrtAnimInQueue(wait));
     }
 
-    public void CheckComb(Unit u,string currDebuff)
+    public IEnumerator PlayFirsrtAnimInQueue(float waitfor = 0)
     {
-        List<Unit> units;
-        if (u.CompareTag("Our"))
-        {
-            units = Team;
-        }
-        else
-        {
-            units = Enemys;
-        }
-        foreach (var item in units)
-        {
-            if (item.CombTypes.Contains(currDebuff) && item.RemainCombCount > 0)
-            {
-                AnimQueue.Insert(0,item.ID + ":Comb");
-                item.RemainCombCount -= 1;
-                break;
-            }
-        }
-    }
-
-    public IEnumerator PlayFirsrtAnimInQueue(int waitfor = 0)
-    {
-        print("PlayFirsrtAnimInQueue");
         if (waitfor != 0)
         {
             yield return new WaitForSeconds(waitfor);
@@ -304,34 +266,7 @@ public class BattleMgr : MonoBehaviour
         return Ins.TeamMain[0];
     }
 
-    public Unit GetOppositeTarget()
-    {
-        GameObject SearchFor;
-        if (AtkU.CompareTag("Our")) { SearchFor = eneObj; }
-        else { SearchFor = ourObj; }
-        if (new[] { 1, 4, 7 }.Contains(AtkU.Cell))
-        {
-            //受击单位第一排
-            if (SearchFor.transform.GetChild(0).childCount > 0) return SearchFor.transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(3).childCount > 0) return SearchFor.transform.GetChild(3).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(6).childCount > 0) return SearchFor.transform.GetChild(6).GetChild(0).GetChild(0).GetComponent<Unit>();
-        }
-        else if (new[] { 2, 5, 8 }.Contains(AtkU.Cell))
-        {
-            //第二排
-            if (SearchFor.transform.GetChild(1).childCount > 0) return SearchFor.transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(4).childCount > 0) return SearchFor.transform.GetChild(4).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(7).childCount > 0) return SearchFor.transform.GetChild(7).GetChild(0).GetChild(0).GetComponent<Unit>();
-        }
-        else
-        {
-            //第三排
-            if (SearchFor.transform.GetChild(2).childCount > 0) return SearchFor.transform.GetChild(2).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(5).childCount > 0) return SearchFor.transform.GetChild(5).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(8).childCount > 0) return SearchFor.transform.GetChild(8).GetChild(0).GetChild(0).GetComponent<Unit>();
-        }
-        return null;
-    }
+    
 
     public void ShowSkillName(Unit u,string SkillName)
     {
@@ -356,7 +291,19 @@ public class BattleMgr : MonoBehaviour
         }
         
     }
+    public bool TrySuccess(float successRate)
+    {
+        // 生成一个0到1之间的随机数（不包括1）  
+        float randomValue = Random.Range(0f, 1f);
 
+        // 如果随机数小于或等于成功率，则返回true，表示成功  
+        if (randomValue <= successRate)
+        {
+            return true;
+        }
+        // 否则返回false，表示失败  
+        return false;
+    }
     private IEnumerator FadeName(Unit u,string SkillName)
     {
         CombDetailCount += 1;
@@ -376,7 +323,7 @@ public class BattleMgr : MonoBehaviour
             Destroy(t.GetChild(0).gameObject);
         }
         // 等待3秒  
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(2f);
 
         // 渐变到alpha为0
         for (int i = 0; i < t.childCount -1; i++)
@@ -395,7 +342,6 @@ public class BattleMgr : MonoBehaviour
 
     public void ShowFont(Unit u, int value, string type)
     {
-        print("ShowFont type" + type);
         GameObject font = Instantiate(HurtFont);
         HurtFont hf = font.GetComponent<HurtFont>();
         hf.Value = value;
@@ -415,12 +361,13 @@ public class BattleMgr : MonoBehaviour
         hf.animator.Play("ShowString");
     }
 
-    public void CheckBattleEnd()
+    public bool CheckBattleEnd()
     {
         if (Enemys.Count == 0 || Team.Count == 0)
         {
-            ExitBattle();
+            return true;
         }
+        return false;
     }
 
     public void OnTurnEnd()

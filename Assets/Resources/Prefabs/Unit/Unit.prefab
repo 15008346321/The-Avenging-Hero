@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3980820232128483769}
   - component: {fileID: 7133220625343294684}
-  - component: {fileID: 1734418920019840579}
   - component: {fileID: 9182642256774721149}
+  - component: {fileID: 1530842027261911792}
   m_Layer: 5
   m_Name: Unit
   m_TagString: Untagged
@@ -50,7 +50,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 279632705322490797}
   m_CullTransparentMesh: 1
---- !u!114 &1734418920019840579
+--- !u!225 &9182642256774721149
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279632705322490797}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1530842027261911792
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -71,30 +83,36 @@ MonoBehaviour:
   Wind: 0
   Thunder: 0
   Earth: 0
-  "\u68CB\u76D8\u4F4D\u7F6E": 0
-  "\u53D7\u5230\u653B\u51FB\u65F6": []
+  Cell: 0
+  Speed: 0
+  ID: 0
+  CombTypes: []
   isBoss: 0
   isDead: 0
-  isOurTeam: 0
   hvaeComb: 0
-  AP: {fileID: 2284813154245764465}
-  HpBar: {fileID: 2078362150354732331}
-  Icon: {fileID: 3331427940510804256}
-  CloseAtkPos: {fileID: 7646026440649473579}
+  Animator: {fileID: 0}
+  HpBar: {fileID: 0}
+  Icon: {fileID: 0}
+  CloseAtkPos: {fileID: 0}
   StartParent: {fileID: 0}
-  CanvasGroup: {fileID: 9182642256774721149}
---- !u!225 &9182642256774721149
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 279632705322490797}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
+  TMPNameNode: {fileID: 0}
+  CanvasGroup: {fileID: 0}
+  target: {fileID: 0}
+  OriData:
+    MaxHp: 0
+    Atk: 0
+    Fire: 0
+    Water: 0
+    Wind: 0
+    Thunder: 0
+    Earth: 0
+    Cell: 0
+    Name: 
+    AtkName: 
+    AtkDscrp: 
+    CombName: 
+    CombDscrp: 
+    sprite: {fileID: 0}
 --- !u!1 &1908832851404501657
 GameObject:
   m_ObjectHideFlags: 0

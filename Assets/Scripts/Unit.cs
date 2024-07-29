@@ -4,18 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Linq;
 
-public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
+public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
     public int Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Cell,Speed,ID;
-    public int TotalAtkCount = 1;
-    public int RemainAtkCount = 1;
-    public int TotalCombCount = 1;
-    public int RemainCombCount = 1;
     public Skill Unique,NormalAtk,Comb;
+    public AtkBase AtkSkill;
+    public CombBase CombSkill;
     public List<string> CombTypes = new();
-    [SerializeField]
-    public List<Buff> Buffs = new();
+    public List<BuffBase> Buffs = new();
     public bool isBoss, isDead, hvaeComb;
     public Animator Animator;
     public Image HpBar,Icon;
@@ -26,12 +24,20 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     private GraphicRaycaster gra;
     public Unit target;
     public UnitData OriData;
+
+    public bool IsBlinded
+    {
+        get
+        {
+            return Buffs?.Any(buff => buff is BuffBlind) ?? false;
+        }
+    }
+    #region====初始化方法
     private void Awake()
     {
         _EventSystem = FindObjectOfType<EventSystem>();
         gra = FindObjectOfType<GraphicRaycaster>();
     }
-
     public void EnemyInitAttr(string Mname)
     {
         //0id 1名称2最大生命值3攻击4火5水6风7雷8土9特性10普攻11追打12被动
@@ -56,7 +62,6 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         //AttrInfo.Instance.ShowInfo(this);
         //AP.Play("idle");
     }
-
     public void TeamInitAttr(UnitData data)
     {
         name = data.Name;
@@ -71,14 +76,11 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
         Wind = data.Wind;
         Thunder = data.Thunder;
         Earth = data.Earth;
-    }
 
-    public void UpdateHpBar()
-    {
-        //c# int 1/int 3 = 0
-        HpBar.fillAmount = (float)Hp / (float)MaxHp;
+        AtkSkill = new 斩击(this);
     }
-
+    #endregion
+    #region ====拖动方法
     public void OnBeginDrag(PointerEventData eventData)
     {
         StartParent = transform.parent;
@@ -152,13 +154,14 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
 
         mPointerEventData.position = pos;
 
-        List<RaycastResult> results = new List<RaycastResult>();
+        List<RaycastResult> results = new();
 
         gra.Raycast(mPointerEventData, results);
 
         return results;
     }
-
+    #endregion
+    #region ====战斗中移动
     public void UnitMove(int TargetCell)
     {
         Transform moveParent = transform.parent;
@@ -363,22 +366,83 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
                 UnitMove(8);
             }
         }
+        else
+        {
+            BattleMgr.Ins.ShowFont(this, "行动失败");
+        }
     }
-
+    #endregion
+    #region====流程方法
     public void Reload()
     {
-
-        print("Reload" + name);
-        RemainAtkCount = TotalAtkCount;
-        RemainCombCount = TotalCombCount;
-
-        print("RemainAtkCount" + name + RemainAtkCount);
+        AtkSkill.RemainAtkCount = AtkSkill.TotalAtkCount;
+        CombSkill.RemainCombCount = CombSkill.TotalCombCount;
     }
     public void FindNextActionUnit()
     {
+        if (BattleMgr.Ins.CheckBattleEnd())
+        {
+            BattleMgr.Ins.ExitBattle();
+            return;
+        }
         BattleMgr.Ins.FindNextActionUnit();
     }
-
+    #endregion
+    #region====单位通用方法
+    public Unit GetOppositeTarget()
+    {
+        GameObject SearchFor;
+        if (CompareTag("Our")) { SearchFor = BattleMgr.Ins.eneObj; }
+        else { SearchFor = BattleMgr.Ins.ourObj; }
+        if (new[] { 1, 4, 7 }.Contains(Cell))
+        {
+            //受击单位第一排
+            if (SearchFor.transform.GetChild(0).childCount > 0) return SearchFor.transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(3).childCount > 0) return SearchFor.transform.GetChild(3).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(6).childCount > 0) return SearchFor.transform.GetChild(6).GetChild(0).GetChild(0).GetComponent<Unit>();
+        }
+        else if (new[] { 2, 5, 8 }.Contains(Cell))
+        {
+            //第二排
+            if (SearchFor.transform.GetChild(1).childCount > 0) return SearchFor.transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(4).childCount > 0) return SearchFor.transform.GetChild(4).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(7).childCount > 0) return SearchFor.transform.GetChild(7).GetChild(0).GetChild(0).GetComponent<Unit>();
+        }
+        else
+        {
+            //第三排
+            if (SearchFor.transform.GetChild(2).childCount > 0) return SearchFor.transform.GetChild(2).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(5).childCount > 0) return SearchFor.transform.GetChild(5).GetChild(0).GetChild(0).GetComponent<Unit>();
+            if (SearchFor.transform.GetChild(8).childCount > 0) return SearchFor.transform.GetChild(8).GetChild(0).GetChild(0).GetComponent<Unit>();
+        }
+        return null;
+    }
+    public void CheckComb(string currDebuff)
+    {
+        List<Unit> units;
+        if (CompareTag("Our"))
+        {
+            units = BattleMgr.Ins.Team;
+        }
+        else
+        {
+            units = BattleMgr.Ins.Enemys;
+        }
+        foreach (var item in units)
+        {
+            if (item.CombTypes.Contains(currDebuff) && item.CombSkill.RemainCombCount > 0)
+            {
+                BattleMgr.Ins.AnimQueue.Insert(0, item.ID + ":Comb");
+                item.CombSkill.RemainCombCount -= 1;
+                break;
+            }
+        }
+    }
+    public void UpdateHpBar()
+    {
+        //c# int 1/int 3 = 0
+        HpBar.fillAmount = (float)Hp / (float)MaxHp;
+    }
     //在伤害字体动画时事件调用
     public void UnitDead()
     {
@@ -409,24 +473,8 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
     {
         BattleMgr.Ins.ShowSkillName(this,SkillName);
     }
-    public bool TrySuccess(float successRate)
-    {
-        // 生成一个0到1之间的随机数（不包括1）  
-        float randomValue = Random.Range(0f, 1f);
-
-        // 如果随机数小于或等于成功率，则返回true，表示成功  
-        if (randomValue <= successRate)
-        {
-
-            print("判定成功");
-            return true;
-        }
-        // 否则返回false，表示失败  
-
-        print("判定失败");
-        return false;
-    }
-
+    
+    #endregion
     public void GetRandomMagic(int value)
     {
         var r = Random.Range(0, 5);
@@ -456,13 +504,109 @@ public abstract class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndD
             BattleMgr.Ins.ShowFont(this, "土属性+" + value);
         }
     }
-    public abstract void ExecuteAtk();
-    public abstract void AddAtkEffectOnAtk();//在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等)
-    public abstract void CaculDamageOnAtk();//输出的攻击伤害
-    public abstract void ExecuteComb();
-    public abstract void AddAtkEffectOnComb();//在动画帧攻击之后调用 加追打时特效(Debuff 追打养成等)
-    public abstract void CaculDamageOnComb();//输出的追打伤害
-    public abstract void CaculDamageOnAtked(int DamageValueFromAtker);//被攻击时特效 减伤 养成
-    public abstract void CaculDamageOnCombed(int DamageValueFromAtker);//被追打时特效 减伤 养成
-    public abstract void OnTurnEnd();
+    #region====单位继承方法
+    public void ExecuteAtk()
+    {
+        BattleMgr.Ins.AtkU = this;
+        AtkSkill.GetTargets();
+        if (AtkSkill.Targets.Count == 0)//没有目标就走位 然后进行下一个
+        {
+            MoveToEnemyFrontRow();
+            BattleMgr.Ins.FindNextActionUnit();
+        }
+        else
+        {
+            if (IsBlinded)
+            {
+                BattleMgr.Ins.ShowFont(this, "行动失败");
+                BattleMgr.Ins.FindNextActionUnit();
+                return;
+            }
+            Animator.Play("closeAtk1");//后面两方法在动画帧后段调用
+        }
+    }
+   
+    //输出的攻击伤害
+    public void CaculDamageOnAtk()
+    {
+        AtkSkill.AtkTargets();
+    }
+    //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等)
+    public void AddAtkEffectOnAtk()
+    {
+        AtkSkill.AddEffectAfterAtk();
+    }
+    public void ExecuteComb() 
+    {
+        BattleMgr.Ins.CombU = this;
+        CombSkill.GetTargets();
+        Animator.Play("closeAtk2");
+    }
+    //输出的追打伤害
+    public void CaculDamageOnComb()
+    {
+        CombSkill.CombTargets();
+    }
+    //在动画帧攻击之后调用 加追打时特效(Debuff 追打养成等)
+    public void AddAtkEffectOnComb()
+    {
+        CombSkill.AddEffectAfterComb();
+    }
+    public void TakeAtkDamage(Unit DamageFrom, float rate, string DamageType = "Atk")
+    {
+        int damage;
+        float damageReduce = 1, damageRate = 1;
+        switch (DamageType)
+        {
+            case "Fire":
+                damageReduce = DamageFrom.Fire / (DamageFrom.Fire + Fire);
+                if (DamageFrom.Fire > Fire) damageRate = 1 + (Wind / (Wind + 50));
+                damage = Mathf.RoundToInt(DamageFrom.Fire * damageReduce * damageRate);
+                break;
+            case "Water":
+                damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
+                if (DamageFrom.Water > Water) damageRate = 1 + (Fire / (Fire + 50));
+                damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
+                break;
+            case "Wind":
+                damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
+                if (DamageFrom.Wind > Wind) damageRate = 1 + (Earth / (Earth + 50));
+                damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
+                break;
+            case "Thunder":
+                damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
+                if (DamageFrom.Thunder > Thunder) damageRate = 1 + (Water / (Water + 50));
+                damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
+                break;
+            case "Earth":
+                damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
+                if (DamageFrom.Earth > Earth) damageRate = 1 + (Thunder / (Thunder + 50));
+                damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
+                break;
+            default:
+                damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
+                damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
+                break;
+        }
+        damage = Mathf.RoundToInt(damage * rate);
+        BattleMgr.Ins.ShowFont(this, damage, "Hurt");
+    }//被攻击时特效 减伤 养成
+
+    public void OnAtked(int DamageValueFromAtker)
+    {
+
+    }
+
+    public void OnCombed(int DamageValueFromAtker)
+    {
+
+    }
+    public void OnTurnEnd()
+    {
+        foreach (var item in Buffs)
+        {
+            item.OnTurnEnd();
+        }
+    }
+    #endregion
 }

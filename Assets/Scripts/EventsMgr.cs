@@ -213,7 +213,7 @@ public class EventsMgr : MonoBehaviour
 
     public void RelicsChoose(int idx)
     {
-        ExecuteMgr.Ins.ExecuteCode(RelicsList[idx][5]);
+        //ExecuteMgr.Ins.ExecuteCode(RelicsList[idx][5]);
         //TODO添加遗物ui并做一些动效
         //AddRelicsIcon();
         GenNewRoom();
@@ -226,7 +226,7 @@ public class EventsMgr : MonoBehaviour
     public void SetRoadToBattle()
     {
         SetRandomBattles();
-        BattleMgr.Ins.InitBattle(monsters);
+        BattleMgr.Ins.InitEnemys(monsters);
         ScrollBg.Ins.MoveEnemy = true;
     }
 
@@ -350,7 +350,8 @@ public class EventsMgr : MonoBehaviour
                 break;
         }
         //TODO道具属性飞入动画
-        ExecuteMgr.Ins.ExecuteCode(code);
+        BattleMgr.Ins.OurTeamRun();
+        //ExecuteMgr.Ins.ExecuteCode(code);
         EventContentNode.gameObject.SetActive(false);
         RoadParentNode.gameObject.SetActive(true);
         GenNewRoom();

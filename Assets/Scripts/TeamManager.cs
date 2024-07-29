@@ -9,16 +9,13 @@ public class TeamManager : MonoBehaviour
 {
     public static TeamManager Ins;
     public List<UnitData> TeamData = new();
-    public Button[] MbrInfoBtn = new Button[4], MbrSelBtns = new Button[4];
-    public TextMeshProUGUI[] T1AttrTMP = new TextMeshProUGUI[7], T2AttrTMP = new TextMeshProUGUI[7],
-        T3AttrTMP = new TextMeshProUGUI[7], T4AttrTMP = new TextMeshProUGUI[7], T1ItemNameTMP = new TextMeshProUGUI[6],
-        T2ItemNameTMP = new TextMeshProUGUI[6], T3ItemNameTMP = new TextMeshProUGUI[6], T4ItemNameTMP = new TextMeshProUGUI[6],
-        NamesTMP = new TextMeshProUGUI[4];
+    public Button[] MbrBtn = new Button[4];
+    public TextMeshProUGUI[] MbrBtnTMP = new TextMeshProUGUI[4], DetailAttrTMP = new TextMeshProUGUI[7],
+        DetailTraitTMP = new TextMeshProUGUI[4];
     public List<TextMeshProUGUI[]> Attrs = new(),Items = new();
-    public TextMeshProUGUI AtkName, AtkDscrp, CombName, CombDscrp, SpecialName, SpecialDscrp,
-        WeaponName, WeaponDscrp, ArmorName, ArmorDscrp, SupportName, SupportDscrp;
-    public Image[] MbrImgs = new Image[4], T1EqpImgs = new Image[6], T2EqpImgs = new Image[6],
-        T3EqpImgs = new Image[6], T4EqpImgs = new Image[6],SkillInfoImgs = new Image[6];
+    public TextMeshProUGUI DetailName,AtkName, AtkDscrp, CombName, CombDscrp, WeaponName, WeaponDscrp, 
+        ArmorName, ArmorDscrp, SupportName, SupportDscrp;
+    public Image[] MbrImgs = new Image[4], DetailImgs = new Image[5];
     public int MbrSelIdx = 0, MbrInfoIdx = 0;
     public GameObject TeamNode,DetailNode;
     //TODO 火属性额外伤害， 水属性生命上限治疗效果，风属性速度，雷属性魔抗，土属性物抗护盾
@@ -30,18 +27,6 @@ public class TeamManager : MonoBehaviour
     void Start()
     {
         InitTeam();
-        Init();
-    }
-    public void Init()
-    {
-        Attrs.Add(T1AttrTMP);
-        Attrs.Add(T2AttrTMP);
-        Attrs.Add(T3AttrTMP);
-        Attrs.Add(T4AttrTMP);
-        Items.Add(T1ItemNameTMP);
-        Items.Add(T2ItemNameTMP);
-        Items.Add(T3ItemNameTMP);
-        Items.Add(T4ItemNameTMP);
     }
     private void InitTeam()
     {
@@ -52,7 +37,7 @@ public class TeamManager : MonoBehaviour
         TeamData.Add(new UnitData(CSVManager.Ins.模板参数["初级剑士"],4));
     }
 
-    //UI:TeamBtn
+    //在UI/TeamBtn按钮上绑定
     public void ShowTeam()
     {
         TeamNode.SetActive(true);
@@ -63,9 +48,9 @@ public class TeamManager : MonoBehaviour
             Items[idx][0].text = item.NormalAtk.Name;
             Items[idx][1].text = item.Comb.Name;
             Items[idx][2].text = item.Special.Name;
-            Items[idx][3].text = item.relic1.Name;
-            Items[idx][4].text = item.relic2.Name;
-            Items[idx][5].text = item.relic3.Name;
+            //Items[idx][3].text = item.relic1.Name;
+            //Items[idx][4].text = item.relic2.Name;
+            //Items[idx][5].text = item.relic3.Name;
             //    Attrs[idx][0].text = item.MaxHp.ToString();
             //    Attrs[idx][1].text = item.Atk.ToString();
             //    Attrs[idx][2].text = item.Fire.ToString();
@@ -75,7 +60,9 @@ public class TeamManager : MonoBehaviour
             //    Attrs[idx][6].text = item.Earth.ToString();
             //    idx += 1;
         }
+        ShowDetail();
     }
+    //Btn上绑定调用
     public void ShowDetail()
     {
         DetailNode.SetActive(true);
@@ -83,23 +70,23 @@ public class TeamManager : MonoBehaviour
         AtkDscrp.text = TeamData[MbrInfoIdx].NormalAtk.Dscrp;
         CombName.text = TeamData[MbrInfoIdx].Comb.Name;
         CombDscrp.text = TeamData[MbrInfoIdx].Comb.Dscrp;
-        SpecialName.text = TeamData[MbrInfoIdx].Special.Name;
-        SpecialDscrp.text = TeamData[MbrInfoIdx].Special.Dscrp;
-        WeaponName.text = TeamData[MbrInfoIdx].relic1.Name;
-        WeaponDscrp.text = TeamData[MbrInfoIdx].relic1.Dscrp;
-        ArmorName.text = TeamData[MbrInfoIdx].relic2.Name;
-        ArmorDscrp.text = TeamData[MbrInfoIdx].relic2.Dscrp;
-        SupportName.text = TeamData[MbrInfoIdx].relic3.Name;
-        SupportDscrp.text = TeamData[MbrInfoIdx].relic3.Dscrp;
+        //SpecialName1.text = TeamData[MbrInfoIdx].Special.Name;
+        //SpecialDscrp1.text = TeamData[MbrInfoIdx].Special.Dscrp;
+        //WeaponName.text = TeamData[MbrInfoIdx].relic1.Name;
+        //WeaponDscrp.text = TeamData[MbrInfoIdx].relic1.Dscrp;
+        //ArmorName.text = TeamData[MbrInfoIdx].relic2.Name;
+        //ArmorDscrp.text = TeamData[MbrInfoIdx].relic2.Dscrp;
+        //SupportName.text = TeamData[MbrInfoIdx].relic3.Name;
+        //SupportDscrp.text = TeamData[MbrInfoIdx].relic3.Dscrp;
     }
 }
 [Serializable]
 public class UnitData
 {
     public int MaxHp, Atk, Fire, Water, Wind, Thunder, Earth, Cell;
-    public string Name;
+    public string Name,AtkName,AtkDscrp,CombName,CombDscrp;
     public Skill Special, NormalAtk, Comb;
-    public Relic relic1, relic2, relic3;
+    public BuffBase Weapon, Armor, Support, Special1, Special2, Special3, Special4;
     public Sprite sprite;
 
     public UnitData(string[] data, int pos)
