@@ -45,9 +45,9 @@ public class TeamManager : MonoBehaviour
         foreach (var item in TeamData)
         {
             //NamesTMP[idx].text = item.Name;
-            Items[idx][0].text = item.NormalAtk.Name;
-            Items[idx][1].text = item.Comb.Name;
-            Items[idx][2].text = item.Special.Name;
+            //Items[idx][0].text = item.NormalAtk.Name;
+            //Items[idx][1].text = item.Comb.Name;
+            //Items[idx][2].text = item.Special.Name;
             //Items[idx][3].text = item.relic1.Name;
             //Items[idx][4].text = item.relic2.Name;
             //Items[idx][5].text = item.relic3.Name;
@@ -66,10 +66,10 @@ public class TeamManager : MonoBehaviour
     public void ShowDetail()
     {
         DetailNode.SetActive(true);
-        AtkName.text = TeamData[MbrInfoIdx].NormalAtk.Name;
-        AtkDscrp.text = TeamData[MbrInfoIdx].NormalAtk.Dscrp;
-        CombName.text = TeamData[MbrInfoIdx].Comb.Name;
-        CombDscrp.text = TeamData[MbrInfoIdx].Comb.Dscrp;
+        //AtkName.text = TeamData[MbrInfoIdx].NormalAtk.Name;
+        //AtkDscrp.text = TeamData[MbrInfoIdx].NormalAtk.Dscrp;
+        //CombName.text = TeamData[MbrInfoIdx].Comb.Name;
+        //CombDscrp.text = TeamData[MbrInfoIdx].Comb.Dscrp;
         //SpecialName1.text = TeamData[MbrInfoIdx].Special.Name;
         //SpecialDscrp1.text = TeamData[MbrInfoIdx].Special.Dscrp;
         //WeaponName.text = TeamData[MbrInfoIdx].relic1.Name;
@@ -84,9 +84,7 @@ public class TeamManager : MonoBehaviour
 public class UnitData
 {
     public int MaxHp, Atk, Fire, Water, Wind, Thunder, Earth, Cell;
-    public string Name,AtkName,AtkDscrp,CombName,CombDscrp;
-    public Skill Special, NormalAtk, Comb;
-    public BuffBase Weapon, Armor, Support, Special1, Special2, Special3, Special4;
+    public string Name,AtkName,CombName,WeaponName,ArmorName,SupportName,Special1, Special2, Special3, Special4;
     public Sprite sprite;
 
     public UnitData(string[] data, int pos)
@@ -94,7 +92,8 @@ public class UnitData
         Name = data[1];
         Cell = pos;
 
-        MaxHp = int.TryParse(data[2], out int result) ? result : 0;
+        int result;
+        MaxHp   = int.TryParse(data[2], out result) ? result : 0;
         Atk     = int.TryParse(data[3], out result) ? result : 0;
         Fire    = int.TryParse(data[4], out result) ? result : 0;
         Water   = int.TryParse(data[5], out result) ? result : 0;
@@ -102,6 +101,10 @@ public class UnitData
         Thunder = int.TryParse(data[7], out result) ? result : 0;
         Earth   = int.TryParse(data[8], out result) ? result : 0;
 
+        AtkName  = data[9];
+        CombName = data[10];
+        Special1 = data[11];
+        //Todo 特性 装备
         //sprite = CSVManager.Ins.Character[Name];
     }
 }

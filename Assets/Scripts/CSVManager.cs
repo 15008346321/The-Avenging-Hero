@@ -132,9 +132,9 @@ public class CSVManager : MonoBehaviour
         using StreamWriter writer = new StreamWriter(filePath);
         foreach (var unit in TeamManager.Ins.TeamData)
         {
-            writer.WriteLine($"{unit.Name},{unit.MaxHp},{unit.Atk},{unit.Fire},{unit.Water}" +
-                $",{unit.Wind},{unit.Thunder},{unit.Earth},{unit.Special},{unit.NormalAtk},{unit.Comb}" +
-                $",{unit.Special},{unit.Cell}");
+            //writer.WriteLine($"{unit.Name},{unit.MaxHp},{unit.Atk},{unit.Fire},{unit.Water}" +
+            //    $",{unit.Wind},{unit.Thunder},{unit.Earth},{unit.Special},{unit.NormalAtk},{unit.Comb}" +
+            //    $",{unit.Special},{unit.Cell}");
         }
     }
 }

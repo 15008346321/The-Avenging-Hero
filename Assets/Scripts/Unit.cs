@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
+using System;
 
 public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
     public int Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Cell,Speed,ID;
-    public Skill Unique,NormalAtk,Comb;
     public AtkBase AtkSkill;
     public CombBase CombSkill;
     public List<string> CombTypes = new();
@@ -20,8 +20,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public Transform CloseAtkPos,StartParent;
     public RectTransform TMPNameNode;
     public CanvasGroup CanvasGroup;
-    private EventSystem _EventSystem;
-    private GraphicRaycaster gra;
+    public EventSystem _EventSystem;
+    public GraphicRaycaster gra;
     public Unit target;
     public UnitData OriData;
 
@@ -33,7 +33,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
     }
     #region====初始化方法
-    private void Awake()
+    public void Awake()
     {
         _EventSystem = FindObjectOfType<EventSystem>();
         gra = FindObjectOfType<GraphicRaycaster>();
@@ -66,9 +66,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         name = data.Name;
         //Icon.sprite = data.sprite;
-        NormalAtk = data.NormalAtk;
-        Comb = data.Comb;
-        Unique = data.Special;
+        AtkSkill = Activator.CreateInstance(Type.GetType(data.AtkName)) as AtkBase;
         Hp = MaxHp = data.MaxHp;
         Atk = data.Atk;
         Fire = data.Fire;
@@ -77,7 +75,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         Thunder = data.Thunder;
         Earth = data.Earth;
 
-        AtkSkill = new 斩击(this);
     }
     #endregion
     #region ====拖动方法
@@ -477,7 +474,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #endregion
     public void GetRandomMagic(int value)
     {
-        var r = Random.Range(0, 5);
+        var r = UnityEngine.Random.Range(0, 5);
         if (r == 0)
         {
             Fire += value;

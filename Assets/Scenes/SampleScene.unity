@@ -11088,7 +11088,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &627184246
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11171,7 +11171,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1684852322}
         m_TargetAssemblyTypeName: Test, Assembly-CSharp
-        m_MethodName: test1
+        m_MethodName: Test3
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -32997,7 +32997,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1684852321
 RectTransform:
   m_ObjectHideFlags: 0
@@ -33080,7 +33080,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1684852322}
         m_TargetAssemblyTypeName: Test, Assembly-CSharp
-        m_MethodName: testSave
+        m_MethodName: Test1
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -38153,7 +38153,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2000938245
 RectTransform:
   m_ObjectHideFlags: 0
@@ -38236,7 +38236,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1684852322}
         m_TargetAssemblyTypeName: Test, Assembly-CSharp
-        m_MethodName: testLoad
+        m_MethodName: Test2
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

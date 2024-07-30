@@ -203,14 +203,14 @@ public class ExecuteMgr : MonoBehaviour
 
         if (c)
         {
-            BattleMgr.Ins.当前追打状态 = BattleMgr.Ins.AtkU.NormalAtk.造成状态;
+            //BattleMgr.Ins.当前追打状态 = BattleMgr.Ins.AtkU.NormalAtk.造成状态;
             //StartCoroutine(BattleMgr.Ins.进行追打());
         }
     }
 
     public void ExecuteComb()
     {
-        BattleMgr.Ins.当前追打状态 = BattleMgr.Ins.CombU.Comb.造成状态;
+        //BattleMgr.Ins.当前追打状态 = BattleMgr.Ins.CombU.CombSkill.造成状态;
         print("msg 当前追打状态" + BattleMgr.Ins.当前追打状态);
     }
 

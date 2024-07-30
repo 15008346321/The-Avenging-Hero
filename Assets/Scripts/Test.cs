@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System.IO;
+using System.Reflection;
+using System;
 
 public class Test : MonoBehaviour
 {
     // Start is called before the first frame update
     public Transform u, t;
     public Unit unit;
-    public AtkBase skill;
+    public AtkBase skill, AtkSkill1, AtkSkill2;
     public string filePath;
 
     private void Start()
@@ -20,7 +22,7 @@ public class Test : MonoBehaviour
     {
         //u.DOMove(t.position, 1f);
         unit = BattleMgr.Ins.UnitObj.transform.GetChild(0).GetComponent<Unit>();
-        skill = new 斩击(unit);
+        //skill = new 斩击(unit);
         string json = JsonUtility.ToJson(skill);
 
         print(filePath);
@@ -30,12 +32,25 @@ public class Test : MonoBehaviour
 
     public void testLoad()
     {
-        string json = File.ReadAllText(filePath);
-        skill = JsonUtility.FromJson<斩击>(json); 
+        //string json = File.ReadAllText(filePath);
+        //string a = "斩击";
+        //Type t = Type.GetType(a);
+        //skill = JsonUtility.FromJson<t>(json); 
+
     }
-    public void test1()
+    public void Test1()
     {
-        skill.test();
+
+        AtkSkill1 = Activator.CreateInstance(Type.GetType("火球")) as AtkBase;
+        AtkSkill2 = Activator.CreateInstance(Type.GetType("斩击")) as AtkBase;
+    }
+    public void Test2()
+    {
+        AtkSkill1.Test();
+    }
+    public void Test3()
+    {
+        AtkSkill2.Test();
     }
 
     //public void test1()

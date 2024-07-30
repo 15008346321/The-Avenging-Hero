@@ -6,12 +6,6 @@ using UnityEngine;
 [System.Serializable]
 public class 斩击 : AtkBase
 {
-    public 斩击(Unit from) : base(from)
-    {
-        TotalAtkCount = 1;
-        RemainAtkCount = 1;
-    }
-
     public override void OnAdd()
     {
         throw new System.NotImplementedException();
@@ -57,7 +51,7 @@ public class 斩击 : AtkBase
         throw new System.NotImplementedException();
     }
 
-    public override void test()
+    public override void Test()
     {
         Debug.Log("这是斩击");
     }
