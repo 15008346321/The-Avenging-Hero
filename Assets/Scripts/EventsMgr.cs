@@ -249,26 +249,26 @@ public class EventsMgr : MonoBehaviour
     public void SetRandomRelics()
     {
 
-        print("msg"+ CSVManager.Ins.Relics.Count);
-        RelicsList.Clear();
-        var ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        while (BagManager.Ins.GotRelics.Contains(ran1)) ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        print("msg1");
-        RelicsList.Add(CSVManager.Ins.Relics[ran1]);
-        var ran2 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        while (BagManager.Ins.GotRelics.Contains(ran2) || ran1 == ran2) ran2 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        print("msg2");
-        RelicsList.Add(CSVManager.Ins.Relics[ran2]);
-        var ran3 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        while (BagManager.Ins.GotRelics.Contains(ran3) || ran3 == ran1 || ran3 == ran2) ran3 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        print("msg3");
-        RelicsList.Add(CSVManager.Ins.Relics[ran3]);
+        //print("msg"+ CSVManager.Ins.Relics.Count);
+        //RelicsList.Clear();
+        //var ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //while (BagManager.Ins.GotRelics.Contains(ran1)) ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //print("msg1");
+        //RelicsList.Add(CSVManager.Ins.Relics[ran1]);
+        //var ran2 = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //while (BagManager.Ins.GotRelics.Contains(ran2) || ran1 == ran2) ran2 = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //print("msg2");
+        //RelicsList.Add(CSVManager.Ins.Relics[ran2]);
+        //var ran3 = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //while (BagManager.Ins.GotRelics.Contains(ran3) || ran3 == ran1 || ran3 == ran2) ran3 = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //print("msg3");
+        //RelicsList.Add(CSVManager.Ins.Relics[ran3]);
 
-        for (int i = 0; i < RelicsList.Count; i++)
-        {
-            BounusRelicsName[i].text = RelicsList[i][1];
-            BounusRelicsEffect[i].text = RelicsList[i][3];
-        }
+        //for (int i = 0; i < RelicsList.Count; i++)
+        //{
+        //    BounusRelicsName[i].text = RelicsList[i][1];
+        //    BounusRelicsEffect[i].text = RelicsList[i][3];
+        //}
     }
 
     public void 消耗行动力()

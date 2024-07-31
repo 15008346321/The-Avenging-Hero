@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7133220625343294684}
   - component: {fileID: 9182642256774721149}
   - component: {fileID: 1530842027261911792}
-  - component: {fileID: -3495285973954871839}
+  - component: {fileID: 3649876082934679513}
   m_Layer: 5
   m_Name: Unit
   m_TagString: Untagged
@@ -87,12 +87,11 @@ MonoBehaviour:
   Cell: 0
   Speed: 0
   ID: 0
-  CombTypes: []
   isBoss: 0
   isDead: 0
   hvaeComb: 0
-  Animator: {fileID: 0}
-  HpBar: {fileID: 0}
+  Animator: {fileID: 3649876082934679513}
+  HpBar: {fileID: 2078362150354732331}
   Icon: {fileID: 0}
   CloseAtkPos: {fileID: 0}
   StartParent: {fileID: 0}
@@ -110,13 +109,19 @@ MonoBehaviour:
     Thunder: 0
     Earth: 0
     Cell: 0
+    Speed: 0
     Name: 
     AtkName: 
-    AtkDscrp: 
     CombName: 
-    CombDscrp: 
+    WeaponName: 
+    ArmorName: 
+    SupportName: 
+    Unique1: 
+    Unique2: 
+    Unique3: 
+    Unique4: 
     sprite: {fileID: 0}
---- !u!95 &-3495285973954871839
+--- !u!95 &3649876082934679513
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -293,7 +298,6 @@ GameObject:
   - component: {fileID: 2159752906065595524}
   - component: {fileID: 2451440995897165623}
   - component: {fileID: 3331427940510804256}
-  - component: {fileID: 2284813154245764465}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -358,24 +362,3 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!95 &2284813154245764465
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5311291274866713452}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 969078d57ea438747a5d661528a79f9c, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0

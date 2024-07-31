@@ -63,36 +63,36 @@ public class Shop : MonoBehaviour
     public void RefreshGoods()
     {
         //技能2遗物2属性2药水2
-        BagManager.Ins.Gold -= 2;
-        GoodsList.Clear();
-        var ran = Random.Range(0,CSVManager.Ins.Skills.Count);
-        GoodsList.Add(CSVManager.Ins.Skills[ran]);
-        ran = Random.Range(0, CSVManager.Ins.Skills.Count);
-        GoodsList.Add(CSVManager.Ins.Skills[ran]);
+        //BagManager.Ins.Gold -= 2;
+        //GoodsList.Clear();
+        //var ran = Random.Range(0,CSVManager.Ins.Skills.Count);
+        //GoodsList.Add(CSVManager.Ins.Skills[ran]);
+        //ran = Random.Range(0, CSVManager.Ins.Skills.Count);
+        //GoodsList.Add(CSVManager.Ins.Skills[ran]);
 
-        var ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        while (BagManager.Ins.GotRelics.Contains(ran1)) ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        GoodsList.Add(CSVManager.Ins.Relics[ran1]);
-        ran = Random.Range(0, CSVManager.Ins.Relics.Count);
-        while (ran == ran1) ran = Random.Range(0, CSVManager.Ins.Relics.Count);
-        while (BagManager.Ins.GotRelics.Contains(ran)) ran = Random.Range(0, CSVManager.Ins.Relics.Count);
-        GoodsList.Add(CSVManager.Ins.Relics[ran]);
+        //var ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //while (BagManager.Ins.GotRelics.Contains(ran1)) ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //GoodsList.Add(CSVManager.Ins.Relics[ran1]);
+        //ran = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //while (ran == ran1) ran = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //while (BagManager.Ins.GotRelics.Contains(ran)) ran = Random.Range(0, CSVManager.Ins.Relics.Count);
+        //GoodsList.Add(CSVManager.Ins.Relics[ran]);
 
-        ran = Random.Range(0, CSVManager.Ins.Goods.Count);
-        GoodsList.Add(CSVManager.Ins.Goods[ran]);
-        ran = Random.Range(0, CSVManager.Ins.Goods.Count);
-        GoodsList.Add(CSVManager.Ins.Goods[ran]);
+        //ran = Random.Range(0, CSVManager.Ins.Goods.Count);
+        //GoodsList.Add(CSVManager.Ins.Goods[ran]);
+        //ran = Random.Range(0, CSVManager.Ins.Goods.Count);
+        //GoodsList.Add(CSVManager.Ins.Goods[ran]);
 
 
-        for (int i = 0; i < GoodsList.Count; i++)
-        {
-            GoodsNode.GetChild(i).gameObject.SetActive(true);
-            GoodsPrice[i].text = GoodsList[i][4];
-            if (GoodsList[i][2] == "普攻") GoodsImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/Items/book1");
-            else if (GoodsList[i][2] == "追打") GoodsImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/Items/book2");
-            else if (GoodsList[i][2] == "被动") GoodsImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/Items/book3");
-            else { GoodsImage[i].sprite = Resources.Load<Sprite>(GoodsList[i][6]);}
-        }
+        //for (int i = 0; i < GoodsList.Count; i++)
+        //{
+        //    GoodsNode.GetChild(i).gameObject.SetActive(true);
+        //    GoodsPrice[i].text = GoodsList[i][4];
+        //    if (GoodsList[i][2] == "普攻") GoodsImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/Items/book1");
+        //    else if (GoodsList[i][2] == "追打") GoodsImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/Items/book2");
+        //    else if (GoodsList[i][2] == "被动") GoodsImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/Items/book3");
+        //    else { GoodsImage[i].sprite = Resources.Load<Sprite>(GoodsList[i][6]);}
+        //}
     }
 
     public void Buy()

@@ -70,30 +70,30 @@ public class LevelManager : MonoBehaviour
 
     public void ShowMap()
     {
-        if (!MapGenerated)
-        {
-            int ran;
-            GameObject city;
-            for (int i = 0; i < Cities.childCount; i++)
-            {
-                ran = Random.Range(0, CSVManager.Ins.Cities.Count - 1);
-                city = Cities.GetChild(i).gameObject;
-                city.name = CSVManager.Ins.Cities[ran][1];
-                if(city.name == "希望村") 
-                {
-                    Pos.SetParent(city.transform);
-                    Pos.localPosition = new Vector2(0,30);
-                    Pos.DOLocalMoveY(60,0.5f) .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
-                }
-                city.GetComponent<Image>().sprite = Resources.Load<Sprite>("Texture/Icon/"+ CSVManager.Ins.Cities[ran][3]);
-                CityDescription[city.name] = CSVManager.Ins.Cities[ran][2];
-                CSVManager.Ins.Cities.RemoveAt(ran);
-            }
-            MapGenerated = true;
-        }
-        else {
+        //if (!MapGenerated)
+        //{
+        //    int ran;
+        //    GameObject city;
+        //    for (int i = 0; i < Cities.childCount; i++)
+        //    {
+                //ran = Random.Range(0, CSVManager.Ins.Cities.Count - 1);
+                //city = Cities.GetChild(i).gameObject;
+                //city.name = CSVManager.Ins.Cities[ran][1];
+                //if(city.name == "希望村") 
+                //{
+                //    Pos.SetParent(city.transform);
+                //    Pos.localPosition = new Vector2(0,30);
+                //    Pos.DOLocalMoveY(60,0.5f) .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutQuad);
+                //}
+                //city.GetComponent<Image>().sprite = Resources.Load<Sprite>("Texture/Icon/"+ CSVManager.Ins.Cities[ran][3]);
+                //CityDescription[city.name] = CSVManager.Ins.Cities[ran][2];
+                //CSVManager.Ins.Cities.RemoveAt(ran);
+        //    }
+        //    MapGenerated = true;
+        //}
+        //else {
 
-        }
+        //}
     }
 
     public void ShowAccessibleCities()

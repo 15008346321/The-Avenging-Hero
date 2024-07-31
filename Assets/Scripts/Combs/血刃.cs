@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 上挑 : CombBase
+public class 血刃 : CombBase
 {
     // Start is called before the first frame update
 
@@ -13,7 +13,7 @@ public class 上挑 : CombBase
 
     public override void CombTargets()
     {
-        BattleMgr.Ins.ShowSkillName(OwnerUnit, "上挑");
+        BattleMgr.Ins.ShowSkillName(OwnerUnit, "血刃");
     }
 
     public override void GetTargets()

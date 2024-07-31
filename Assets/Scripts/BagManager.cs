@@ -225,19 +225,19 @@ public class Item
     {
         Name = name;
         Num = num;
-        if (isBook)
-        {
-            string type = CSVManager.Ins.全技能表[name][2];
-            if (type == "普攻") Img = Resources.Load<Sprite>("Texture/Icon/Items/book1");
-            if (type == "追打") Img = Resources.Load<Sprite>("Texture/Icon/Items/book2");
-            if (type == "被动") Img = Resources.Load<Sprite>("Texture/Icon/Items/book3");
-            Dscrp = CSVManager.Ins.全技能表[name][5];
-        }
-        else
-        {
-            Name = name + "结晶";
-            Img = Resources.Load<Sprite>("Texture/Icon/Items/" + Name);
-            Dscrp = CSVManager.Ins.全物品表[Name][2];
-        }
+        //if (isBook)
+        //{
+        //    string type = CSVManager.Ins.全技能表[name][2];
+        //    if (type == "普攻") Img = Resources.Load<Sprite>("Texture/Icon/Items/book1");
+        //    if (type == "追打") Img = Resources.Load<Sprite>("Texture/Icon/Items/book2");
+        //    if (type == "被动") Img = Resources.Load<Sprite>("Texture/Icon/Items/book3");
+        //    Dscrp = CSVManager.Ins.全技能表[name][5];
+        //}
+        //else
+        //{
+        //    Name = name + "结晶";
+        //    Img = Resources.Load<Sprite>("Texture/Icon/Items/" + Name);
+        //    Dscrp = CSVManager.Ins.全物品表[Name][2];
+        //}
     }
 }

@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class 火球 : AtkBase
 {
-    public string Name = "火球";
     public override void AddEffectAfterAtk()
     {
         throw new System.NotImplementedException();

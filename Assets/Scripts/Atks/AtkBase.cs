@@ -5,16 +5,21 @@ using UnityEngine;
 [System.Serializable]
 public abstract class AtkBase
 {
-    public string Name;
     public int ID;
+    public string Name;
+    public string Dscrp;
     public int TotalAtkCount;
     public int RemainAtkCount;
-    public string Dscrp;
     public Unit OwnerUnit;
-    public List<Unit> Targets;
-    public void Init(Unit from, string[] Data) 
+    public List<Unit> Targets = new();
+    public void Init(Unit Owner, string[] Data) 
     {
-        OwnerUnit = from;
+        OwnerUnit = Owner;
+        ID = int.Parse(Data[0]);
+        Name = Data[1];
+        Dscrp = Data[2];
+        TotalAtkCount = int.Parse(Data[3]);
+        Debug.Log(OwnerUnit.name);
     }
     public abstract void OnAdd();
     public abstract void GetTargets();

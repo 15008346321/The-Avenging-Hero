@@ -85,7 +85,7 @@ public class BattleMgr : MonoBehaviour
             u.transform.parent.SetParent(EneRunningPos.GetChild(i));
             u.transform.parent.localPosition = Vector2.zero;
             u.transform.parent.localScale = new Vector2(-1, 1);
-            u.TMPNameNode.localScale = new Vector2(-1, 1);
+            //u.TMPNameNode.localScale = new Vector2(-1, 1);
             u.EnemyInitAttr(eName);
             //加进list
             Enemys.Add(u);

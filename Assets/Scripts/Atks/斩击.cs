@@ -32,16 +32,19 @@ public class 斩击 : AtkBase
         BattleMgr.Ins.ShowFont(OwnerUnit, "攻击力+1");
         if (Targets.Count <= 0) return;
         if (!BattleMgr.Ins.TrySuccess(0.3f)) return;
-        BuffBleed existingBuff = BattleMgr.Ins.AtkedU.Buffs.OfType<BuffBleed>().FirstOrDefault();
-        if (existingBuff == null)
+        foreach (var item in Targets)
         {
-            BuffBleed newBuff = new();
-            BattleMgr.Ins.AtkedU.Buffs.Add(newBuff);
-            newBuff.Init(OwnerUnit, BattleMgr.Ins.AtkedU);
-        }
-        else
-        {
-            existingBuff.AddLayer();
+            BuffBleed existingBuff = item.Buffs.OfType<BuffBleed>().FirstOrDefault();
+            if (existingBuff == null)
+            {
+                BuffBleed newBuff = new();
+                item.Buffs.Add(newBuff);
+                newBuff.Init(OwnerUnit, item);
+            }
+            else
+            {
+                existingBuff.AddLayer();
+            }
         }
         OwnerUnit.CheckComb("BuffBleed");
     }

@@ -12,7 +12,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public int Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Cell,Speed,ID;
     public AtkBase AtkSkill;
     public CombBase CombSkill;
-    public List<string> CombTypes = new();
     public List<BuffBase> Buffs = new();
     public bool isBoss, isDead, hvaeComb;
     public Animator Animator;
@@ -25,6 +24,12 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public Unit target;
     public UnitData OriData;
 
+    public void Awake()
+    {
+        _EventSystem = FindObjectOfType<EventSystem>();
+        gra = FindObjectOfType<GraphicRaycaster>();
+    }
+
     public bool IsBlinded
     {
         get
@@ -33,15 +38,28 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
     }
     #region====初始化方法
-    public void Awake()
+    public void TeamInitAttr(UnitData data)
     {
-        _EventSystem = FindObjectOfType<EventSystem>();
-        gra = FindObjectOfType<GraphicRaycaster>();
+        name = data.Name;
+        //Icon.sprite = data.sprite;
+        AtkSkill = Activator.CreateInstance(Type.GetType(data.AtkName)) as AtkBase;
+        AtkSkill.Init(this, CSVManager.Ins.Atks[data.AtkName]);
+        CombSkill = Activator.CreateInstance(Type.GetType(data.CombName)) as CombBase;
+        CombSkill.Init(this, CSVManager.Ins.Combs[data.CombName]);
+        Hp = MaxHp = data.MaxHp;
+        Atk = data.Atk;
+        Fire = data.Fire;
+        Water = data.Water;
+        Wind = data.Wind;
+        Thunder = data.Thunder;
+        Earth = data.Earth;
+        Speed = data.Speed;
     }
+
     public void EnemyInitAttr(string Mname)
     {
         //0id 1名称2最大生命值3攻击4火5水6风7雷8土9特性10普攻11追打12被动
-        string[] 属性 = CSVManager.Ins.模板参数[Mname];
+        string[] data = CSVManager.Ins.Units[Mname];
         name = Mname;
         //根据单位拥有的技能名字，从所有追打中检索出来加入该单位追打
         //0id 1名称2类型3效果4价格5code6追打状态7造成状态
@@ -50,32 +68,25 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         //if (属性[11] != "") Special = new Skill(CSVManager.Ins.全技能表[属性[11]]);
 
         int result;
-        Hp      = int.TryParse(属性[2], out result) ? result : 0;
-        MaxHp   = int.TryParse(属性[2], out result) ? result : 0;
-        Atk     = int.TryParse(属性[3], out result) ? result : 0;
-        Fire    = int.TryParse(属性[4], out result) ? result : 0;
-        Water   = int.TryParse(属性[5], out result) ? result : 0;
-        Wind    = int.TryParse(属性[6], out result) ? result : 0;
-        Thunder = int.TryParse(属性[7], out result) ? result : 0;
-        Earth   = int.TryParse(属性[8], out result) ? result : 0;
+        Hp      = int.Parse(data[2]);
+        MaxHp   = int.TryParse(data[2], out result) ? result : 0;
+        Atk     = int.TryParse(data[3], out result) ? result : 0;
+        Fire    = int.TryParse(data[4], out result) ? result : 0;
+        Water   = int.TryParse(data[5], out result) ? result : 0;
+        Wind    = int.TryParse(data[6], out result) ? result : 0;
+        Thunder = int.TryParse(data[7], out result) ? result : 0;
+        Earth   = int.TryParse(data[8], out result) ? result : 0;
+        Speed   = int.Parse(data[9]);
+
+        AtkSkill = Activator.CreateInstance(Type.GetType(data[10])) as AtkBase;
+        AtkSkill.Init(this, CSVManager.Ins.Atks[data[10]]);
+        CombSkill = Activator.CreateInstance(Type.GetType(data[11])) as CombBase;
+        CombSkill.Init(this, CSVManager.Ins.Combs[data[11]]);
 
         //AttrInfo.Instance.ShowInfo(this);
         //AP.Play("idle");
     }
-    public void TeamInitAttr(UnitData data)
-    {
-        name = data.Name;
-        //Icon.sprite = data.sprite;
-        AtkSkill = Activator.CreateInstance(Type.GetType(data.AtkName)) as AtkBase;
-        Hp = MaxHp = data.MaxHp;
-        Atk = data.Atk;
-        Fire = data.Fire;
-        Water = data.Water;
-        Wind = data.Wind;
-        Thunder = data.Thunder;
-        Earth = data.Earth;
-
-    }
+   
     #endregion
     #region ====拖动方法
     public void OnBeginDrag(PointerEventData eventData)
@@ -427,7 +438,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
         foreach (var item in units)
         {
-            if (item.CombTypes.Contains(currDebuff) && item.CombSkill.RemainCombCount > 0)
+            if (item.CombSkill. CombTypes.Contains(currDebuff) && item.CombSkill.RemainCombCount > 0)
             {
                 BattleMgr.Ins.AnimQueue.Insert(0, item.ID + ":Comb");
                 item.CombSkill.RemainCombCount -= 1;
@@ -600,9 +611,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     public void OnTurnEnd()
     {
-        foreach (var item in Buffs)
+        for (int i = 0; i < Buffs.Count; i++)
         {
-            item.OnTurnEnd();
+            Buffs[i].OnTurnEnd();
         }
     }
     #endregion

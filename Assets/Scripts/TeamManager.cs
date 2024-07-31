@@ -31,10 +31,10 @@ public class TeamManager : MonoBehaviour
     private void InitTeam()
     {
         //TODO改到配置表中
-        TeamData.Add(new UnitData(CSVManager.Ins.模板参数["初级剑士"],1));
-        TeamData.Add(new UnitData(CSVManager.Ins.模板参数["初级剑士"],2));
-        TeamData.Add(new UnitData(CSVManager.Ins.模板参数["初级剑士"],3));
-        TeamData.Add(new UnitData(CSVManager.Ins.模板参数["初级剑士"],4));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],1));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],2));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],3));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],4));
     }
 
     //在UI/TeamBtn按钮上绑定
@@ -83,8 +83,8 @@ public class TeamManager : MonoBehaviour
 [Serializable]
 public class UnitData
 {
-    public int MaxHp, Atk, Fire, Water, Wind, Thunder, Earth, Cell;
-    public string Name,AtkName,CombName,WeaponName,ArmorName,SupportName,Special1, Special2, Special3, Special4;
+    public int MaxHp, Atk, Fire, Water, Wind, Thunder, Earth, Cell,Speed ;
+    public string Name,AtkName,CombName,WeaponName,ArmorName,SupportName,Unique1, Unique2, Unique3, Unique4;
     public Sprite sprite;
 
     public UnitData(string[] data, int pos)
@@ -93,17 +93,19 @@ public class UnitData
         Cell = pos;
 
         int result;
-        MaxHp   = int.TryParse(data[2], out result) ? result : 0;
+        MaxHp   = int.Parse(data[2]);
         Atk     = int.TryParse(data[3], out result) ? result : 0;
         Fire    = int.TryParse(data[4], out result) ? result : 0;
         Water   = int.TryParse(data[5], out result) ? result : 0;
         Wind    = int.TryParse(data[6], out result) ? result : 0;
         Thunder = int.TryParse(data[7], out result) ? result : 0;
         Earth   = int.TryParse(data[8], out result) ? result : 0;
+        Speed   = int.Parse(data[9]);
+        AtkName  = data[10];
+        CombName = data[11];
+        Unique1  = data[12];
 
-        AtkName  = data[9];
-        CombName = data[10];
-        Special1 = data[11];
+        Debug.Log(Atk);
         //Todo 特性 装备
         //sprite = CSVManager.Ins.Character[Name];
     }

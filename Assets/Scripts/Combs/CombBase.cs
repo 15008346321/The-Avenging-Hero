@@ -6,18 +6,23 @@ using UnityEngine;
 public abstract class CombBase
 {
     public int ID;
-    public int TotalCombCount;
-    public int RemainCombCount;
     public string Name;
     public string Dscrp;
+    public int TotalCombCount;
+    public int RemainCombCount;
     public Unit OwnerUnit;
-    public List<Unit> Targets;
-    public List<string> CombTypes;
+    public List<Unit> Targets = new();
+    public List<string> CombTypes = new();
 
-    public CombBase(Unit from, List<Unit> atkTo) 
+    public void Init(Unit Owner, string[] Data)
     {
-        OwnerUnit = from;
-        Targets = atkTo;
+        OwnerUnit = Owner;
+        ID = int.Parse(Data[0]);
+        Name = Data[1];
+        Dscrp = Data[2];
+        TotalCombCount = int.Parse(Data[3]);
+        CombTypes.Add(Data[4]);
+        Debug.Log(OwnerUnit.name);
     }
     public abstract void OnAdd();
     public abstract void GetTargets();

@@ -69,7 +69,7 @@ public class Bonus : MonoBehaviour
         {
             var ran = Random.Range(0, monsters.Length-1);
             var mName = monsters[ran].Split('P')[0];
-            var bonusCode = CSVManager.Ins.模板参数[mName][13];
+            var bonusCode = CSVManager.Ins.Units[mName][13];
             var AttrName = bonusCode.Split('+')[0];
             BonusPoints[0] += int.Parse(bonusCode.Split('+')[1]);
             BonusPoints[1] += int.Parse(bonusCode.Split('+')[2]);
