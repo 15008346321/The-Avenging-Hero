@@ -24,8 +24,6 @@ public class Shop : MonoBehaviour
     {
         Init();
         RefreshGoods();
-
-        print("ShopStart");
     }
 
     public void Init()

@@ -11,7 +11,6 @@ public abstract class AtkBase
     public int TotalAtkCount;
     public int RemainAtkCount;
     public Unit OwnerUnit;
-    public List<Unit> Targets = new();
     public void Init(Unit Owner, string[] Data) 
     {
         OwnerUnit = Owner;
@@ -19,7 +18,6 @@ public abstract class AtkBase
         Name = Data[1];
         Dscrp = Data[2];
         TotalAtkCount = int.Parse(Data[3]);
-        Debug.Log(OwnerUnit.name);
     }
     public abstract void OnAdd();
     public abstract void GetTargets();

@@ -192,7 +192,7 @@ public class EventsMgr : MonoBehaviour
                 FeelMagic(Random.Range(0, 5));
                 break;
             case 4:
-                BattleMgr.Ins.player.Atk += 1;
+                //BattleMgr.Ins.player.Atk += 1;
                 break;
             default:
                 break;
@@ -204,11 +204,11 @@ public class EventsMgr : MonoBehaviour
 
     public void FeelMagic(int j)
     {
-        if (j == 0) BattleMgr.Ins.player.Fire    += 1;
-        if (j == 1) BattleMgr.Ins.player.Water   += 1;
-        if (j == 2) BattleMgr.Ins.player.Wind    += 1;
-        if (j == 3) BattleMgr.Ins.player.Thunder += 1;
-        if (j == 4) BattleMgr.Ins.player.Earth   += 1;
+        //if (j == 0) BattleMgr.Ins.player.Fire    += 1;
+        //if (j == 1) BattleMgr.Ins.player.Water   += 1;
+        //if (j == 2) BattleMgr.Ins.player.Wind    += 1;
+        //if (j == 3) BattleMgr.Ins.player.Thunder += 1;
+        //if (j == 4) BattleMgr.Ins.player.Earth   += 1;
     }
 
     public void RelicsChoose(int idx)

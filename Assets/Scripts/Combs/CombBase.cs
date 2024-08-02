@@ -11,7 +11,6 @@ public abstract class CombBase
     public int TotalCombCount;
     public int RemainCombCount;
     public Unit OwnerUnit;
-    public List<Unit> Targets = new();
     public List<string> CombTypes = new();
 
     public void Init(Unit Owner, string[] Data)
@@ -22,7 +21,6 @@ public abstract class CombBase
         Dscrp = Data[2];
         TotalCombCount = int.Parse(Data[3]);
         CombTypes.Add(Data[4]);
-        Debug.Log(OwnerUnit.name);
     }
     public abstract void OnAdd();
     public abstract void GetTargets();

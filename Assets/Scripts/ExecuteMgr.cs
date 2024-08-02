@@ -139,31 +139,31 @@ public class ExecuteMgr : MonoBehaviour
 
     public void ExecuteAtk()
     {
-        if (currentCode.Split(":").Length > 1)
-        {
-            var Cstr = currentCode.Split(":")[1];
-            var codes = Cstr.Split("+");
-            foreach (var c in codes)
-            {
-                //计算伤害
-                int damage = 0;
-                if (c.Contains("Atk")) damage += BattleMgr.Ins.AtkU.Atk;
-                if (c.Contains("Fire")) damage += BattleMgr.Ins.AtkU.Fire;
-                if (c.Contains("Water")) damage += BattleMgr.Ins.AtkU.Water;
-                if (c.Contains("Wind")) damage += BattleMgr.Ins.AtkU.Wind;
-                if (c.Contains("Thunder")) damage += BattleMgr.Ins.AtkU.Thunder;
-                if (c.Contains("Earth")) damage += BattleMgr.Ins.AtkU.Earth;
-                BattleMgr.Ins.currentDamage = damage;
-                if (targets.Count > 0)
-                {
-                    foreach (var item in targets)
-                    {
-                        item.Hp -= damage;
-                    }
-                    break;
-                }
-            }
-        }
+        //if (currentCode.Split(":").Length > 1)
+        //{
+        //    var Cstr = currentCode.Split(":")[1];
+        //    var codes = Cstr.Split("+");
+        //    foreach (var c in codes)
+        //    {
+        //        //计算伤害
+        //        int damage = 0;
+        //        if (c.Contains("Atk")) damage += BattleMgr.Ins.AtkU.Atk;
+        //        if (c.Contains("Fire")) damage += BattleMgr.Ins.AtkU.Fire;
+        //        if (c.Contains("Water")) damage += BattleMgr.Ins.AtkU.Water;
+        //        if (c.Contains("Wind")) damage += BattleMgr.Ins.AtkU.Wind;
+        //        if (c.Contains("Thunder")) damage += BattleMgr.Ins.AtkU.Thunder;
+        //        if (c.Contains("Earth")) damage += BattleMgr.Ins.AtkU.Earth;
+        //        BattleMgr.Ins.currentDamage = damage;
+        //        if (targets.Count > 0)
+        //        {
+        //            foreach (var item in targets)
+        //            {
+        //                item.Hp -= damage;
+        //            }
+        //            break;
+        //        }
+        //    }
+        //}
     }
 
     public void GetRanUnit(string tar)

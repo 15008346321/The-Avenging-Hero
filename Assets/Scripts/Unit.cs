@@ -9,11 +9,12 @@ using System;
 
 public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
-    public int Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Cell,Speed,ID;
+    public int Cell,ID;
+    public float Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Speed;
     public AtkBase AtkSkill;
     public CombBase CombSkill;
     public List<BuffBase> Buffs = new();
-    public bool isBoss, isDead, hvaeComb;
+    public bool isBoss, isDead, hvaeComb, 致盲,麻痹;
     public Animator Animator;
     public Image HpBar,Icon;
     public Transform CloseAtkPos,StartParent;
@@ -21,21 +22,12 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public CanvasGroup CanvasGroup;
     public EventSystem _EventSystem;
     public GraphicRaycaster gra;
-    public Unit target;
     public UnitData OriData;
 
     public void Awake()
     {
         _EventSystem = FindObjectOfType<EventSystem>();
         gra = FindObjectOfType<GraphicRaycaster>();
-    }
-
-    public bool IsBlinded
-    {
-        get
-        {
-            return Buffs?.Any(buff => buff is BuffBlind) ?? false;
-        }
     }
     #region====初始化方法
     public void TeamInitAttr(UnitData data)
@@ -388,11 +380,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     public void FindNextActionUnit()
     {
-        if (BattleMgr.Ins.CheckBattleEnd())
-        {
-            BattleMgr.Ins.ExitBattle();
-            return;
-        }
         BattleMgr.Ins.FindNextActionUnit();
     }
     #endregion
@@ -427,6 +414,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     public void CheckComb(string currDebuff)
     {
+        if (BattleMgr.Ins.MainTarget.isDead) return;
         List<Unit> units;
         if (CompareTag("Our"))
         {
@@ -438,7 +426,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
         foreach (var item in units)
         {
-            if (item.CombSkill. CombTypes.Contains(currDebuff) && item.CombSkill.RemainCombCount > 0)
+            if (item.CombSkill. CombTypes.Contains(currDebuff) 
+                && item.CombSkill.RemainCombCount > 0 
+                && !item.麻痹)
             {
                 BattleMgr.Ins.AnimQueue.Insert(0, item.ID + ":Comb");
                 item.CombSkill.RemainCombCount -= 1;
@@ -449,34 +439,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public void UpdateHpBar()
     {
         //c# int 1/int 3 = 0
-        HpBar.fillAmount = (float)Hp / (float)MaxHp;
+        HpBar.fillAmount = Hp / MaxHp;
     }
-    //在伤害字体动画时事件调用
-    public void UnitDead()
-    {
-        print("set" + name + " isdead true");
-        isDead = true;
-        if (!CompareTag("Our"))
-        {
-            BattleMgr.Ins.Enemys.Remove(this);
-        }
-        else
-        {
-            BattleMgr.Ins.Team.Remove(this);
-        }
-        //把死了就不需要执行的行动删除
-        if (BattleMgr.Ins.AnimQueue.Count > 0)
-        {
-            for (int i = BattleMgr.Ins.AnimQueue.Count-1; i >= 0; i--)
-            {
-                if (BattleMgr.Ins.AnimQueue[i].Split(":")[0] == ID.ToString())
-                {
-                    BattleMgr.Ins.AnimQueue.RemoveAt(i);
-                }
-            }
-        }
-        BattleMgr.Ins.AllUnit.Remove(this);
-    }
+    
     public void ShowSkillName(string SkillName)
     {
         BattleMgr.Ins.ShowSkillName(this,SkillName);
@@ -512,21 +477,21 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             BattleMgr.Ins.ShowFont(this, "土属性+" + value);
         }
     }
-    #region====单位继承方法
+    #region====战斗方法
     public void ExecuteAtk()
     {
-        BattleMgr.Ins.AtkU = this;
         AtkSkill.GetTargets();
-        if (AtkSkill.Targets.Count == 0)//没有目标就走位 然后进行下一个
+
+        if (BattleMgr.Ins.Targets.Count == 0)//没有目标就走位 然后进行下一个
         {
             MoveToEnemyFrontRow();
             BattleMgr.Ins.FindNextActionUnit();
         }
         else
         {
-            if (IsBlinded)
+            if (致盲)
             {
-                BattleMgr.Ins.ShowFont(this, "行动失败");
+                BattleMgr.Ins.ShowFont(this, "致盲-行动失败");
                 BattleMgr.Ins.FindNextActionUnit();
                 return;
             }
@@ -546,8 +511,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     public void ExecuteComb() 
     {
-        BattleMgr.Ins.CombU = this;
         CombSkill.GetTargets();
+        if (BattleMgr.Ins.MainTarget == null) return;
         Animator.Play("closeAtk2");
     }
     //输出的追打伤害
@@ -611,6 +576,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     public void OnTurnEnd()
     {
+        致盲 = false;
+        麻痹 = false;
         for (int i = 0; i < Buffs.Count; i++)
         {
             Buffs[i].OnTurnEnd();

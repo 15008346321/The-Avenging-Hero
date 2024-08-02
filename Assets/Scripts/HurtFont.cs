@@ -7,40 +7,46 @@ using UnityEngine;
 public class HurtFont : MonoBehaviour
 {
     public int Value;
-    public Unit u;
+    public Unit U;
     public TextMeshProUGUI tmp;
     public Animator animator;
     
     //heal动画帧上调用
+
+    public void Init(Unit parent,string text,int value = 0)
+    {
+        U = parent;
+        tmp.text = text;
+        Value = value;
+    }
+
     public void UnitHeal()
     {
-        u = transform.parent.parent.GetComponent<Unit>();
-        u.Hp += Value;
+        U.Hp += Value;
         Destroy(gameObject);
     }
     //动画事件 在hurt动画第一帧调用
     public void UpdateHpBar()
     {
-        u = transform.parent.parent.GetComponent<Unit>();
-        u.Hp -= Value;
-        u.UpdateHpBar();
-        if (u.Hp <= 0)
+        U.Hp -= Value;
+        U.UpdateHpBar();
+        if (U.Hp <= 0)
         {
-            u.UnitDead();
+            U.isDead = true;
         }
     }
     //动画事件 在hurt动画最后一帧调用
     public void UnitCheckDeath()
     {
-        u = transform.parent.parent.GetComponent<Unit>();
-        if (u.isDead)
+        if (U.isDead)
         {
-            Destroy(u.transform.parent.gameObject);
+            U.transform.parent.SetParent(BattleMgr.Ins.DeadParent);
+            if (BattleMgr.Ins.CheckBattleEnd())
+            {
+                BattleMgr.Ins.ExitBattle();
+            }
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+        Destroy(gameObject);
     }
 
 }

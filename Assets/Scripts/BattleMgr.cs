@@ -8,13 +8,13 @@ using UnityEngine.UI;
 
 public class BattleMgr : MonoBehaviour
 {
-    public List<Unit> Team = new(), TeamMain = new(), Enemys = new(), EnemyMain = new(), AllUnit = new();
+    public List<Unit> Team = new(), TeamMain = new(), Enemys = new(), EnemyMain = new(), AllUnit = new(), Targets = new();
     public List<string> AnimQueue = new();
     public float TimeCout, CurrTime;
     public Dictionary<int,Unit> IDUnitPiar = new();
-    public Unit player, AtkU, CombU, AtkedU;
-    public GameObject UnitObj, HurtFont, ourObj, eneObj, 击退Pos1, 击退Pos2, 布阵提示, CombDetailPrefab;
-    public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos;
+    public Unit MainTarget;
+    public GameObject UnitObj, HurtFont, ourObj, eneObj, 布阵提示, CombDetailPrefab;
+    public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos,DeadParent;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount = 0,CombDetailCount;
     public string bonus, 当前追打状态;
     public bool isOurTurn,正在战斗,正在追打,BattleEnd;
@@ -192,6 +192,7 @@ public class BattleMgr : MonoBehaviour
 
     public void OnTurnStart()
     {
+        BattleEnd = false;
         foreach (var item in AllUnit)
         {
             item.Reload();
@@ -244,9 +245,13 @@ public class BattleMgr : MonoBehaviour
         //判断是攻击追打被动
 
         string[] com = AnimQueue[0].Split(":");
-        print("msg" + AnimQueue[0]);
-
-        if (com[1] == "NormalAtk")
+        //死了的就不管
+        if (IDUnitPiar[int.Parse(com[0])].isDead)
+        {
+            AnimQueue.RemoveAt(0);
+            FindNextActionUnit();
+        }
+        else if (com[1] == "NormalAtk")
         {
             AnimQueue.RemoveAt(0);
             IDUnitPiar[int.Parse(com[0])].ExecuteAtk();
@@ -265,8 +270,6 @@ public class BattleMgr : MonoBehaviour
         Ins.TeamMain.Sort();
         return Ins.TeamMain[0];
     }
-
-    
 
     public void ShowSkillName(Unit u,string SkillName)
     {
@@ -344,8 +347,7 @@ public class BattleMgr : MonoBehaviour
     {
         GameObject font = Instantiate(HurtFont);
         HurtFont hf = font.GetComponent<HurtFont>();
-        hf.Value = value;
-        hf.tmp.text = value.ToString();
+        hf.Init(u, value.ToString(), value);
         font.transform.SetParent(u.transform.Find("FontPos"));
         font.transform.localPosition = Vector2.zero;
         hf.animator.Play(type);
@@ -355,7 +357,7 @@ public class BattleMgr : MonoBehaviour
     {
         GameObject font = Instantiate(HurtFont);
         HurtFont hf = font.GetComponent<HurtFont>();
-        hf.tmp.text = text;
+        hf.Init(u, text);
         font.transform.SetParent(u.transform.Find("FontPos"));
         font.transform.localPosition = Vector2.zero;
         hf.animator.Play("ShowString");
@@ -363,8 +365,11 @@ public class BattleMgr : MonoBehaviour
 
     public bool CheckBattleEnd()
     {
-        if (Enemys.Count == 0 || Team.Count == 0)
+        if (BattleEnd == true) return false;
+        if (Enemys.All(item=>item.isDead==true)|| Team.All(item => item.isDead == true))
         {
+            BattleEnd = true;
+            print("CheckBattleEnd true");
             return true;
         }
         return false;
@@ -403,9 +408,6 @@ public class BattleMgr : MonoBehaviour
     }
     public void ExitBattle()
     {
-        //避免同时多人死亡 调用多次
-        if (BattleEnd) return;
-        BattleEnd = true;
         //EventsMgr.Instance.BattleDetail.gameObject.SetActive(false);
         ResetBattle();
         //TODO 战后结算

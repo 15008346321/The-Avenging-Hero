@@ -13,13 +13,19 @@ public class 斩击 : AtkBase
 
     public override void GetTargets()
     {
-        Targets.Add(OwnerUnit.GetOppositeTarget());
+        BattleMgr.Ins.Targets.Clear();
+        Unit u = OwnerUnit.GetOppositeTarget();
+        if (u != null)
+        {
+            BattleMgr.Ins.Targets.Add(u);
+            BattleMgr.Ins.MainTarget = BattleMgr.Ins.Targets[0];
+        }
     }
 
     public override void AtkTargets()
     {
         BattleMgr.Ins.ShowSkillName(OwnerUnit, "斩击");
-        foreach (var item in Targets)
+        foreach (var item in BattleMgr.Ins.Targets)
         {
             item.TakeAtkDamage(OwnerUnit,1);
         }
@@ -30,9 +36,9 @@ public class 斩击 : AtkBase
     {
         OwnerUnit.Atk++;
         BattleMgr.Ins.ShowFont(OwnerUnit, "攻击力+1");
-        if (Targets.Count <= 0) return;
+        if (BattleMgr.Ins.Targets.Count <= 0) return;
         if (!BattleMgr.Ins.TrySuccess(0.3f)) return;
-        foreach (var item in Targets)
+        foreach (var item in BattleMgr.Ins.Targets)
         {
             BuffBleed existingBuff = item.Buffs.OfType<BuffBleed>().FirstOrDefault();
             if (existingBuff == null)
@@ -46,7 +52,7 @@ public class 斩击 : AtkBase
                 existingBuff.AddLayer();
             }
         }
-        OwnerUnit.CheckComb("BuffBleed");
+        OwnerUnit.CheckComb("流血");
     }
 
     public override void OnRemove()

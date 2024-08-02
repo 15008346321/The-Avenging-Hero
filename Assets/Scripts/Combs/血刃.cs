@@ -4,26 +4,26 @@ using UnityEngine;
 
 public class 血刃 : CombBase
 {
-    // Start is called before the first frame update
-
-    public override void AddEffectAfterComb()
+    public override void OnAdd()
     {
         throw new System.NotImplementedException();
+    }
+    public override void GetTargets()
+    {
+        
     }
 
     public override void CombTargets()
     {
         BattleMgr.Ins.ShowSkillName(OwnerUnit, "血刃");
+        foreach (var item in BattleMgr.Ins.Targets)
+        {
+            item.TakeAtkDamage(OwnerUnit, 0.3f);
+        }
     }
 
-    public override void GetTargets()
+    public override void AddEffectAfterComb()
     {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnAdd()
-    {
-        throw new System.NotImplementedException();
     }
 
     public override void OnRemove()

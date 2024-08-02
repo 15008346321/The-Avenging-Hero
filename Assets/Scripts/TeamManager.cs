@@ -41,7 +41,7 @@ public class TeamManager : MonoBehaviour
     public void ShowTeam()
     {
         TeamNode.SetActive(true);
-        int idx = 0;
+        //int idx = 0;
         foreach (var item in TeamData)
         {
             //NamesTMP[idx].text = item.Name;
@@ -105,7 +105,6 @@ public class UnitData
         CombName = data[11];
         Unique1  = data[12];
 
-        Debug.Log(Atk);
         //Todo 特性 装备
         //sprite = CSVManager.Ins.Character[Name];
     }
