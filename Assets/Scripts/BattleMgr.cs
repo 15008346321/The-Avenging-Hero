@@ -210,7 +210,7 @@ public class BattleMgr : MonoBehaviour
         AllUnit.Sort((u1, u2) => u2.Speed.CompareTo(u1.Speed));
     }
 
-    public void FindNextActionUnit(float wait = 0.5f)
+    public void FindNextActionUnit(float wait = 1f)
     {
         SortBySpeed();
         foreach (var item in AllUnit)

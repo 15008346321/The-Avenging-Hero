@@ -10,7 +10,7 @@ public class CSVManager : MonoBehaviour
     public static CSVManager Ins;
     public List<string[]> StartText, Events1;
     public Dictionary<string, string[]> Units, Atks,Combs,Uniques,Weapons, Armors, Supports;
-    public Dictionary<string, Sprite> Character;
+    public Dictionary<string, Sprite> Character,Items;
 
     private void Awake()
     {
@@ -26,6 +26,9 @@ public class CSVManager : MonoBehaviour
         Units = GetUnit();
         Atks = GetAtks();
         Combs = GetCombs();
+        Weapons = GetWeapons();
+        Armors = GetArmors();
+        Supports = GetSupports();
         //Skills = GetSkills();
         //Features = GetFeatures();
         //Relics = GetRelics();
@@ -119,10 +122,26 @@ public class CSVManager : MonoBehaviour
         return ReadCSVToDict("Skills", "Combs");
     }
 
+    public Dictionary<string, string[]> GetWeapons()
+    {
+        return ReadCSVToDict("Gears", "Weapons");
+    }
+
+    public Dictionary<string, string[]> GetArmors()
+    {
+        return ReadCSVToDict("Gears", "Armors");
+    }
+
+    public Dictionary<string, string[]> GetSupports()
+    {
+        return ReadCSVToDict("Gears", "Supports");
+    }
+
     public List<string[]> GetEventsByArea(string Area = "area1")
     {
         return ReadCSVToList("Events", Area);
     }
+
     public List<string[]> GetBattlesByArea(string Area = "area1")
     {
         return ReadCSVToList("Battles", Area);
