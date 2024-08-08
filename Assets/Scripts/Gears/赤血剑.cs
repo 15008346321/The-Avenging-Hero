@@ -4,65 +4,73 @@ using UnityEngine;
 
 public class 赤血剑 : GearBase
 {
-    public override void OnAdd()
+    public override void OnAdd(UnitData owner)
     {
-        if(Level == 0)//白
+        OwnerUnitData = owner;
+        OwnerUnitData.Weapon = this;
+
+        if (Level == 0)//白
         {
-            OwnerUnit.Atk += 2;
+            OwnerUnitData.Atk += 2;
         }else if(Level == 1)//绿
         {
-            OwnerUnit.Atk += 5;
+            OwnerUnitData.Atk += 5;
         }
         else if (Level == 2)//蓝
         {
-            OwnerUnit.Atk += 9;
+            OwnerUnitData.Atk += 9;
         }
         else if (Level == 3)//紫
         {
-            OwnerUnit.Atk += 14;
-            OwnerUnit.Speed += 3;
+            OwnerUnitData.Atk += 14;
+            OwnerUnitData.Speed += 3;
         }
         else if (Level == 4)//橙
         {
-            OwnerUnit.Atk += 20;
-            OwnerUnit.Speed += 5;
+            OwnerUnitData.Atk += 20;
+            OwnerUnitData.Speed += 5;
         }
         else if (Level == 5)//红
         {
-            OwnerUnit.Atk += 30;
-            OwnerUnit.Speed += 7;
+            OwnerUnitData.Atk += 30;
+            OwnerUnitData.Speed += 7;
         }
+
+        TeamManager.Ins.ShowTeam();
     }
 
     public override void OnRemove()
     {
         if (Level == 0)//白
         {
-            OwnerUnit.Atk -= 2;
+            OwnerUnitData.Atk -= 2;
         }
         else if (Level == 1)//绿
         {
-            OwnerUnit.Atk -= 5;
+            OwnerUnitData.Atk -= 5;
         }
         else if (Level == 2)//蓝
         {
-            OwnerUnit.Atk -= 9;
+            OwnerUnitData.Atk -= 9;
         }
         else if (Level == 3)//紫
         {
-            OwnerUnit.Atk -= 14;
-            OwnerUnit.Speed -= 3;
+            OwnerUnitData.Atk -= 14;
+            OwnerUnitData.Speed -= 3;
         }
         else if (Level == 4)//橙
         {
-            OwnerUnit.Atk -= 20;
-            OwnerUnit.Speed -= 5;
+            OwnerUnitData.Atk -= 20;
+            OwnerUnitData.Speed -= 5;
         }
         else if (Level == 5)//红
         {
-            OwnerUnit.Atk -= 30;
-            OwnerUnit.Speed -= 7;
+            OwnerUnitData.Atk -= 30;
+            OwnerUnitData.Speed -= 7;
         }
+
+        OwnerUnitData.WeaponName = null;
+        OwnerUnitData = null;
     }
     public override void OnAtk()
     {
@@ -128,11 +136,11 @@ public class 赤血剑 : GearBase
         CurrXP = 0;
         OnRemove();
         Level += 1;
-        OnAdd();
+        OnAdd(OwnerUnitData);
     }
 
     public override void Test()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("装备了赤血剑");
     }
 }

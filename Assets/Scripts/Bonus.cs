@@ -38,19 +38,19 @@ public class Bonus : MonoBehaviour
 
     public void AddToBag()
     {
-        BagManager.Ins.Gold += BonusPoints[0];
-        GoldTMP.text = "" + BagManager.Ins.Gold;
-        //TODO按国家获取荣誉，目前战时只管火之国的
-        BagManager.Ins.ReptFire += BonusPoints[1];
+        //BagManager.Ins.Gold += BonusPoints[0];
+        //GoldTMP.text = "" + BagManager.Ins.Gold;
+        ////TODO按国家获取荣誉，目前战时只管火之国的
+        //BagManager.Ins.ReptFire += BonusPoints[1];
 
-        for (int i = 2; i < BonusPoints.Count; i++)
-        {
-            if (BonusPoints[i] > 0)
-            {
-                BagManager.Ins.BagLt.Add(new Item(AttrNames[i - 2], BonusPoints[i], false));
-            }
-        }
-        transform.gameObject.SetActive(false);
+        //for (int i = 2; i < BonusPoints.Count; i++)
+        //{
+        //    if (BonusPoints[i] > 0)
+        //    {
+        //        BagManager.Ins.BagLt.Add(new Item(AttrNames[i - 2], BonusPoints[i], false));
+        //    }
+        //}
+        //transform.gameObject.SetActive(false);
     }
 
 

@@ -7,6 +7,10 @@ TagManager:
   - Pos
   - Our
   - Enemy
+  - Slot
+  - WeaponSlot
+  - ArmorSlot
+  - SupportSlot
   layers:
   - Default
   - TransparentFX

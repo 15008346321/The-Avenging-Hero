@@ -15,6 +15,6 @@ public class Slot : MonoBehaviour
     public void OnClick()
     {
         BagManager.Ins.CurrSlot = transform.GetSiblingIndex();
-        BagManager.Ins.ShowDscrp();
+        //BagManager.Ins.ShowDscrp();
     }
 }

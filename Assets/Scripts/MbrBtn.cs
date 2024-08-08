@@ -9,7 +9,7 @@ public class MbrBtn : MonoBehaviour
     public Button btn;
     public void ShowDetail()
     {
-        TeamManager.Ins.MbrInfoIdx = transform.GetSiblingIndex();
+        TeamManager.Ins.CurrMbrIdx = transform.GetSiblingIndex();
         TeamManager.Ins.ShowDetail();
     }
 }

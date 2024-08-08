@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,12 +12,12 @@ public class TeamManager : MonoBehaviour
     public List<UnitData> TeamData = new();
     public Button[] MbrBtn = new Button[4];
     public TextMeshProUGUI[] MbrBtnTMP = new TextMeshProUGUI[4], DetailAttrTMP = new TextMeshProUGUI[8],
-        DetailTraitTMP = new TextMeshProUGUI[4];
+        DetailPassiveTMP = new TextMeshProUGUI[4];
     public TextMeshProUGUI DetailName,AtkName, AtkDscrp, CombName, CombDscrp, WeaponName, WeaponDscrp, 
         ArmorName, ArmorDscrp, SupportName, SupportDscrp;
-    public Image DetailIcon;
-    public Image[] MbrImgs = new Image[4], DetailImgs = new Image[5];
-    public int MbrInfoIdx = 0;
+    public Image DetailIcon, WeaponSlotImg;
+    public Image[] MbrImgs = new Image[4], DetailImgs = new Image[5], GearSlotImgs = new Image[3];
+    public int CurrMbrIdx = 0;
     public GameObject TeamNode,DetailNode;
     //TODO 火属性额外伤害， 水属性生命上限治疗效果，风属性速度，雷属性魔抗，土属性物抗护盾
     private void Awake()
@@ -42,32 +43,35 @@ public class TeamManager : MonoBehaviour
     {
         TeamNode.SetActive(true);
 
-        DetailName.text = TeamData[MbrInfoIdx].Name;
+        //名字头像
+        DetailName.text = TeamData[CurrMbrIdx].Name;
         //DetailIcon.sprite = CSVManager.Ins.Character[DetailName.text];
 
-        DetailAttrTMP[0].text = TeamData[MbrInfoIdx].MaxHp.ToString();
-        DetailAttrTMP[1].text = TeamData[MbrInfoIdx].Speed.ToString();
-        DetailAttrTMP[2].text = TeamData[MbrInfoIdx].Atk.ToString();
-        DetailAttrTMP[3].text = TeamData[MbrInfoIdx].Fire.ToString();
-        DetailAttrTMP[4].text = TeamData[MbrInfoIdx].Water.ToString();
-        DetailAttrTMP[5].text = TeamData[MbrInfoIdx].Wind.ToString();
-        DetailAttrTMP[6].text = TeamData[MbrInfoIdx].Thunder.ToString();
-        DetailAttrTMP[7].text = TeamData[MbrInfoIdx].Earth.ToString();
+        //属性
+        DetailAttrTMP[0].text = TeamData[CurrMbrIdx].MaxHp.ToString();
+        DetailAttrTMP[1].text = TeamData[CurrMbrIdx].Speed.ToString();
+        DetailAttrTMP[2].text = TeamData[CurrMbrIdx].Atk.ToString();
+        DetailAttrTMP[3].text = TeamData[CurrMbrIdx].Fire.ToString();
+        DetailAttrTMP[4].text = TeamData[CurrMbrIdx].Water.ToString();
+        DetailAttrTMP[5].text = TeamData[CurrMbrIdx].Wind.ToString();
+        DetailAttrTMP[6].text = TeamData[CurrMbrIdx].Thunder.ToString();
+        DetailAttrTMP[7].text = TeamData[CurrMbrIdx].Earth.ToString();
 
-        AtkName.text = TeamData[MbrInfoIdx].AtkName;
+        //技能装备
+        AtkName.text = TeamData[CurrMbrIdx].AtkName;
         AtkDscrp.text = CSVManager.Ins.Atks[AtkName.text][2];
 
-        CombName.text = TeamData[MbrInfoIdx].CombName;
+        CombName.text = TeamData[CurrMbrIdx].CombName;
         CombDscrp.text = CSVManager.Ins.Combs[CombName.text][2];
 
-        WeaponName.text = TeamData[MbrInfoIdx].WeaponName;
-        WeaponDscrp.text = CSVManager.Ins.Weapons[WeaponName.text][2];
+        WeaponName.text = TeamData[CurrMbrIdx].Weapon?.Name;
+        WeaponDscrp.text = TeamData[CurrMbrIdx].Weapon?.Dscrp;
 
-        ArmorName.text = TeamData[MbrInfoIdx].ArmorName;
-        ArmorDscrp.text = CSVManager.Ins.Armors[ArmorName.text][2];
+        ArmorName.text = TeamData[CurrMbrIdx].Armor?.Name;
+        ArmorDscrp.text = TeamData[CurrMbrIdx].Armor?.Dscrp;
 
-        SupportName.text = TeamData[MbrInfoIdx].SupportName;
-        SupportDscrp.text = CSVManager.Ins.Supports[SupportName.text][2];
+        SupportName.text = TeamData[CurrMbrIdx].Support?.Name;
+        SupportDscrp.text = TeamData[CurrMbrIdx].Support?.Dscrp;
 
         //DetailImgs[0].sprite = CSVManager.Ins.Items[AtkName.text];
         //DetailImgs[1].sprite = CSVManager.Ins.Items[CombName.text];
@@ -75,6 +79,13 @@ public class TeamManager : MonoBehaviour
         //DetailImgs[3].sprite = CSVManager.Ins.Items[ArmorName.text];
         //DetailImgs[4].sprite = CSVManager.Ins.Items[SupportName.text];
 
+        //被动
+        DetailPassiveTMP[0].text = TeamData[CurrMbrIdx].Passive1;
+        DetailPassiveTMP[1].text = TeamData[CurrMbrIdx].Passive2;
+        DetailPassiveTMP[2].text = TeamData[CurrMbrIdx].Passive3;
+        DetailPassiveTMP[3].text = TeamData[CurrMbrIdx].Passive4;
+
+        //队员按钮
         for (int i = 0; i < TeamData.Count -1; i++)
         {
             //MbrImgs[0].sprite = CSVManager.Ins.Character[TeamData[i].Name];
@@ -82,6 +93,20 @@ public class TeamManager : MonoBehaviour
             MbrImgs[i].sprite = TeamData[i].sprite;
         }
         ShowDetail();
+    }
+
+    public void ShowGearSlot(int i)
+    {
+        GearSlotImgs[i].DOFade(0.75f,1f).SetEase(Ease.Linear).SetLoops(-1,LoopType.Yoyo);
+    }
+
+    public void StopShowGearSlot()
+    {
+        foreach (var item in GearSlotImgs)
+        {
+            item.DOKill();
+            WeaponSlotImg.DOFade(0.5f, 0f);
+        }
     }
     //Btn上绑定调用
     public void ShowDetail()
@@ -105,8 +130,9 @@ public class TeamManager : MonoBehaviour
 public class UnitData
 {
     public int MaxHp, Atk, Fire, Water, Wind, Thunder, Earth, Cell,Speed ;
-    public string Name,AtkName,CombName,WeaponName,ArmorName,SupportName,Unique1, Unique2, Unique3, Unique4;
+    public string Name,AtkName,CombName,WeaponName,ArmorName,SupportName,Passive1, Passive2, Passive3, Passive4;
     public Sprite sprite;
+    public GearBase Weapon, Armor, Support;
 
     public UnitData(string[] data, int pos)
     {
@@ -124,7 +150,7 @@ public class UnitData
         Speed   = int.Parse(data[9]);
         AtkName  = data[10];
         CombName = data[11];
-        Unique1  = data[12];
+        Passive1  = data[12];
 
         //Todo 特性 装备
         //sprite = CSVManager.Ins.Character[Name];

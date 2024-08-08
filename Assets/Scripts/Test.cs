@@ -10,35 +10,45 @@ public class Test : MonoBehaviour
 {
     // Start is called before the first frame update
     public Transform u, t;
+    public GameObject gaer;
     public Unit unit;
     public AtkBase skill, AtkSkill1, AtkSkill2;
     public string filePath;
     public bool b;
 
-    private void Start()
+    public void Test6()
     {
-        filePath = Path.Combine(Application.persistentDataPath, "Skills.json");
-    }
-    public void testSave()
-    {
-        //u.DOMove(t.position, 1f);
-        unit = BattleMgr.Ins.UnitObj.transform.GetChild(0).GetComponent<Unit>();
-        //skill = new 斩击(unit);
-        string json = JsonUtility.ToJson(skill);
-
-        print(filePath);
-        File.WriteAllText(filePath, json);
-        BattleMgr.Ins.ShowSkillName(unit, "拔刀斩");
+        BagManager.Ins.GenerateGear("赤血剑");
     }
 
-    public void testLoad()
+    public void Test7()
     {
-        //string json = File.ReadAllText(filePath);
-        //string a = "斩击";
-        //Type t = Type.GetType(a);
-        //skill = JsonUtility.FromJson<t>(json); 
-
+        BagManager.Ins.GenerateGear("火焰纹杖");
     }
+    //private void Start()
+    //{
+    //    filePath = Path.Combine(Application.persistentDataPath, "Skills.json");
+    //}
+    //public void testSave()
+    //{
+    //    //u.DOMove(t.position, 1f);
+    //    unit = BattleMgr.Ins.UnitObj.transform.GetChild(0).GetComponent<Unit>();
+    //    //skill = new 斩击(unit);
+    //    string json = JsonUtility.ToJson(skill);
+
+    //    print(filePath);
+    //    File.WriteAllText(filePath, json);
+    //    BattleMgr.Ins.ShowSkillName(unit, "拔刀斩");
+    //}
+
+    //public void testLoad()
+    //{
+    //    //string json = File.ReadAllText(filePath);
+    //    //string a = "斩击";
+    //    //Type t = Type.GetType(a);
+    //    //skill = JsonUtility.FromJson<t>(json); 
+
+    //}
     //测试实例化子类
     //public void Test1()
     //{

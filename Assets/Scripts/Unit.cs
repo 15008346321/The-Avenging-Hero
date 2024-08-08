@@ -13,6 +13,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public float Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Speed;
     public AtkBase AtkSkill;
     public CombBase CombSkill;
+    public GearBase Weapon, Armor, Support;
     public List<BuffBase> Buffs = new();
     public bool isBoss, isDead, hvaeComb, 致盲,麻痹;
     public Animator Animator;
@@ -38,6 +39,18 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         AtkSkill.Init(this, CSVManager.Ins.Atks[data.AtkName]);
         CombSkill = Activator.CreateInstance(Type.GetType(data.CombName)) as CombBase;
         CombSkill.Init(this, CSVManager.Ins.Combs[data.CombName]);
+        if (data.WeaponName != null)
+        {
+            Weapon = Activator.CreateInstance(Type.GetType(data.WeaponName)) as GearBase;
+        }
+        if (data.ArmorName != null)
+        {
+            Armor = Activator.CreateInstance(Type.GetType(data.ArmorName)) as GearBase;
+        }
+        if (data.SupportName != null)
+        {
+            Support = Activator.CreateInstance(Type.GetType(data.SupportName)) as GearBase;
+        }
         Hp = MaxHp = data.MaxHp;
         Atk = data.Atk;
         Fire = data.Fire;
@@ -84,7 +97,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public void OnBeginDrag(PointerEventData eventData)
     {
         StartParent = transform.parent;
-        CanvasGroup.blocksRaycasts = false;
+        //CanvasGroup.blocksRaycasts = false;
         BattleMgr.Ins.SetPosSlotAlpha(0.4f);
     }
 
@@ -137,7 +150,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 transform.localPosition = Vector2.zero;
             }
         }
-        CanvasGroup.blocksRaycasts = true;
+        //CanvasGroup.blocksRaycasts = true;
     }
 
     private void ChangePos(Unit unit1, Unit unit2)

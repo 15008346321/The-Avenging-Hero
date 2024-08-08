@@ -1,26 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public abstract class GearBase : MonoBehaviour
+public abstract class GearBase
 {
     public int ID, Level;
     public string Type, Name, Dscrp;
-    public int TotalAtkCount, RemainAtkCount, CurrXP, SP;
+    public int CurrXP, SP;
     public int[] XP = {5,15,30,50,80};
+    public UnitData OwnerUnitData;
     public Unit OwnerUnit;
     public Sprite sprite;
-    public void Init(Unit Owner, string[] Data,int Lv)
+    public Transform StartParent;
+    public void Init(string[] Data,int Lv=0)
     {
-        OwnerUnit = Owner;
         Level = Lv;
         ID = int.Parse(Data[0]);
         Name = Data[1];
         Dscrp = Data[2];
-        TotalAtkCount = int.Parse(Data[3]);
-        OnAdd();
+        Type = Data[3];
+
+        Debug.Log(Name + Type);
     }
-    public abstract void OnAdd();
+    public abstract void OnAdd(UnitData owner);
     public abstract void OnRemove();
     public abstract void Upgrade();
     public abstract void OnAtk();
