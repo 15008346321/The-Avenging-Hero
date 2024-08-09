@@ -7,7 +7,7 @@ public abstract class GearBase
 {
     public int ID, Level;
     public string Type, Name, Dscrp;
-    public int CurrXP, SP;
+    public int CurrXP, SP, CurrSP;
     public int[] XP = {5,15,30,50,80};
     public UnitData OwnerUnitData;
     public Unit OwnerUnit;

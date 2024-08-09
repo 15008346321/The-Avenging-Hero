@@ -19,7 +19,7 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
     {
         //生成并初始化脚本
         Gear = Activator.CreateInstance(Type.GetType(name)) as GearBase;
-        Gear.Init(CSVManager.Ins.Weapons[name]);
+        Gear.Init(CSVManager.Ins.Gears[name]);
         //拖拽监测
         RectTransform = GetComponent<RectTransform>();
         CanvasGroup = GetComponent<CanvasGroup>();

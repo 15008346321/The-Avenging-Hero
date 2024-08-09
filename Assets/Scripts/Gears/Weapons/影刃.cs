@@ -1,20 +1,31 @@
-﻿using System.Collections;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class 火焰纹杖 : GearBase
+public class 影刃 : GearBase
 {
     public override void OnAdd(UnitData owner)
     {
         OwnerUnitData = owner;
         OwnerUnitData.Weapon = this;
-        OwnerUnitData.Fire += 10;
-        OwnerUnitData.Water -= 5;
+        OwnerUnitData.Speed += 5;
         TeamManager.Ins.ShowTeam();
     }
 
+    public override void OnRemove()
+    {
+        OwnerUnitData.Speed -= 5;
+        OwnerUnitData.WeaponName = null;
+        OwnerUnitData = null;
+    }
     public override void OnAtk()
     {
-        throw new System.NotImplementedException();
+        CurrSP += 1;
+        if (CurrSP == SP)
+        {
+            OwnerUnit.AtkSkill.RemainAtkCount += 1;
+            CurrSP = 0;
+        }
     }
 
     public override void OnComb()
@@ -28,25 +39,6 @@ public class 火焰纹杖 : GearBase
     }
 
     public override void OnFire()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnHeal()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnRemove()
-    {
-        OwnerUnitData.Fire -= 10;
-        OwnerUnitData.Water += 5;
-
-        OwnerUnitData.Weapon = null;
-        OwnerUnitData = null;
-    }
-
-    public override void OnShield()
     {
         throw new System.NotImplementedException();
     }
@@ -66,13 +58,22 @@ public class 火焰纹杖 : GearBase
         throw new System.NotImplementedException();
     }
 
-    public override void Test()
+    public override void OnHeal()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void OnShield()
     {
         throw new System.NotImplementedException();
     }
 
     public override void Upgrade()
     {
-        throw new System.NotImplementedException();
+    }
+
+    public override void Test()
+    {
+        Debug.Log("装备了赤血剑");
     }
 }

@@ -18,12 +18,12 @@ public class Test : MonoBehaviour
 
     public void Test6()
     {
-        BagManager.Ins.GenerateGear("赤血剑");
+        BagManager.Ins.GenerateGear("冒险剑");
     }
 
     public void Test7()
     {
-        BagManager.Ins.GenerateGear("火焰纹杖");
+        BagManager.Ins.GenerateGear("火焰法杖");
     }
     //private void Start()
     //{
