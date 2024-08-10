@@ -11,11 +11,12 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 {
     public int Cell,ID;
     public float Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Speed;
+    public string Element;
+    public bool isBoss, isDead, hvaeComb, 致盲, 麻痹;
     public AtkBase AtkSkill;
     public CombBase CombSkill;
     public GearBase Weapon, Armor, Support;
     public List<BuffBase> Buffs = new();
-    public bool isBoss, isDead, hvaeComb, 致盲,麻痹;
     public Animator Animator;
     public Image HpBar,Icon;
     public Transform CloseAtkPos,StartParent;
@@ -39,6 +40,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         AtkSkill.Init(this, CSVManager.Ins.Atks[data.AtkName]);
         CombSkill = Activator.CreateInstance(Type.GetType(data.CombName)) as CombBase;
         CombSkill.Init(this, CSVManager.Ins.Combs[data.CombName]);
+
         if (data.WeaponName != null)
         {
             Weapon = Activator.CreateInstance(Type.GetType(data.WeaponName)) as GearBase;
@@ -51,6 +53,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             Support = Activator.CreateInstance(Type.GetType(data.SupportName)) as GearBase;
         }
+
         Hp = MaxHp = data.MaxHp;
         Atk = data.Atk;
         Fire = data.Fire;
@@ -59,6 +62,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         Thunder = data.Thunder;
         Earth = data.Earth;
         Speed = data.Speed;
+
+        SetElement();
     }
 
     public void EnemyInitAttr(string Mname)
@@ -83,6 +88,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         Earth   = int.TryParse(data[8], out result) ? result : 0;
         Speed   = int.Parse(data[9]);
 
+        SetElement();
+
         AtkSkill = Activator.CreateInstance(Type.GetType(data[10])) as AtkBase;
         AtkSkill.Init(this, CSVManager.Ins.Atks[data[10]]);
         CombSkill = Activator.CreateInstance(Type.GetType(data[11])) as CombBase;
@@ -90,6 +97,17 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
         //AttrInfo.Instance.ShowInfo(this);
         //AP.Play("idle");
+    }
+
+    public void SetElement()
+    {
+        float a = 0;
+        if (Atk > a) { a = Atk; Element = "物理"; }
+        if (Fire > a) { a = Fire; Element = "火"; }
+        if (Water > a) { a = Water; Element = "水"; }
+        if (Wind > a) { a = Wind; Element = "风"; }
+        if (Thunder > a) { a = Thunder; Element = "雷"; }
+        if (Earth > a) { a = Earth; Element = "土"; }
     }
    
     #endregion
@@ -546,27 +564,27 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             case "Fire":
                 damageReduce = DamageFrom.Fire / (DamageFrom.Fire + Fire);
-                if (DamageFrom.Fire > Fire) damageRate = 1 + (Wind / (Wind + 50));
+                if (Element == "风") damageRate = 1.5f;
                 damage = Mathf.RoundToInt(DamageFrom.Fire * damageReduce * damageRate);
                 break;
             case "Water":
                 damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
-                if (DamageFrom.Water > Water) damageRate = 1 + (Fire / (Fire + 50));
+                if (Element == "火") damageRate = 1.5f;
                 damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
                 break;
             case "Wind":
                 damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
-                if (DamageFrom.Wind > Wind) damageRate = 1 + (Earth / (Earth + 50));
+                if (Element == "土") damageRate = 1.5f;
                 damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
                 break;
             case "Thunder":
                 damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
-                if (DamageFrom.Thunder > Thunder) damageRate = 1 + (Water / (Water + 50));
+                if (Element == "水") damageRate = 1.5f;
                 damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
                 break;
             case "Earth":
                 damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
-                if (DamageFrom.Earth > Earth) damageRate = 1 + (Thunder / (Thunder + 50));
+                if (Element == "雷") damageRate = 1.5f;
                 damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
                 break;
             default:

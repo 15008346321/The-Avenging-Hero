@@ -122,7 +122,7 @@ public class CSVManager : MonoBehaviour
 
     public Dictionary<string, string[]> GetGears()
     {
-        return ReadCSVToDict("Gears", "Weapons");
+        return ReadCSVToDict("Gears", "Gears");
     }
 
     public List<string[]> GetEventsByArea(string Area = "area1")
