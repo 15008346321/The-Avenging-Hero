@@ -12,7 +12,7 @@ public class Test : MonoBehaviour
     public Transform u, t;
     public GameObject gaer;
     public Unit unit;
-    public AtkBase skill, AtkSkill1, AtkSkill2;
+    public ComponentBase skill, AtkSkill1, AtkSkill2;
     public string filePath;
     public bool b;
 

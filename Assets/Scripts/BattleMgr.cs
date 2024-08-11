@@ -215,11 +215,11 @@ public class BattleMgr : MonoBehaviour
         SortBySpeed();
         foreach (var item in AllUnit)
         {
-            if(item.AtkSkill.RemainAtkCount > 0)
+            if(item.NormalAtk.RemainAtkCount > 0)
             {
                 //用ID遍历AllUnit找到对应的Unit调用普攻
                 AnimQueue.Add(item.ID + ":NormalAtk");
-                item.AtkSkill.RemainAtkCount -= 1;
+                item.NormalAtk.RemainAtkCount -= 1;
                 break;
             }
         }

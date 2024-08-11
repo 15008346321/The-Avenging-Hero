@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 赤炎铠甲 : GearBase
+public class 赤炎铠甲 : ComponentBase
 {
     public override void OnAdd(UnitData owner)
     {
+        base.OnAdd(owner);
         OwnerUnitData = owner;
-        OwnerUnitData.Weapon = this;
+        OwnerUnitData.Armor = this;
         OwnerUnitData.Fire += 10;
         TeamManager.Ins.ShowTeam();
     }
@@ -15,56 +16,9 @@ public class 赤炎铠甲 : GearBase
     public override void OnRemove()
     {
         OwnerUnitData.Fire -= 10;
-        OwnerUnitData.WeaponName = null;
+        OwnerUnitData.Armor = null;
         OwnerUnitData = null;
-    }
-    public override void OnAtk()
-    {
-      
-    }
-
-    public override void OnComb()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnEarth()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnFire()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnThunder()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnWater()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnWind()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnHeal()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void OnShield()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void Upgrade()
-    {
+        base .OnRemove();
     }
 
     public override void Test()

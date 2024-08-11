@@ -9,7 +9,7 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
 {
     public Transform StartParent;
     public RectTransform RectTransform;
-    public GearBase Gear;
+    public ComponentBase Gear;
     public CanvasGroup CanvasGroup;
     public EventSystem EventSystem;
     private GraphicRaycaster _GraphicRaycaster;
@@ -18,7 +18,7 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
     public void Init(string name)
     {
         //生成并初始化脚本
-        Gear = Activator.CreateInstance(Type.GetType(name)) as GearBase;
+        Gear = Activator.CreateInstance(Type.GetType(name)) as ComponentBase;
         Gear.Init(CSVManager.Ins.Gears[name]);
         //拖拽监测
         RectTransform = GetComponent<RectTransform>();

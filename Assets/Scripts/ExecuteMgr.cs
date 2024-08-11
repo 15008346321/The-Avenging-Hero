@@ -210,7 +210,7 @@ public class ExecuteMgr : MonoBehaviour
 
     public void ExecuteComb()
     {
-        //BattleMgr.Ins.当前追打状态 = BattleMgr.Ins.CombU.CombSkill.造成状态;
+        //BattleMgr.Ins.当前追打状态 = BattleMgr.Ins.CombU.Comb.造成状态;
         print("msg 当前追打状态" + BattleMgr.Ins.当前追打状态);
     }
 

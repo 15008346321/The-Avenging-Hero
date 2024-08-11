@@ -13,9 +13,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public float Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Speed;
     public string Element;
     public bool isBoss, isDead, hvaeComb, 致盲, 麻痹;
-    public AtkBase AtkSkill;
-    public CombBase CombSkill;
-    public GearBase Weapon, Armor, Support;
+    public ComponentBaseAtk NormalAtk;
+    public ComponentBaseComb Comb;
+    public ComponentBase Weapon, Armor, Support;
     public List<BuffBase> Buffs = new();
     public Animator Animator;
     public Image HpBar,Icon;
@@ -36,22 +36,22 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         name = data.Name;
         //Icon.sprite = data.sprite;
-        AtkSkill = Activator.CreateInstance(Type.GetType(data.AtkName)) as AtkBase;
-        AtkSkill.Init(this, CSVManager.Ins.Atks[data.AtkName]);
-        CombSkill = Activator.CreateInstance(Type.GetType(data.CombName)) as CombBase;
-        CombSkill.Init(this, CSVManager.Ins.Combs[data.CombName]);
+        NormalAtk = Activator.CreateInstance(Type.GetType(data.AtkName)) as ComponentBaseAtk;
+        NormalAtk.Init(CSVManager.Ins.Atks[data.AtkName], this);
+        Comb = Activator.CreateInstance(Type.GetType(data.CombName)) as ComponentBaseComb;
+        Comb.Init(CSVManager.Ins.Combs[data.CombName],this);
 
         if (data.WeaponName != null)
         {
-            Weapon = Activator.CreateInstance(Type.GetType(data.WeaponName)) as GearBase;
+            Weapon = Activator.CreateInstance(Type.GetType(data.WeaponName)) as ComponentBase;
         }
         if (data.ArmorName != null)
         {
-            Armor = Activator.CreateInstance(Type.GetType(data.ArmorName)) as GearBase;
+            Armor = Activator.CreateInstance(Type.GetType(data.ArmorName)) as ComponentBase;
         }
         if (data.SupportName != null)
         {
-            Support = Activator.CreateInstance(Type.GetType(data.SupportName)) as GearBase;
+            Support = Activator.CreateInstance(Type.GetType(data.SupportName)) as ComponentBase;
         }
 
         Hp = MaxHp = data.MaxHp;
@@ -90,10 +90,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
         SetElement();
 
-        AtkSkill = Activator.CreateInstance(Type.GetType(data[10])) as AtkBase;
-        AtkSkill.Init(this, CSVManager.Ins.Atks[data[10]]);
-        CombSkill = Activator.CreateInstance(Type.GetType(data[11])) as CombBase;
-        CombSkill.Init(this, CSVManager.Ins.Combs[data[11]]);
+        NormalAtk = Activator.CreateInstance(Type.GetType(data[10])) as ComponentBase;
+        NormalAtk.Init(CSVManager.Ins.Atks[data[10]], this);
+        Comb = Activator.CreateInstance(Type.GetType(data[11])) as ComponentBase;
+        Comb.Init( CSVManager.Ins.Combs[data[11]], this);
 
         //AttrInfo.Instance.ShowInfo(this);
         //AP.Play("idle");
@@ -406,8 +406,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #region====流程方法
     public void Reload()
     {
-        AtkSkill.RemainAtkCount = AtkSkill.TotalAtkCount;
-        CombSkill.RemainCombCount = CombSkill.TotalCombCount;
+        NormalAtk.RemainAtkCount = NormalAtk.TotalAtkCount;
+        Comb.RemainCombCount = Comb.TotalCombCount;
     }
     public void FindNextActionUnit()
     {
@@ -457,12 +457,12 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
         foreach (var item in units)
         {
-            if (item.CombSkill. CombTypes.Contains(currDebuff) 
-                && item.CombSkill.RemainCombCount > 0 
+            if (item.Comb. CombTypes.Contains(currDebuff) 
+                && item.Comb.RemainCombCount > 0 
                 && !item.麻痹)
             {
                 BattleMgr.Ins.AnimQueue.Insert(0, item.ID + ":Comb");
-                item.CombSkill.RemainCombCount -= 1;
+                item.Comb.RemainCombCount -= 1;
                 break;
             }
         }
@@ -511,7 +511,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #region====战斗方法
     public void ExecuteAtk()
     {
-        AtkSkill.GetTargets();
+        NormalAtk.GetTargets();
 
         if (BattleMgr.Ins.Targets.Count == 0)//没有目标就走位 然后进行下一个
         {
@@ -533,33 +533,34 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //输出的攻击伤害
     public void CaculDamageOnAtk()
     {
-        AtkSkill.AtkTargets();
+        NormalAtk.AtkTargets();
     }
     //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等)
     public void AddAtkEffectOnAtk()
     {
-        AtkSkill.AddEffectAfterAtk();
+        NormalAtk.OnAtk();
     }
     public void ExecuteComb() 
     {
-        CombSkill.GetTargets();
+        Comb.GetTargets();
         if (BattleMgr.Ins.MainTarget == null) return;
         Animator.Play("closeAtk2");
     }
     //输出的追打伤害
     public void CaculDamageOnComb()
     {
-        CombSkill.CombTargets();
+        Comb.CombTargets();
     }
     //在动画帧攻击之后调用 加追打时特效(Debuff 追打养成等)
     public void AddAtkEffectOnComb()
     {
-        CombSkill.AddEffectAfterComb();
+        Comb.OnComb();
     }
     public void TakeAtkDamage(Unit DamageFrom, float rate, string DamageType = "Atk")
     {
         int damage;
         float damageReduce = 1, damageRate = 1;
+        RcAtk();
         switch (DamageType)
         {
             case "Fire":
@@ -596,12 +597,12 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         BattleMgr.Ins.ShowFont(this, damage, "Hurt");
     }//被攻击时特效 减伤 养成
 
-    public void OnAtked(int DamageValueFromAtker)
+    public void RcAtk()
     {
 
     }
 
-    public void OnCombed(int DamageValueFromAtker)
+    public void RcComb(int DamageValueFromAtker)
     {
 
     }

@@ -4,13 +4,8 @@ using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
-public class 斩击 : AtkBase
+public class 斩击 : ComponentBaseAtk
 {
-    public override void OnAdd()
-    {
-        throw new System.NotImplementedException();
-    }
-
     public override void GetTargets()
     {
         BattleMgr.Ins.Targets.Clear();
@@ -31,7 +26,7 @@ public class 斩击 : AtkBase
         }
     }
 
-    public override void AddEffectAfterAtk()
+    public override void OnAtk()
     //在这里加异常特性buff等
     {
         OwnerUnit.Atk++;
@@ -53,11 +48,6 @@ public class 斩击 : AtkBase
             }
         }
         OwnerUnit.CheckComb("流血");
-    }
-
-    public override void OnRemove()
-    {
-        throw new System.NotImplementedException();
     }
 
     public override void Test()

@@ -2,17 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 冒险剑 : ComponentBase
+public class 史莱姆屏障 : ComponentBase
 {
     public override void OnAdd(UnitData owner)
     {
         base.OnAdd(owner);
-        OwnerUnitData.Atk += 10;
+        SP = 1;
     }
 
-    public override void OnRemove()
+    public override void RcAtk()
     {
-        base .OnRemove();
-        OwnerUnitData.Atk -= 10;
+        if (SP > 0)
+        {
+
+        }
     }
 }

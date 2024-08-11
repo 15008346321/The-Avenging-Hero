@@ -132,7 +132,7 @@ public class UnitData
     public int MaxHp, Atk, Fire, Water, Wind, Thunder, Earth, Cell,Speed ;
     public string Name,AtkName,CombName,WeaponName,ArmorName,SupportName,Passive1, Passive2, Passive3, Passive4;
     public Sprite sprite;
-    public GearBase Weapon, Armor, Support;
+    public ComponentBase NormalAtk, Comb, Weapon, Armor, Support;
 
     public UnitData(string[] data, int pos)
     {
