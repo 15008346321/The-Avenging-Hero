@@ -19,6 +19,10 @@ public abstract class ComponentBaseComb: ComponentBase
             CombTypes.Add(combtype);
         }
     }
+    public virtual void GetTargets()
+    {
+        //追打目标
+    }
     public virtual void CombTargets()
     {
         //追打目标

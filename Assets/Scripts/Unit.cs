@@ -90,9 +90,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
         SetElement();
 
-        NormalAtk = Activator.CreateInstance(Type.GetType(data[10])) as ComponentBase;
+        NormalAtk = Activator.CreateInstance(Type.GetType(data[10])) as ComponentBaseAtk;
         NormalAtk.Init(CSVManager.Ins.Atks[data[10]], this);
-        Comb = Activator.CreateInstance(Type.GetType(data[11])) as ComponentBase;
+        Comb = Activator.CreateInstance(Type.GetType(data[11])) as ComponentBaseComb;
         Comb.Init( CSVManager.Ins.Combs[data[11]], this);
 
         //AttrInfo.Instance.ShowInfo(this);
