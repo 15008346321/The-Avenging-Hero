@@ -2,26 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 波纹法袍 : ComponentBase
+public class 雷霆铠甲 : ComponentBaseArmor
 {
     public override void OnAdd(UnitData owner)
     {
         base.OnAdd(owner);
-
-        OwnerUnitData.Water += 10;
+        OwnerUnitData = owner;
+        OwnerUnitData.Armor = this;
+        OwnerUnitData.Thunder += 10;
         TeamManager.Ins.ShowTeam();
     }
 
     public override void OnRemove()
     {
-        OwnerUnitData.Water -= 10;
+        OwnerUnitData.Thunder -= 10;
         OwnerUnitData.Armor = null;
         OwnerUnitData = null;
         base .OnRemove();
-    }
-
-    public override void Test()
-    {
-        Debug.Log("装备了赤血剑");
     }
 }

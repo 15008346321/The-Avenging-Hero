@@ -19,66 +19,15 @@ public abstract class ComponentBase
         ID = int.Parse(Data[0]);
         Name = Data[1];
         Dscrp = Data[2];
-        Type = Data[3];
     }
     public virtual void OnAdd(UnitData owner)
     {
-        OwnerUnitData = owner;
-        if (Type == "攻击")
-        {
-            OwnerUnitData.NormalAtk = this;
-        }
-        else if (Type == "追打") 
-        {
-            OwnerUnitData.Comb = this;
-        }
-        else
-        {
-            if (Type == "武器")
-            {
-                OwnerUnitData.Weapon = this;
-            }
-            else if (Type == "防具")
-            {
-                OwnerUnitData.Armor = this;
-            }
-            else
-            {
-                OwnerUnitData.Support = this;
-            }
-            TeamManager.Ins.ShowTeam();
-        }
+
     }
     public virtual void OnRemove() 
     {
-        if (Type == "攻击")
-        {
-            OwnerUnitData.NormalAtk = null;
-        }
-        else if (Type == "追打")
-        {
-            OwnerUnitData.Comb = null;
-        }
-        else
-        {
-            if (Type == "武器")
-            {
-                OwnerUnitData.Weapon = null;
-            }
-            else if (Type == "防具")
-            {
-                OwnerUnitData.Armor = null;
-            }
-            else
-            {
-                OwnerUnitData.Support = null;
-            }
-            TeamManager.Ins.ShowTeam();
-        }
-        OwnerUnitData = null;
+        
     }
-
-
     public virtual void Upgrade()
     {
         //装备升级 暂时不做

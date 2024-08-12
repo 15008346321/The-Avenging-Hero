@@ -39,12 +39,13 @@ public class 斩击 : ComponentBaseAtk
             if (existingBuff == null)
             {
                 BuffBleed newBuff = new();
+                newBuff.Init();
+                newBuff.OnAdd(OwnerUnit,item);
                 item.Buffs.Add(newBuff);
-                newBuff.Init(OwnerUnit, item);
             }
             else
             {
-                existingBuff.AddLayer();
+                existingBuff.OnAdd();
             }
         }
         OwnerUnit.CheckComb("流血");

@@ -215,9 +215,12 @@ public class BattleMgr : MonoBehaviour
         SortBySpeed();
         foreach (var item in AllUnit)
         {
+
+            print("1");
             if(item.NormalAtk.RemainAtkCount > 0)
             {
                 //用ID遍历AllUnit找到对应的Unit调用普攻
+                print("2");
                 AnimQueue.Add(item.ID + ":NormalAtk");
                 item.NormalAtk.RemainAtkCount -= 1;
                 break;
@@ -241,6 +244,8 @@ public class BattleMgr : MonoBehaviour
             yield break;
         }
         TimeCout = 0;
+        print("3");
+
 
         //判断是攻击追打被动
 

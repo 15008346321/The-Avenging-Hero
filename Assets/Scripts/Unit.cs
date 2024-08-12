@@ -12,13 +12,15 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public int Cell,ID;
     public float Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Speed;
     public string Element;
-    public bool isBoss, isDead, hvaeComb, 致盲, 麻痹;
+    public bool isBoss, isDead, 致盲, 麻痹;
     public ComponentBaseAtk NormalAtk;
     public ComponentBaseComb Comb;
-    public ComponentBase Weapon, Armor, Support;
-    public List<BuffBase> Buffs = new();
+    public ComponentBaseWeapon Weapon;
+    public ComponentBaseArmor Armor;
+    public ComponentBaseSupport Support;
+    public List<ComponentBaseBuff> Buffs = new();
     public Animator Animator;
-    public Image HpBar,Icon;
+    public Image HpBar, Icon;
     public Transform CloseAtkPos,StartParent;
     public RectTransform TMPNameNode;
     public CanvasGroup CanvasGroup;
@@ -43,15 +45,15 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
         if (data.WeaponName != null)
         {
-            Weapon = Activator.CreateInstance(Type.GetType(data.WeaponName)) as ComponentBase;
+            Weapon = Activator.CreateInstance(Type.GetType(data.WeaponName)) as ComponentBaseWeapon;
         }
         if (data.ArmorName != null)
         {
-            Armor = Activator.CreateInstance(Type.GetType(data.ArmorName)) as ComponentBase;
+            Armor = Activator.CreateInstance(Type.GetType(data.ArmorName)) as ComponentBaseArmor;
         }
         if (data.SupportName != null)
         {
-            Support = Activator.CreateInstance(Type.GetType(data.SupportName)) as ComponentBase;
+            Support = Activator.CreateInstance(Type.GetType(data.SupportName)) as ComponentBaseSupport;
         }
 
         Hp = MaxHp = data.MaxHp;
@@ -406,6 +408,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #region====流程方法
     public void Reload()
     {
+
+        print("relaod");
         NormalAtk.RemainAtkCount = NormalAtk.TotalAtkCount;
         Comb.RemainCombCount = Comb.TotalCombCount;
     }

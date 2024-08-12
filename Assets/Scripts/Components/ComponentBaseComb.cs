@@ -12,7 +12,7 @@ public abstract class ComponentBaseComb: ComponentBase
     {
         base.Init(Data);
         OwnerUnit = u;
-        Type = "追打";
+        TotalCombCount = int.Parse(Data[3]);
         string[] combtypes = Data[4].Split('&');
         foreach (string combtype in combtypes)
         {

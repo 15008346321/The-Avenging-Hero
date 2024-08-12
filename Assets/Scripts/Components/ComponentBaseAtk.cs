@@ -9,8 +9,8 @@ public abstract class ComponentBaseAtk: ComponentBase
     public void Init(string[] Data,Unit u)
     {
         base.Init(Data);
+        TotalAtkCount =  int.Parse(Data[3]);
         OwnerUnit = u;
-        Type = "攻击";
     }
     public virtual void GetTargets()
     {
