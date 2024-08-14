@@ -38,7 +38,7 @@ public class TeamManager : MonoBehaviour
         TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],4));
     }
 
-    //在UI/TeamBtn按钮上绑定
+    //在UI/TeamBtn按钮上绑定 刷新小队面板
     public void ShowTeam()
     {
         TeamNode.SetActive(true);
@@ -92,7 +92,6 @@ public class TeamManager : MonoBehaviour
             MbrBtnTMP[i].text = TeamData[i].Name;
             MbrImgs[i].sprite = TeamData[i].sprite;
         }
-        ShowDetail();
     }
 
     public void ShowGearSlot(int i)
@@ -107,23 +106,6 @@ public class TeamManager : MonoBehaviour
             item.DOKill();
             WeaponSlotImg.DOFade(0.5f, 0f);
         }
-    }
-    //Btn上绑定调用
-    public void ShowDetail()
-    {
-        DetailNode.SetActive(true);
-        //AtkName.text = TeamData[MbrInfoIdx].NormalAtk.Name;
-        //AtkDscrp.text = TeamData[MbrInfoIdx].NormalAtk.Dscrp;
-        //CombName.text = TeamData[MbrInfoIdx].Comb.Name;
-        //CombDscrp.text = TeamData[MbrInfoIdx].Comb.Dscrp;
-        //SpecialName1.text = TeamData[MbrInfoIdx].Special.Name;
-        //SpecialDscrp1.text = TeamData[MbrInfoIdx].Special.Dscrp;
-        //WeaponName.text = TeamData[MbrInfoIdx].relic1.Name;
-        //WeaponDscrp.text = TeamData[MbrInfoIdx].relic1.Dscrp;
-        //ArmorName.text = TeamData[MbrInfoIdx].relic2.Name;
-        //ArmorDscrp.text = TeamData[MbrInfoIdx].relic2.Dscrp;
-        //SupportName.text = TeamData[MbrInfoIdx].relic3.Name;
-        //SupportDscrp.text = TeamData[MbrInfoIdx].relic3.Dscrp;
     }
 }
 [Serializable]

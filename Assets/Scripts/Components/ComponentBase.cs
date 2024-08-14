@@ -11,6 +11,7 @@ public abstract class ComponentBase
     public int[] XP = {5,15,30,50,80};
     public UnitData OwnerUnitData;
     public Unit OwnerUnit;
+    public GearDrag GearDrag;
     public Sprite sprite;
     public Transform StartParent;
 

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public abstract class ComponentBaseSupport: ComponentBase
 {
-    public void Init(string[] Data,Unit u)
+    public override void Init(string[] Data)
     {
         base.Init(Data);
         Type = "辅助";

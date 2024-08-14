@@ -7,7 +7,9 @@ using UnityEngine.UI;
 
 public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public GameObject OwnerNum, GearType;
     public Transform StartParent;
+    public List<Transform> GearOwnerIcon = new();
     public RectTransform RectTransform;
     public ComponentBase Gear;
     public CanvasGroup CanvasGroup;
@@ -19,6 +21,7 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
     {
         //生成并初始化脚本
         Gear = Activator.CreateInstance(Type.GetType(name)) as ComponentBase;
+        Gear.GearDrag = this;
         Gear.Init(CSVManager.Ins.Gears[name]);
         //拖拽监测
         RectTransform = GetComponent<RectTransform>();
@@ -30,7 +33,8 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
     {
         StartParent = transform.parent;
         transform.SetParent(BagManager.Ins.DragParent);
-
+        OwnerNum.SetActive(false);
+        GearType.SetActive(false);
         if (Gear.Type == "武器") TeamManager.Ins.ShowGearSlot(0);
         if (Gear.Type == "防具") TeamManager.Ins.ShowGearSlot(1);
         if (Gear.Type == "辅助") TeamManager.Ins.ShowGearSlot(2);
@@ -47,11 +51,11 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
 
         var list = GraphicRaycaster(Input.mousePosition);
 
+
+        
         foreach (var item in list)
         {
-
-            print(item.gameObject.tag);
-            //检测是否在物品上
+            //检测是否在物品上 Item Slot在背包中换位置 武器防具辅助在角色面板上面换
             if (item.gameObject.tag == "Item")
             {
                 //如果在物品上则执行以下代码
@@ -74,20 +78,64 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
                 transform.localPosition = Vector2.zero;
                 break;
             }
+            //武器防具辅助 逻辑一样
             else if (item.gameObject.tag == "WeaponSlot" && Gear.Type == "武器")
             {
+
+                GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
+                OwnerNum.SetActive(true);
+                GearType.SetActive(true);
+
+                //当前的单位
                 UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
-                if(ud.Weapon == Gear) return;
+
+                if (ud.Weapon == Gear) return;
+
+                //把当目标单位已有装备去除
+                ud.Weapon?.GearDrag.OwnerNum.SetActive(false);
                 ud.Weapon?.OnRemove();
+
+                //去除该装备的原单位
+                if(Gear.OwnerUnitData!=null) Gear.OnRemove();
                 Gear.OnAdd(ud);
             }
             else if (item.gameObject.tag == "ArmorSlot" && Gear.Type == "防具")
             {
-                Gear.Test();
+                GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
+                OwnerNum.SetActive(true);
+                GearType.SetActive(true);
+
+                //当前的单位
+                UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
+
+                if (ud.Armor == Gear) return;
+
+                //把当目标单位已有装备去除
+                ud.Armor?.GearDrag.OwnerNum.SetActive(false);
+                ud.Armor?.OnRemove();
+
+                //去除该装备的原单位
+                if (Gear.OwnerUnitData != null) Gear.OnRemove();
+                Gear.OnAdd(ud);
             }
             else if (item.gameObject.tag == "SupporSlot" && Gear.Type == "辅助")
             {
-                Gear.Test();
+                GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
+                OwnerNum.SetActive(true);
+                GearType.SetActive(true);
+
+                //当前的单位
+                UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
+
+                if (ud.Support == Gear) return;
+
+                //把当目标单位已有装备去除
+                ud.Support?.GearDrag.OwnerNum.SetActive(false);
+                ud.Support?.OnRemove();
+
+                //去除该装备的原单位
+                if (Gear.OwnerUnitData != null) Gear.OnRemove();
+                Gear.OnAdd(ud);
             }
             else
             {
