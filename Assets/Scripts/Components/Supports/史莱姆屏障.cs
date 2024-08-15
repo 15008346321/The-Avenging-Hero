@@ -14,7 +14,7 @@ public class 史莱姆屏障 : ComponentBaseSupport
     {
         if (SP > 0)
         {
-
+            OwnerUnit.Damage = 0;
         }
     }
 }

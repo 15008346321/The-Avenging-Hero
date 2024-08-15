@@ -9,7 +9,7 @@ using System;
 
 public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
-    public int Cell,ID;
+    public int Cell,ID,Damage;
     public float Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Speed;
     public string Element;
     public bool isBoss, isDead, 致盲, 麻痹;
@@ -18,7 +18,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public ComponentBaseWeapon Weapon;
     public ComponentBaseArmor Armor;
     public ComponentBaseSupport Support;
+    public List<ComponentBase> Components;
     public List<ComponentBaseBuff> Buffs = new();
+
     public Animator Animator;
     public Image HpBar, Icon;
     public Transform CloseAtkPos,StartParent;
@@ -46,14 +48,17 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         if (data.WeaponName != null)
         {
             Weapon = Activator.CreateInstance(Type.GetType(data.WeaponName)) as ComponentBaseWeapon;
+            Components.Add(Weapon);
         }
         if (data.ArmorName != null)
         {
             Armor = Activator.CreateInstance(Type.GetType(data.ArmorName)) as ComponentBaseArmor;
+            Components.Add(Armor);
         }
         if (data.SupportName != null)
         {
             Support = Activator.CreateInstance(Type.GetType(data.SupportName)) as ComponentBaseSupport;
+            Components.Add(Support);
         }
 
         Hp = MaxHp = data.MaxHp;
@@ -560,56 +565,146 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         Comb.OnComb();
     }
-    public void TakeAtkDamage(Unit DamageFrom, float rate, string DamageType = "Atk")
+    //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
+    public void TakeAtkDamage(Unit DamageFrom, float rate, string AttrType = "Atk", string AtkType = "Atk")
     {
-        int damage;
         float damageReduce = 1, damageRate = 1;
-        RcAtk();
-        switch (DamageType)
+        switch (AttrType)
         {
             case "Fire":
                 damageReduce = DamageFrom.Fire / (DamageFrom.Fire + Fire);
                 if (Element == "风") damageRate = 1.5f;
-                damage = Mathf.RoundToInt(DamageFrom.Fire * damageReduce * damageRate);
+                Damage = Mathf.RoundToInt(DamageFrom.Fire * damageReduce * damageRate);
                 break;
             case "Water":
                 damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
                 if (Element == "火") damageRate = 1.5f;
-                damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
+                Damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
                 break;
             case "Wind":
                 damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
                 if (Element == "土") damageRate = 1.5f;
-                damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
+                Damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
                 break;
             case "Thunder":
                 damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
                 if (Element == "水") damageRate = 1.5f;
-                damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
+                Damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
                 break;
             case "Earth":
                 damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
                 if (Element == "雷") damageRate = 1.5f;
-                damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
+                Damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
                 break;
             default:
                 damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
-                damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
+                Damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
                 break;
         }
-        damage = Mathf.RoundToInt(damage * rate);
-        BattleMgr.Ins.ShowFont(this, damage, "Hurt");
+        Damage = Mathf.RoundToInt(Damage * rate);
+        if(AtkType == "Atk") RcAtk();
+        if(AtkType == "Comb") RcComb();
+        if (AttrType == "Atk") RcAtk();
+        if (AttrType == "Fire") RcFire();
+        if (AttrType == "Water") RcComb();
+        if (AttrType == "Wind") RcAtk();
+        if (AttrType == "Thunder") RcComb();
+        if (AttrType == "Earth") RcComb();
+
+        BattleMgr.Ins.ShowFont(this, Damage, "Hurt");
     }//被攻击时特效 减伤 养成
 
+    #region ==== 受击特效 ====
     public void RcAtk()
     {
-
+        foreach (var item in Buffs)
+        {
+            item.RcAtk();
+        }
+        foreach (var item in Components)
+        {
+            item.RcAtk();
+        }
     }
 
-    public void RcComb(int DamageValueFromAtker)
+    public void RcComb()
     {
-
+        foreach (var item in Buffs)
+        {
+            item.RcComb();
+        }
+        foreach (var item in Components)
+        {
+            item.RcComb();
+        }
     }
+    public void RcPhs()
+    {
+        foreach (var item in Buffs)
+        {
+            item.RcPhs();
+        }
+        foreach (var item in Components)
+        {
+            item.RcPhs();
+        }
+    }
+    public void RcFire()
+    {
+        foreach (var item in Buffs)
+        {
+            item.RcFire();
+        }
+        foreach (var item in Components)
+        {
+            item.RcFire();
+        }
+    }
+    public void RcWater()
+    {
+        foreach (var item in Buffs)
+        {
+            item.RcWater();
+        }
+        foreach (var item in Components)
+        {
+            item.RcWater();
+        }
+    }
+    public void RcWind()
+    {
+        foreach (var item in Buffs)
+        {
+            item.RcWind();
+        }
+        foreach (var item in Components)
+        {
+            item.RcWind();
+        }
+    }
+    public void RcThunder()
+    {
+        foreach (var item in Buffs)
+        {
+            item.RcThunder();
+        }
+        foreach (var item in Components)
+        {
+            item.RcThunder();
+        }
+    }
+    public void RcEarth()
+    {
+        foreach (var item in Buffs)
+        {
+            item.RcEarth();
+        }
+        foreach (var item in Components)
+        {
+            item.RcEarth();
+        }
+    }
+    #endregion
     public void OnTurnEnd()
     {
         致盲 = false;

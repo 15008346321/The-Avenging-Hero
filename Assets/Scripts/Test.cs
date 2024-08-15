@@ -25,6 +25,11 @@ public class Test : MonoBehaviour
     {
         BagManager.Ins.GenerateGear("火焰法杖");
     }
+
+    public void Test8()
+    {
+        BagManager.Ins.GenerateGear("史莱姆屏障");
+    }
     //private void Start()
     //{
     //    filePath = Path.Combine(Application.persistentDataPath, "Skills.json");

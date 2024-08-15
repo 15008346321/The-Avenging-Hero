@@ -22,7 +22,7 @@ public class 斩击 : ComponentBaseAtk
         BattleMgr.Ins.ShowSkillName(OwnerUnit, "斩击");
         foreach (var item in BattleMgr.Ins.Targets)
         {
-            item.TakeAtkDamage(OwnerUnit,1);
+            item.TakeAtkDamage(OwnerUnit,1,AtkType:"Comb");
         }
     }
 
