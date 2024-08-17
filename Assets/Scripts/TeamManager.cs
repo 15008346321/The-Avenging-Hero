@@ -15,7 +15,7 @@ public class TeamManager : MonoBehaviour
         DetailPassiveTMP = new TextMeshProUGUI[4];
     public TextMeshProUGUI DetailName,AtkName, AtkDscrp, CombName, CombDscrp, WeaponName, WeaponDscrp, 
         ArmorName, ArmorDscrp, SupportName, SupportDscrp;
-    public Image DetailIcon, WeaponSlotImg;
+    public Image DetailIcon;
     public Image[] MbrImgs = new Image[4], DetailImgs = new Image[5], GearSlotImgs = new Image[3];
     public int CurrMbrIdx = 0;
     public GameObject TeamNode,DetailNode;
@@ -104,7 +104,7 @@ public class TeamManager : MonoBehaviour
         foreach (var item in GearSlotImgs)
         {
             item.DOKill();
-            WeaponSlotImg.DOFade(0.5f, 0f);
+            item.DOFade(0.4f, 0.5f);
         }
     }
 }
@@ -114,7 +114,12 @@ public class UnitData
     public int MaxHp, Atk, Fire, Water, Wind, Thunder, Earth, Cell,Speed ;
     public string Name,AtkName,CombName,WeaponName,ArmorName,SupportName,Passive1, Passive2, Passive3, Passive4;
     public Sprite sprite;
-    public ComponentBase NormalAtk, Comb, Weapon, Armor, Support;
+    public ComponentBaseAtk NormalAtk;
+    public ComponentBaseComb Comb;
+    public ComponentBaseWeapon Weapon;
+    public ComponentBaseArmor Armor;
+    public ComponentBaseSupport Support;
+
 
     public UnitData(string[] data, int pos)
     {

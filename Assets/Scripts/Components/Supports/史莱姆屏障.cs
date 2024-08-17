@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class 史莱姆屏障 : ComponentBaseSupport
 {
-    public override void OnAdd(UnitData owner)
+    public override void OnBattleStart()
     {
-        base.OnAdd(owner);
         SP = 1;
     }
 
@@ -15,6 +14,7 @@ public class 史莱姆屏障 : ComponentBaseSupport
         if (SP > 0)
         {
             OwnerUnit.Damage = 0;
+            SP = 0;
         }
     }
 }

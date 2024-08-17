@@ -50,8 +50,6 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
         TeamManager.Ins.StopShowGearSlot();
 
         var list = GraphicRaycaster(Input.mousePosition);
-
-
         
         foreach (var item in list)
         {
@@ -118,7 +116,7 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
                 if (Gear.OwnerUnitData != null) Gear.OnRemove();
                 Gear.OnAdd(ud);
             }
-            else if (item.gameObject.tag == "SupporSlot" && Gear.Type == "辅助")
+            else if (item.gameObject.tag == "SupportSlot" && Gear.Type == "辅助")
             {
                 GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
                 OwnerNum.SetActive(true);

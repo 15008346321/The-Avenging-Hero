@@ -43,7 +43,7 @@ public class HurtFont : MonoBehaviour
             U.transform.parent.SetParent(BattleMgr.Ins.DeadParent);
             if (BattleMgr.Ins.CheckBattleEnd())
             {
-                BattleMgr.Ins.ExitBattle();
+                BattleMgr.Ins.OnBattleEnd();
             }
         }
         Destroy(gameObject);

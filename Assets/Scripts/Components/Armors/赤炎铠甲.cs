@@ -7,8 +7,6 @@ public class 赤炎铠甲 : ComponentBaseArmor
     public override void OnAdd(UnitData owner)
     {
         base.OnAdd(owner);
-        OwnerUnitData = owner;
-        OwnerUnitData.Armor = this;
         OwnerUnitData.Fire += 10;
         TeamManager.Ins.ShowTeam();
     }
@@ -16,9 +14,7 @@ public class 赤炎铠甲 : ComponentBaseArmor
     public override void OnRemove()
     {
         OwnerUnitData.Fire -= 10;
-        OwnerUnitData.Armor = null;
-        OwnerUnitData = null;
-        base .OnRemove();
+        base.OnRemove();
     }
 
     public override void Test()

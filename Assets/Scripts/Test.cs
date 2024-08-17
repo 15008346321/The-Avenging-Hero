@@ -23,7 +23,7 @@ public class Test : MonoBehaviour
 
     public void Test7()
     {
-        BagManager.Ins.GenerateGear("火焰法杖");
+        BagManager.Ins.GenerateGear("气血铠甲");
     }
 
     public void Test8()

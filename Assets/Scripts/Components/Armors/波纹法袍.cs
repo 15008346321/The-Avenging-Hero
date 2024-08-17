@@ -7,7 +7,6 @@ public class 波纹法袍 : ComponentBaseArmor
     public override void OnAdd(UnitData owner)
     {
         base.OnAdd(owner);
-
         OwnerUnitData.Water += 10;
         TeamManager.Ins.ShowTeam();
     }
@@ -15,9 +14,7 @@ public class 波纹法袍 : ComponentBaseArmor
     public override void OnRemove()
     {
         OwnerUnitData.Water -= 10;
-        OwnerUnitData.Armor = null;
-        OwnerUnitData = null;
-        base .OnRemove();
+        base.OnRemove();
     }
 
     public override void Test()

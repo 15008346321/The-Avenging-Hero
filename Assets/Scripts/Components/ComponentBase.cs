@@ -81,6 +81,10 @@ public abstract class ComponentBase
     {
         //回合结束
     }
+    public virtual void OnBattleStart()
+    {
+        //战斗结束
+    }
     public virtual void OnBattleEnd()
     {
         //战斗结束

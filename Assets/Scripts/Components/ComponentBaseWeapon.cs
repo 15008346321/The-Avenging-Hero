@@ -13,6 +13,7 @@ public abstract class ComponentBaseWeapon: ComponentBase
 
     public override void OnAdd(UnitData owner)
     {
+        Debug.Log("weapon OnAdd");
         OwnerUnitData = owner;
         OwnerUnitData.Weapon = this;
         TeamManager.Ins.ShowTeam();

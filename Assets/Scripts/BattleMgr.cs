@@ -15,9 +15,9 @@ public class BattleMgr : MonoBehaviour
     public Unit MainTarget;
     public GameObject UnitObj, HurtFont, ourObj, eneObj, 布阵提示, CombDetailPrefab;
     public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos,DeadParent;
-    public int currentDamage, AtkTotal,CombSkiIdx,IDCount = 0,CombDetailCount;
+    public int currentDamage, AtkTotal,CombSkiIdx,IDCount,CombDetailCount;
     public string bonus, 当前追打状态;
-    public bool isOurTurn,正在战斗,正在追打,BattleEnd;
+    public bool isOurTurn,正在战斗,正在追打,isBattling,isBattleStart;
     public Button BattleBtn;
     public Image[] PosSlots = new Image[9], CombDetailImgs = new Image[6];
     public TextMeshProUGUI[] CombDetailTMP = new TextMeshProUGUI[6];
@@ -57,21 +57,27 @@ public class BattleMgr : MonoBehaviour
             //ourObj.transform.GetChild(u.Cell - 1)
             u.transform.parent.SetParent(OurRunningPos.GetChild(i));
             u.transform.parent.localPosition = Vector2.zero;
-            u.TeamInitAttr(TeamManager.Ins.TeamData[i]);
             u.tag = "Our";
             u.ID = IDCount;
-            u.name = uname + u.ID;
             IDCount += 1;
+            u.name = uname + u.ID;
             IDUnitPiar.Add(u.ID, u);
             Team.Add(u);
             AllUnit.Add(u);
         }
         OurTeamRun();
     }
+    public void InitUnitAttr()
+    {
+        for (int i = 0; i < TeamManager.Ins.TeamData.Count; i++)
+        {
+            Team[i].Init(TeamManager.Ins.TeamData[i]);
+        }
+    }
     public void InitEnemys(string monsters)
     {
         //哥布林P1,哥布林P7,投石哥布林P5
-        BattleEnd = false;
+        isBattling = true;
         EneRunningPos.transform.localPosition = new Vector2(1300, -140);
         var enemys = monsters.Split('&');
         for (int i = 0; i < enemys.Length; i++)
@@ -150,16 +156,15 @@ public class BattleMgr : MonoBehaviour
         {
             Vector2 tarPos = side.transform.GetChild(item.Cell - 1).position;
             item.transform.parent.DOMove(side.transform.GetChild(item.Cell - 1).position, 1f).OnComplete
-                (
-                   () => {
-                       item.Animator.Play("idle");
-                       item.transform.parent.SetParent(side.transform.GetChild(item.Cell - 1));
-                       }
-                );;
+            (
+                () => 
+                {
+                    item.Animator.Play("idle");
+                    item.transform.parent.SetParent(side.transform.GetChild(item.Cell - 1));
+                }
+            );
         }
     }
-
-    
 
     public void SetPosSlotAlpha(float alpha)
     {
@@ -185,14 +190,29 @@ public class BattleMgr : MonoBehaviour
 
     public void OnBattleClick()
     {
+        isBattling = true;
         SetPosSlotAlpha(0);
+        if (isBattleStart == false)
+        {
+            InitUnitAttr();
+            OnBattleStart();
+        }
         OnTurnStart();
         //BattleBtn.enabled = false;
     }
 
+    public void OnBattleStart()
+    {
+        isBattleStart = true;
+        foreach (var item in AllUnit)
+        {
+            item.OnBattleStart();
+        }
+    }
+
     public void OnTurnStart()
     {
-        BattleEnd = false;
+        isBattling = true;
         foreach (var item in AllUnit)
         {
             item.Reload();
@@ -215,12 +235,9 @@ public class BattleMgr : MonoBehaviour
         SortBySpeed();
         foreach (var item in AllUnit)
         {
-
-            print("1");
             if(item.NormalAtk.RemainAtkCount > 0)
             {
                 //用ID遍历AllUnit找到对应的Unit调用普攻
-                print("2");
                 AnimQueue.Add(item.ID + ":NormalAtk");
                 item.NormalAtk.RemainAtkCount -= 1;
                 break;
@@ -244,8 +261,6 @@ public class BattleMgr : MonoBehaviour
             yield break;
         }
         TimeCout = 0;
-        print("3");
-
 
         //判断是攻击追打被动
 
@@ -299,6 +314,7 @@ public class BattleMgr : MonoBehaviour
         }
         
     }
+
     public bool TrySuccess(float successRate)
     {
         // 生成一个0到1之间的随机数（不包括1）  
@@ -312,6 +328,7 @@ public class BattleMgr : MonoBehaviour
         // 否则返回false，表示失败  
         return false;
     }
+
     private IEnumerator FadeName(Unit u,string SkillName)
     {
         CombDetailCount += 1;
@@ -370,10 +387,10 @@ public class BattleMgr : MonoBehaviour
 
     public bool CheckBattleEnd()
     {
-        if (BattleEnd == true) return false;
+        if (isBattling == false) return false;
         if (Enemys.All(item=>item.isDead==true)|| Team.All(item => item.isDead == true))
         {
-            BattleEnd = true;
+            isBattling = false;
             print("CheckBattleEnd true");
             return true;
         }
@@ -387,9 +404,19 @@ public class BattleMgr : MonoBehaviour
             AllUnit[i].OnTurnEnd();
         }
     }
+    public void OnBattleEnd()
+    {
+        //EventsMgr.Instance.BattleDetail.gameObject.SetActive(false);
+        ResetBattle();
+        //TODO 战后结算
+        //Bonus.Ins.ShowBonus();
+        InitTeam();
+        EventsMgr.Ins.GenNewRoom();
+    }
 
     public void ResetBattle()
     {
+        isBattleStart = false;
         IDUnitPiar.Clear();
         IDCount = 0;
         AllUnit.Clear();
@@ -410,14 +437,5 @@ public class BattleMgr : MonoBehaviour
                 Destroy(eneObj.transform.GetChild(i).GetChild(0).gameObject);
             }
         }
-    }
-    public void ExitBattle()
-    {
-        //EventsMgr.Instance.BattleDetail.gameObject.SetActive(false);
-        ResetBattle();
-        //TODO 战后结算
-        //Bonus.Ins.ShowBonus();
-        InitTeam();
-        EventsMgr.Ins.GenNewRoom();
     }
 }

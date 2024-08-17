@@ -18,7 +18,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public ComponentBaseWeapon Weapon;
     public ComponentBaseArmor Armor;
     public ComponentBaseSupport Support;
-    public List<ComponentBase> Components;
+    public List<ComponentBase> Components = new();
     public List<ComponentBaseBuff> Buffs = new();
 
     public Animator Animator;
@@ -36,28 +36,31 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         gra = FindObjectOfType<GraphicRaycaster>();
     }
     #region====初始化方法
-    public void TeamInitAttr(UnitData data)
+    public void Init(UnitData data)
     {
-        name = data.Name;
+        //name = data.Name;
         //Icon.sprite = data.sprite;
         NormalAtk = Activator.CreateInstance(Type.GetType(data.AtkName)) as ComponentBaseAtk;
         NormalAtk.Init(CSVManager.Ins.Atks[data.AtkName], this);
         Comb = Activator.CreateInstance(Type.GetType(data.CombName)) as ComponentBaseComb;
         Comb.Init(CSVManager.Ins.Combs[data.CombName],this);
 
-        if (data.WeaponName != null)
+        if (data.Weapon != null)
         {
-            Weapon = Activator.CreateInstance(Type.GetType(data.WeaponName)) as ComponentBaseWeapon;
+            Weapon = data.Weapon;
+            Weapon.OwnerUnit = this;
             Components.Add(Weapon);
         }
-        if (data.ArmorName != null)
+        if (data.Armor != null)
         {
-            Armor = Activator.CreateInstance(Type.GetType(data.ArmorName)) as ComponentBaseArmor;
+            Armor = data.Armor;
+            Armor.OwnerUnit = this;
             Components.Add(Armor);
         }
-        if (data.SupportName != null)
+        if (data.Support != null)
         {
-            Support = Activator.CreateInstance(Type.GetType(data.SupportName)) as ComponentBaseSupport;
+            Support = data.Support;
+            Support.OwnerUnit = this;
             Components.Add(Support);
         }
 
@@ -517,7 +520,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             BattleMgr.Ins.ShowFont(this, "土属性+" + value);
         }
     }
-    #region====战斗方法
+#region====战斗方法
     public void ExecuteAtk()
     {
         NormalAtk.GetTargets();
@@ -539,12 +542,12 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
     }
    
-    //输出的攻击伤害
+    //输出的攻击伤害 动画上调用
     public void CaculDamageOnAtk()
     {
         NormalAtk.AtkTargets();
     }
-    //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等)
+    //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等) 动画上调用
     public void AddAtkEffectOnAtk()
     {
         NormalAtk.OnAtk();
@@ -614,15 +617,16 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         BattleMgr.Ins.ShowFont(this, Damage, "Hurt");
     }//被攻击时特效 减伤 养成
 
-    #region ==== 受击特效 ====
     public void RcAtk()
     {
+        Debug.Log("RcAtk");
         foreach (var item in Buffs)
         {
             item.RcAtk();
         }
         foreach (var item in Components)
         {
+            Debug.Log(item.Name + "RcAtk");
             item.RcAtk();
         }
     }
@@ -704,7 +708,13 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             item.RcEarth();
         }
     }
-    #endregion
+    public void OnBattleStart()
+    {
+        foreach (var item in Components)
+        {
+            item.OnBattleStart();
+        }
+    }
     public void OnTurnEnd()
     {
         致盲 = false;
