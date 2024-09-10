@@ -17,43 +17,43 @@ public class ScrollBg : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    //void Update()
+    //{
 
-        if (MoveBg)
-        {
-            float offset = Time.deltaTime * BgSpeed;
-            bg1.transform.localPosition = new Vector2(bg1.transform.localPosition.x - offset, 0);
-            bg2.transform.localPosition = new Vector2(bg2.transform.localPosition.x - offset, 0);
-            roadsNode.transform.localPosition = new Vector2(roadsNode.transform.localPosition.x - offset, 0);
+    //    if (MoveBg)
+    //    {
+    //        float offset = Time.deltaTime * BgSpeed;
+    //        bg1.transform.localPosition = new Vector2(bg1.transform.localPosition.x - offset, 0);
+    //        bg2.transform.localPosition = new Vector2(bg2.transform.localPosition.x - offset, 0);
+    //        roadsNode.transform.localPosition = new Vector2(roadsNode.transform.localPosition.x - offset, 0);
 
-            if (bg1.transform.localPosition.x <= -1919)
-            {
-                bg1.transform.localPosition = new Vector2(1919, 0);
-            }
-            if (bg2.transform.localPosition.x <= -1919)
-            {
-                bg2.transform.localPosition = new Vector2(1919, 0);
-            }
-            if (roadsNode.gameObject.activeInHierarchy && roadsNode.transform.localPosition.x <= 700)
-            {
-                MoveBg = false;
-                BattleMgr.Ins.OurTeamIdle();
-            }
+    //        if (bg1.transform.localPosition.x <= -1919)
+    //        {
+    //            bg1.transform.localPosition = new Vector2(1919, 0);
+    //        }
+    //        if (bg2.transform.localPosition.x <= -1919)
+    //        {
+    //            bg2.transform.localPosition = new Vector2(1919, 0);
+    //        }
+    //        if (roadsNode.gameObject.activeInHierarchy && roadsNode.transform.localPosition.x <= 700)
+    //        {
+    //            MoveBg = false;
+    //            BattleMgr.Ins.OurTeamIdle();
+    //        }
             
-        }
-        if (MoveEnemy)
-        {
-            float offset = Time.deltaTime * EnemySpeed;
-            EnemyRunningNode.transform.localPosition = new Vector2(EnemyRunningNode.transform.localPosition.x - offset, -140);
-            if (EnemyRunningNode.transform.localPosition.x <= 550)
-            {
-                BattleMgr.Ins.SetPosSlotAlpha(0.4f);
-                MoveEnemy = false;
-                BattleMgr.Ins.BattleBtn.gameObject.SetActive(true);
-                BattleMgr.Ins.OurTeamMoveToCell();
-                BattleMgr.Ins.EneTeamMoveToCell();
-            }
-        }
-    }
+    //    }
+    //    if (MoveEnemy)
+    //    {
+    //        float offset = Time.deltaTime * EnemySpeed;
+    //        EnemyRunningNode.transform.localPosition = new Vector2(EnemyRunningNode.transform.localPosition.x - offset, -140);
+    //        if (EnemyRunningNode.transform.localPosition.x <= 550)
+    //        {
+    //            BattleMgr.Ins.SetPosSlotAlpha(0.4f);
+    //            MoveEnemy = false;
+    //            BattleMgr.Ins.BattleBtn.gameObject.SetActive(true);
+    //            BattleMgr.Ins.OurTeamMoveToCell();
+    //            BattleMgr.Ins.EneTeamMoveToCell();
+    //        }
+    //    }
+    //}
 }

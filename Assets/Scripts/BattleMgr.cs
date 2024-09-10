@@ -16,7 +16,7 @@ public class BattleMgr : MonoBehaviour
     public GameObject UnitObj, HurtFont, ourObj, eneObj, 布阵提示, CombDetailPrefab;
     public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos,DeadParent;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount,CombDetailCount;
-    public string bonus, 当前追打状态;
+    public string 当前追打状态;
     public bool isOurTurn,正在战斗,正在追打,isBattling,isBattleStart;
     public Button BattleBtn;
     public Image[] PosSlots = new Image[9], CombDetailImgs = new Image[6];
@@ -65,7 +65,6 @@ public class BattleMgr : MonoBehaviour
             Team.Add(u);
             AllUnit.Add(u);
         }
-        OurTeamRun();
     }
     public void InitUnitAttr()
     {
@@ -80,6 +79,7 @@ public class BattleMgr : MonoBehaviour
         isBattling = true;
         EneRunningPos.transform.localPosition = new Vector2(1300, -140);
         var enemys = monsters.Split('&');
+        EventsMgr.Ins.SetBonusGold(enemys.Length);
         for (int i = 0; i < enemys.Length; i++)
         {
             string eName = enemys[i].Split('P')[0];
@@ -102,7 +102,12 @@ public class BattleMgr : MonoBehaviour
             IDUnitPiar.Add(u.ID, u);
         }
         EneTeamRun();
-        EnterBattle();
+        EneRunningPos.transform.DOLocalMoveX(550, 1f).OnComplete(() =>
+        {
+            BattleBtn.gameObject.SetActive(true);
+            EnterBattle();
+        });
+        
     }
     public void OurTeamIdle()
     {
@@ -186,12 +191,15 @@ public class BattleMgr : MonoBehaviour
     {
         ourObj.SetActive(true);
         eneObj.SetActive(true);
+        OurTeamMoveToCell();
+        EneTeamMoveToCell();
     }
 
     public void OnBattleClick()
     {
         isBattling = true;
         SetPosSlotAlpha(0);
+        SetHpBarActive();
         if (isBattleStart == false)
         {
             InitUnitAttr();
@@ -385,16 +393,18 @@ public class BattleMgr : MonoBehaviour
         hf.animator.Play("ShowString");
     }
 
-    public bool CheckBattleEnd()
+    public void CheckBattleEnd()
     {
-        if (isBattling == false) return false;
-        if (Enemys.All(item=>item.isDead==true)|| Team.All(item => item.isDead == true))
+        if (isBattling == false) return;
+        isBattling = false;
+        if (Enemys.All(item => item.isDead == true))
         {
-            isBattling = false;
-            print("CheckBattleEnd true");
-            return true;
+            OnBattleWin();
         }
-        return false;
+        else if(Team.All(item => item.isDead == true))
+        {
+            OnBattleFailed();
+        }
     }
 
     public void OnTurnEnd()
@@ -404,14 +414,23 @@ public class BattleMgr : MonoBehaviour
             AllUnit[i].OnTurnEnd();
         }
     }
-    public void OnBattleEnd()
+    public void OnBattleWin()
     {
         //EventsMgr.Instance.BattleDetail.gameObject.SetActive(false);
         ResetBattle();
         //TODO 战后结算
         //Bonus.Ins.ShowBonus();
+        BattleBtn.gameObject.SetActive(false);
+        EventsMgr.Ins.ShowBonus();
+    }
+
+    public void OnBattleFailed()
+    {
+        ResetBattle();
+        BattleBtn.gameObject.SetActive(false);
+        EventsMgr.Ins.EventPoint -= Enemys.Count;
+        EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
         InitTeam();
-        EventsMgr.Ins.GenNewRoom();
     }
 
     public void ResetBattle()
@@ -436,6 +455,13 @@ public class BattleMgr : MonoBehaviour
             {
                 Destroy(eneObj.transform.GetChild(i).GetChild(0).gameObject);
             }
+        }
+    }
+    public void SetHpBarActive()
+    {
+        foreach (var item in AllUnit)
+        {
+            item.HpBar.gameObject.SetActive(true);
         }
     }
 }

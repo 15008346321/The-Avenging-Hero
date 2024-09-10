@@ -41,12 +41,17 @@ public class HurtFont : MonoBehaviour
         if (U.isDead)
         {
             U.transform.parent.SetParent(BattleMgr.Ins.DeadParent);
-            if (BattleMgr.Ins.CheckBattleEnd())
-            {
-                BattleMgr.Ins.OnBattleEnd();
-            }
+            BattleMgr.Ins.CheckBattleEnd();
         }
         Destroy(gameObject);
     }
 
+    public void AddBleed()
+    {
+        Debug.LogError(Time.time + ":add bleed");
+    }
+    public void RemoveBleed()
+    {
+        Debug.LogError(Time.time + ":remove bleed");
+    }
 }

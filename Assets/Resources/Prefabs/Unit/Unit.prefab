@@ -75,6 +75,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8ef5955ce3903a498b6bf7fed3a0dda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Cell: 0
+  ID: 0
+  Damage: 0
   Hp: 0
   MaxHp: 0
   Atk: 0
@@ -84,12 +87,12 @@ MonoBehaviour:
   Wind: 0
   Thunder: 0
   Earth: 0
-  Cell: 0
   Speed: 0
-  ID: 0
+  Element: 
   isBoss: 0
   isDead: 0
-  hvaeComb: 0
+  "\u81F4\u76F2": 0
+  "\u9EBB\u75F9": 0
   Animator: {fileID: 3649876082934679513}
   HpBar: {fileID: 2078362150354732331}
   Icon: {fileID: 0}
@@ -99,7 +102,6 @@ MonoBehaviour:
   CanvasGroup: {fileID: 0}
   _EventSystem: {fileID: 0}
   gra: {fileID: 0}
-  target: {fileID: 0}
   OriData:
     MaxHp: 0
     Atk: 0
@@ -116,10 +118,10 @@ MonoBehaviour:
     WeaponName: 
     ArmorName: 
     SupportName: 
-    Unique1: 
-    Unique2: 
-    Unique3: 
-    Unique4: 
+    Passive1: 
+    Passive2: 
+    Passive3: 
+    Passive4: 
     sprite: {fileID: 0}
 --- !u!95 &3649876082934679513
 Animator:

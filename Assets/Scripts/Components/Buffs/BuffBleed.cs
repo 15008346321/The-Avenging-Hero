@@ -14,7 +14,6 @@ public class BuffBleed : ComponentBaseBuff
     public override void OnAdd(Unit from = null, Unit to = null)
     {
         base.OnAdd(from,to);
-        BattleMgr.Ins.ShowFont(OwnerUnit, 0, "GetBleed");
         if (CurrStack < MaxStack)
         {
             CurrStack += 1;

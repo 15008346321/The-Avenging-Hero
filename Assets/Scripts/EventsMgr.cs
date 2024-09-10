@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -10,23 +11,27 @@ public class EventsMgr : MonoBehaviour
     List<string[]> RelicsList = new();
     string[] currentEvent;
     Image[] RoadImage = new Image[2];
+    public Image FadeImg;
+    public Button ExploreBtn,StatuePrayBtn;
     public Button[]
         RoadBtns   = new Button[2],
         EventBtns  = new Button[2],
         BattleBtns = new Button[2],
-        CampBtns   = new Button[6],
+        StatueBtns = new Button[8],
+        StatueMbrBtns = new Button[4],
         RelicsBtns = new Button[3];
     TextMeshProUGUI[]
         RoadsTitleTMPs     = new TextMeshProUGUI[3],
         EventChooseTMPs    = new TextMeshProUGUI[2],
         BounusRelicsName   = new TextMeshProUGUI[3],
         BounusRelicsEffect = new TextMeshProUGUI[3];
-    float[] RoadRate = {30,50,10,10};//事件，战斗，营地，商店
-    public int EventPoint, MaxEventPoint,shopCount = 0,campCount = 0;
+    float[] RoadRate = {30,50,10,10};//神像，战斗，公会，商店
+    public int EventPoint, MaxEventPoint,shopCount = 0,campCount = 0, StatueIdx,StatueMbrIdx,PrayCount,BonusGold;
     public string monsters, bonus;
-    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP;
+    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP, PrayCountTMP,BonusGoldTMP,GoldTMP;
     public Transform RoadParentNode, EventParentNode, EventContentNode, EventResultNode,DailyNode,
-        ShopNode, CampNode;
+        ShopNode, StatueNode, StatueParent, StatueMbrParent;
+    public GameObject BonusNode;
     public static EventsMgr Ins;
    
     private void Awake()
@@ -66,21 +71,27 @@ public class EventsMgr : MonoBehaviour
         ResultTMP = EventResultNode.Find("TextBg/TMP").GetComponent<TextMeshProUGUI>();
         MainTMP = DailyNode.Find("Bg/TextBg/TMP").GetComponent<TextMeshProUGUI>();
 
-        //初始化营地按钮
-        for (int i = 0; i < 5; i++)
+        //初始化神像按钮
+        for (int i = 0; i < 8; i++)
         {
-            CampBtns[i] = CampNode.transform.Find("camp/Bg").GetChild(i).GetComponent<Button>();
+            StatueBtns[i] = StatueParent.GetChild(i).GetComponent<Button>();
             var j = i;
-            CampBtns[i].onClick.AddListener(() => CampChoose(j));
+            StatueBtns[i].onClick.AddListener(() => StatueIdx = j);
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            StatueMbrBtns[i] = StatueMbrParent.GetChild(i).GetComponent<Button>();
+            var j = i;
+            StatueMbrBtns[i].onClick.AddListener(() => StatueMbrIdx = j);
         }
     }
 
-    public void GenNewRoom()
+    private void GenNewRoom()
     {
-        ScrollBg.Ins.MoveBg = true;
+       // ScrollBg.Ins.MoveBg = true;
 
         RoadParentNode.gameObject.SetActive(true);
-        RoadParentNode.transform.localPosition = new Vector2(1200, 0);
+        //RoadParentNode.transform.localPosition = new Vector2(1200, 0);
         var ran = Random.Range(0, 100);
         int roomCount;
         //30概率只有一个房间
@@ -107,8 +118,8 @@ public class EventsMgr : MonoBehaviour
                 if (ran < RoadRate[0])
                 {
                     if (done1) continue;
-                    RoadsTitleTMPs[i].text = "事件";
-                    RoadImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/001_event");
+                    RoadsTitleTMPs[i].text = "神像";
+                    RoadImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/001");
                     done1 = true;
                     break;
                 }
@@ -124,7 +135,7 @@ public class EventsMgr : MonoBehaviour
                 {
                     if (done3) continue;
                     if (campCount == 2) continue;
-                    RoadsTitleTMPs[i].text = "营地";
+                    RoadsTitleTMPs[i].text = "公会";
                     RoadImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/004_camp");
                     campCount += 1;
                     done3 = true;
@@ -149,14 +160,16 @@ public class EventsMgr : MonoBehaviour
         RoadParentNode.gameObject.SetActive(false);
         switch (RoadsTitleTMPs[i].text)
         {
-            case "事件":
-                SetRoadToEvent();
+            case "神像":
+                StatueNode.gameObject.SetActive(true);
+                PrayCount +=1;
+                PrayCountTMP.text = "(祈祷次数:" + PrayCount + ")";
                 break;
             case "战斗":
                 SetRoadToBattle();
                 break;
-            case "营地":
-                SetRoadToCamp();
+            case "公会":
+                SetRoadToGuild();
                 break;
             case "商店":
                 SetRoadToShop();
@@ -164,42 +177,55 @@ public class EventsMgr : MonoBehaviour
             default:
                 break;
         }
-        消耗行动力();
-        //GenNewRoom();
     }
 
-    public void CampChoose(int i)
+    private void SetRoadToGuild()
     {
-        switch (i)
+        throw new System.NotImplementedException();
+    }
+
+    //pray 按钮绑定调用
+    public void Pray()
+    {//交流情报与任务接取
+     //魔法物品交易会
+     //竞技挑战与角斗赛
+     //神秘事件调查
+     //文化交流与节日庆典
+     //遭遇敌对势力或盗贼团伙
+        if (PrayCount > 0)
         {
-            case 0:
-                //交流情报与任务接取
-                //魔法物品交易会
-                //竞技挑战与角斗赛
-                //神秘事件调查
-                //文化交流与节日庆典
-                //遭遇敌对势力或盗贼团伙
-                break;
-            case 1:
-                EventPoint += 1;
-                EPTMP.text = "" + EventPoint;
-                break;
-            case 2:
-                //BagManager.Ins.Hp += (int)BagManager.Ins.MaxHp * 0.3f;
-                break;
-            case 3:
-                FeelMagic(Random.Range(0, 5));
-                FeelMagic(Random.Range(0, 5));
-                break;
-            case 4:
-                //BattleMgr.Ins.player.Atk += 1;
-                break;
-            default:
-                break;
+            switch (StatueIdx)
+            {
+                case 0:
+                    TeamManager.Ins.TeamData[StatueMbrIdx].MaxHp += 1;
+                    break;
+                case 1:
+                    TeamManager.Ins.TeamData[StatueMbrIdx].Atk += 1;
+                    break;
+                case 2:
+                    TeamManager.Ins.TeamData[StatueMbrIdx].Speed += 1;
+                    break;
+                case 3:
+                    TeamManager.Ins.TeamData[StatueMbrIdx].Fire += 1;
+                    break;
+                case 4:
+                    TeamManager.Ins.TeamData[StatueMbrIdx].Water += 1;
+                    break;
+                case 5:
+                    TeamManager.Ins.TeamData[StatueMbrIdx].Wind += 1;
+                    break;
+                case 6:
+                    TeamManager.Ins.TeamData[StatueMbrIdx].Thunder += 1;
+                    break;
+                case 7:
+                    TeamManager.Ins.TeamData[StatueMbrIdx].Earth += 1;
+                    break;
+                default:
+                    break;
+            }
+            PrayCount -= 1;
+            PrayCountTMP.text = "(祈祷次数:" + PrayCount+ ")";
         }
-        //AttrInfo.Instance.ShowInfo(BattleMgr.Instance.player);
-        CampNode.gameObject.SetActive(false);
-        GenNewRoom();
     }
 
     public void FeelMagic(int j)
@@ -216,7 +242,7 @@ public class EventsMgr : MonoBehaviour
         //ExecuteMgr.Ins.ExecuteCode(RelicsList[idx][5]);
         //TODO添加遗物ui并做一些动效
         //AddRelicsIcon();
-        GenNewRoom();
+        ExploreBtn.gameObject.SetActive(true);
     }
     //public void AddRelicsIcon()
     //{
@@ -228,11 +254,6 @@ public class EventsMgr : MonoBehaviour
         SetRandomBattles();
         BattleMgr.Ins.InitEnemys(monsters);
         ScrollBg.Ins.MoveEnemy = true;
-    }
-
-    public void SetRoadToCamp()
-    {
-        CampNode.gameObject.SetActive(true);
     }
 
     public void SetRoadToEvent()
@@ -271,23 +292,6 @@ public class EventsMgr : MonoBehaviour
         //}
     }
 
-    public void 消耗行动力()
-    {
-        EventPoint -= 1;
-        EPTMP.text = "" + EventPoint;
-        if (EventPoint <= 0)
-        {
-            NextDay();
-        }
-    }
-
-    private void NextDay()
-    {
-        //弹出昨夜总结面板
-        //新一天事件
-        EventPoint = MaxEventPoint;
-        EPTMP.text = "" + EventPoint;
-    }
     public void SetRandomBattles()
     {
         var ranNum = Random.Range(0,LevelManager.Ins.CurrentLevel.Battles.Count);
@@ -354,6 +358,69 @@ public class EventsMgr : MonoBehaviour
         //ExecuteMgr.Ins.ExecuteCode(code);
         EventContentNode.gameObject.SetActive(false);
         RoadParentNode.gameObject.SetActive(true);
-        GenNewRoom();
+        ExploreBtn.gameObject.SetActive(true);
+    }
+
+    public void OnClickExplore()
+    {
+        if(EventPoint == 0)
+        {
+            //GameOver
+        }
+        else
+        {
+            EventPoint -= 1;
+            EPTMP.text = "" + EventPoint;
+            BattleMgr.Ins.OurTeamRun();
+            FadeIn();
+        }
+    }
+
+    public void FadeIn()
+    {
+        FadeImg.raycastTarget = true;
+        //人往前走 变黑
+        BattleMgr.Ins.OurRunningPos.DOLocalMoveX(600, 2);
+        FadeImg.DOFade(1f, 1f).OnComplete(() =>
+        {
+            //生成事件 人走出来 变亮
+            ExploreBtn.gameObject.SetActive(false);
+            GenNewRoom();
+            BattleMgr.Ins.OurRunningPos.DOKill();
+            RoadParentNode.gameObject.SetActive(true);
+            BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-1000, 0f);
+            BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-579, 1f);
+            FadeImg.DOFade(0f, 1f).OnComplete(() =>
+            {
+                BattleMgr.Ins.OurTeamIdle();
+                FadeImg.raycastTarget = false;
+            }
+            );
+        }
+        );
+
+    }
+
+    public void SetBonusGold(int num)
+    {
+        BonusGold = 0;
+        for (int i = 0; i < num; i++)
+        {
+            BonusGold += 2;
+            BonusGold += Random.Range(0, 1);
+        }
+    }
+
+    public void ShowBonus()
+    {
+        BonusNode.SetActive(true);
+        BonusGoldTMP.text = BonusGold.ToString();
+    }
+    public void OnClickBonusConfirm()
+    {
+        BonusNode.SetActive( false );
+        ExploreBtn.gameObject.SetActive(true );
+        GoldTMP.text = (BagManager.Ins.Gold + BonusGold).ToString();
+        BattleMgr.Ins.InitTeam();
     }
 }

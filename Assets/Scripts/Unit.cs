@@ -416,8 +416,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #region====流程方法
     public void Reload()
     {
-
-        print("relaod");
         NormalAtk.RemainAtkCount = NormalAtk.TotalAtkCount;
         Comb.RemainCombCount = Comb.TotalCombCount;
     }
@@ -619,14 +617,12 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public void RcAtk()
     {
-        Debug.Log("RcAtk");
         foreach (var item in Buffs)
         {
             item.RcAtk();
         }
         foreach (var item in Components)
         {
-            Debug.Log(item.Name + "RcAtk");
             item.RcAtk();
         }
     }

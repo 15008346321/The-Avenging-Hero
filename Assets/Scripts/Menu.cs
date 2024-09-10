@@ -13,13 +13,21 @@ public class Menu : MonoBehaviour
     public bool NoRecord;
     public TextMeshProUGUI AreaName;
     public Image AreaLine1,AreaLine2;
-
+    public static Menu Ins;
+    
     [MenuItem("Tools/Clear PlayerPrefs")]
     static void ClearPlayerPrefs()
     {
         PlayerPrefs.DeleteAll(); // 清空所有PlayerPrefs  
         Debug.Log("PlayerPrefs have been cleared."); // 在控制台输出日志  
     }
+
+    private void Awake()
+    {
+        if (Ins == null) Ins = this;
+        else Destroy(Ins);
+    }
+
     void Start()
     {
         if (PlayerPrefs.GetInt("HaveRecord?") != 1)
@@ -35,7 +43,7 @@ public class Menu : MonoBehaviour
 
     public void OnClickNewGame()
     {
-        InitNewGame();
+        InitUnion();
     }
 
     public void OnClickSetting()
@@ -51,23 +59,22 @@ public class Menu : MonoBehaviour
 
     private void InitRecord()
     {
-        throw new NotImplementedException();
+        
     }
 
-    private void InitNewGame()
+    private void InitUnion()
     {
         PlayerPrefs.SetInt("HaveRecord?", 1);
-        BattleMgr.Ins.InitTeam();
-        EventsMgr.Ins.GenNewRoom();
-        EnterNewLevel();
+        //添加当前角色 添加任务 添加目的地
+
     }
 
     private void ShowSetting()
     {
-        throw new NotImplementedException();
+        
     }
 
-    private void EnterNewLevel()
+    public void EnterNewLevel()
     {
         AreaName.text = "后山";
         LevelManager.Ins.SetLevel("后山");
