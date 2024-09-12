@@ -396,13 +396,14 @@ public class BattleMgr : MonoBehaviour
     public void CheckBattleEnd()
     {
         if (isBattling == false) return;
-        isBattling = false;
         if (Enemys.All(item => item.isDead == true))
         {
+            isBattling = false;
             OnBattleWin();
         }
         else if(Team.All(item => item.isDead == true))
         {
+            isBattling = false;
             OnBattleFailed();
         }
     }
@@ -426,9 +427,11 @@ public class BattleMgr : MonoBehaviour
 
     public void OnBattleFailed()
     {
-        ResetBattle();
+        Debug.LogError("OnBattleFailed");
         BattleBtn.gameObject.SetActive(false);
         EventsMgr.Ins.EventPoint -= Enemys.Count;
+        EventsMgr.Ins.EPTMP.text = EventsMgr.Ins.EventPoint.ToString();
+        ResetBattle();
         EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
         InitTeam();
     }

@@ -22,7 +22,7 @@ public class CSVManager : MonoBehaviour
 
     public void Init()
     {
-        StartText = GetStartText();
+        //StartText = GetStartText();
         Units = GetUnit();
         Atks = GetAtks();
         Combs = GetCombs();
@@ -63,41 +63,55 @@ public class CSVManager : MonoBehaviour
     }
     public List<string[]> ReadCSVToList(string pathType, string fileName)
     {
-        string filePath = Application.dataPath + "/Configs/" + pathType + "/" + fileName + ".csv";
 
-        using StreamReader sr = new(filePath, Encoding.UTF8);
+        print(pathType + " " + fileName);
 
-        List<string[]> rowData = new();
-        if (!sr.EndOfStream)
+        string filePath = "Configs/" + pathType + "/" + fileName;
+
+        TextAsset ta = Resources.Load<TextAsset>(filePath);
+
+        string csv = ta.text;
+
+        StringReader reader = new StringReader(csv);
+        //去掉第一行
+        reader.ReadLine();
+
+        string line;
+
+        List<string[]> data = new();
+
+        while ((line = reader.ReadLine()) != null)
         {
-            sr.ReadLine();
+            string[] values = line.Split(',');
+
+            data.Add(values);
         }
-        while (!sr.EndOfStream)
-        {
-            string[] row = sr.ReadLine().Replace("\"", "").Split(',');
-            rowData.Add(row);
-        }
-        return rowData;
+        return data;
     }
 
     public Dictionary<string,string[]> ReadCSVToDict(string pathType,string fileName)
     {
-        string filePath = Application.dataPath + "/Configs/" + pathType + "/"+ fileName + ".csv";
+        string filePath = "Configs/" + pathType + "/" + fileName;
 
-        using StreamReader sr = new(filePath, Encoding.UTF8);
+        TextAsset ta = Resources.Load<TextAsset>(filePath);
 
-        Dictionary<string, string[]> rowData = new();
-        if (!sr.EndOfStream)
+        string csv = ta.text;
+
+        StringReader reader = new StringReader(csv);
+        //去掉第一行
+        reader.ReadLine();
+
+        string line;
+
+        Dictionary<string, string[]> data = new();
+
+        while ((line = reader.ReadLine()) != null)
         {
-            sr.ReadLine();
-        }
-        while (!sr.EndOfStream)
-        {
-            string[] row = sr.ReadLine().Replace("\"","").Split(',');
-            rowData.Add(row[1],row);
-        }
+            string[] values = line.Split(',');
 
-        return rowData;
+            data.Add(values[1],values);
+        }
+        return data;
     }
 
     public List<string[]> GetStartText()

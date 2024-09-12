@@ -99,11 +99,6 @@ public class BagManager : MonoBehaviour
     //{
     //    BagLt.Add(new Item(propName, numericValue,false));
     //}
-    public void AddGold(int num)
-    {
-        BagManager.Ins.Gold += num;
-        //TODO update ui
-    }
 
     public void AddPoint(string type, int num)
     {

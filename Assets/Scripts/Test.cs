@@ -15,21 +15,42 @@ public class Test : MonoBehaviour
     public ComponentBase skill, AtkSkill1, AtkSkill2;
     public string filePath;
     public bool b;
-
-    public void Test6()
+    public List<string[]> data = new();
+    public void Test9()
     {
-        BagManager.Ins.GenerateGear("冒险剑");
-    }
+        TextAsset ta = Resources.Load<TextAsset>("Configs/Battles/后山");
 
-    public void Test7()
-    {
-        BagManager.Ins.GenerateGear("气血铠甲");
-    }
+        string csv = ta.text;
 
-    public void Test8()
-    {
-        BagManager.Ins.GenerateGear("史莱姆屏障");
+        StringReader reader = new StringReader(csv);
+        //去掉第一行
+        reader.ReadLine();
+
+        string line;
+
+        List<string[]> data = new();
+
+        while ((line = reader.ReadLine())!=null)
+        {
+            string[] values = line.Split(',');
+            data.Add(values);
+        }
     }
+    //public void Test6()
+    //{
+    //    BagManager.Ins.GenerateGear("冒险剑");
+    //}
+
+    //public void Test7()
+    //{
+    //    BagManager.Ins.GenerateGear("气血铠甲");
+    //}
+
+    //public void Test8()
+    //{
+    //    BagManager.Ins.GenerateGear("史莱姆屏障");
+    //}
+
     //private void Start()
     //{
     //    filePath = Path.Combine(Application.persistentDataPath, "Skills.json");

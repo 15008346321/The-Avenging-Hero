@@ -33,8 +33,8 @@ public class TeamManager : MonoBehaviour
     {
         //TODO改到配置表中
         TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],1));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 2));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 3));
+        //TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 2));
+        //TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 3));
         //TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],4));
     }
 

@@ -158,7 +158,7 @@ public class Level
     {
         Name = name;
         //TODO目前只有一关
-        Events = CSVManager.Ins.GetEventsByArea(name);
+        //Events = CSVManager.Ins.GetEventsByArea(name);
         Battles = CSVManager.Ins.GetBattlesByArea(name);
     }
 }

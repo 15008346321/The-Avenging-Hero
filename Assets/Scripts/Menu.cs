@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -14,13 +13,6 @@ public class Menu : MonoBehaviour
     public TextMeshProUGUI AreaName;
     public Image AreaLine1,AreaLine2;
     public static Menu Ins;
-    
-    [MenuItem("Tools/Clear PlayerPrefs")]
-    static void ClearPlayerPrefs()
-    {
-        PlayerPrefs.DeleteAll(); // 清空所有PlayerPrefs  
-        Debug.Log("PlayerPrefs have been cleared."); // 在控制台输出日志  
-    }
 
     private void Awake()
     {
