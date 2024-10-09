@@ -9,7 +9,8 @@ public class 斩击 : ComponentBaseAtk
     public override void GetTargets()
     {
         BattleMgr.Ins.Targets.Clear();
-        Unit u = OwnerUnit.GetOppositeTarget();
+        OwnerUnit.GetTargets();
+        Unit u = BattleMgr.Ins.Targets[0];
         if (u != null)
         {
             BattleMgr.Ins.Targets.Add(u);
@@ -48,7 +49,7 @@ public class 斩击 : ComponentBaseAtk
                 existingBuff.OnAdd();
             }
         }
-        OwnerUnit.CheckComb("流血");
+        //OwnerUnit.CheckComb("流血");
     }
 
     public override void Test()

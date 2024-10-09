@@ -18,6 +18,7 @@ public class Menu : MonoBehaviour
     {
         if (Ins == null) Ins = this;
         else Destroy(Ins);
+        Application.targetFrameRate = 60;
     }
 
     void Start()

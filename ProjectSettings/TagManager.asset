@@ -8,9 +8,7 @@ TagManager:
   - Our
   - Enemy
   - Slot
-  - WeaponSlot
-  - ArmorSlot
-  - SupportSlot
+  - Pray
   layers:
   - Default
   - TransparentFX

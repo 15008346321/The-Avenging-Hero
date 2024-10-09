@@ -246,21 +246,21 @@ public class ExecuteMgr : MonoBehaviour
                 case "Atk":
                     u.Atk += operation == '+' ? numericValue : -numericValue;
                     break;
-                case "Fire":
-                    u.Fire += operation == '+' ? numericValue : -numericValue;
-                    break;
-                case "Water":
-                    u.Water += operation == '+' ? numericValue : -numericValue;
-                    break;
-                case "Wind":
-                    u.Wind += operation == '+' ? numericValue : -numericValue;
-                    break;
-                case "Thunder":
-                    u.Thunder += operation == '+' ? numericValue : -numericValue;
-                    break;
-                case "Earth":
-                    u.Earth += operation == '+' ? numericValue : -numericValue;
-                    break;
+                //case "Fire":
+                //    u.Fire += operation == '+' ? numericValue : -numericValue;
+                //    break;
+                //case "Water":
+                //    u.Water += operation == '+' ? numericValue : -numericValue;
+                //    break;
+                //case "Wind":
+                //    u.Wind += operation == '+' ? numericValue : -numericValue;
+                //    break;
+                //case "Thunder":
+                //    u.Thunder += operation == '+' ? numericValue : -numericValue;
+                //    break;
+                //case "Earth":
+                //    u.Earth += operation == '+' ? numericValue : -numericValue;
+                //    break;
             }
             //AttrInfo.Instance.ShowInfo(u);
         }
@@ -268,45 +268,45 @@ public class ExecuteMgr : MonoBehaviour
 
     public void ExecuteBaseAttr()
     {
-        string[] code = currentCode.Split(":");
-        string[] parts = code[1].Split(new char[] { '+', '-' }, 2);
-        string attributeName = parts[0];
-        char operation = code[1].Replace(parts[0], "")[0];
-        int numericValue = int.Parse(parts[1]);
+        //string[] code = currentCode.Split(":");
+        //string[] parts = code[1].Split(new char[] { '+', '-' }, 2);
+        //string attributeName = parts[0];
+        //char operation = code[1].Replace(parts[0], "")[0];
+        //int numericValue = int.Parse(parts[1]);
 
-        foreach (Unit u in targets)
-        {
-            foreach (var item in TeamManager.Ins.TeamData)
-            {
-                if (item.Name == u.name)
-                {
-                    switch (attributeName)
-                    {
-                        case "MaxHp":
-                            item.MaxHp += operation == '+' ? numericValue : -numericValue;
-                            break;
-                        case "Atk":
-                            item.Atk += operation == '+' ? numericValue : -numericValue;
-                            break;
-                        case "Fire":
-                            item.Fire += operation == '+' ? numericValue : -numericValue;
-                            break;
-                        case "Water":
-                            item.Water += operation == '+' ? numericValue : -numericValue;
-                            break;
-                        case "Wind":
-                            item.Wind += operation == '+' ? numericValue : -numericValue;
-                            break;
-                        case "Thunder":
-                            item.Thunder += operation == '+' ? numericValue : -numericValue;
-                            break;
-                        case "Earth":
-                            item.Earth += operation == '+' ? numericValue : -numericValue;
-                            break;
-                    }
-                }
-            }
-        }
+        //foreach (Unit u in targets)
+        //{
+        //    foreach (var item in TeamManager.Ins.TeamData)
+        //    {
+        //        if (item.Name == u.name)
+        //        {
+        //            switch (attributeName)
+        //            {
+        //                case "MaxHp":
+        //                    item.MaxHp += operation == '+' ? numericValue : -numericValue;
+        //                    break;
+        //                case "Atk":
+        //                    item.Atk += operation == '+' ? numericValue : -numericValue;
+        //                    break;
+        //                case "Fire":
+        //                    item.Fire += operation == '+' ? numericValue : -numericValue;
+        //                    break;
+        //                case "Water":
+        //                    item.Water += operation == '+' ? numericValue : -numericValue;
+        //                    break;
+        //                case "Wind":
+        //                    item.Wind += operation == '+' ? numericValue : -numericValue;
+        //                    break;
+        //                case "Thunder":
+        //                    item.Thunder += operation == '+' ? numericValue : -numericValue;
+        //                    break;
+        //                case "Earth":
+        //                    item.Earth += operation == '+' ? numericValue : -numericValue;
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //}
     }
 
     public bool Jugde(float percentage)

@@ -18,6 +18,8 @@ public class HurtFont : MonoBehaviour
         U = parent;
         tmp.text = text;
         Value = value;
+        transform.SetParent(parent.FontPos);
+        transform.localPosition = Vector2.zero;
     }
 
     public void UnitHeal()
@@ -25,33 +27,17 @@ public class HurtFont : MonoBehaviour
         U.Hp += Value;
         Destroy(gameObject);
     }
-    //动画事件 在hurt动画第一帧调用
-    public void UpdateHpBar()
-    {
-        U.Hp -= Value;
-        U.UpdateHpBar();
-        if (U.Hp <= 0)
-        {
-            U.isDead = true;
-        }
-    }
+
     //动画事件 在hurt动画最后一帧调用
     public void UnitCheckDeath()
     {
         if (U.isDead)
         {
-            U.transform.parent.SetParent(BattleMgr.Ins.DeadParent);
+            U.transform.SetParent(BattleMgr.Ins.DeadParent);
             BattleMgr.Ins.CheckBattleEnd();
+            if (BattleMgr.Ins.isBattling == false) return;
+            BattleMgr.Ins.SortBySpeed();
         }
         Destroy(gameObject);
-    }
-
-    public void AddBleed()
-    {
-        Debug.LogError(Time.time + ":add bleed");
-    }
-    public void RemoveBleed()
-    {
-        Debug.LogError(Time.time + ":remove bleed");
     }
 }

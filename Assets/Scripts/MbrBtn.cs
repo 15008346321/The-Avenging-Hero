@@ -7,6 +7,7 @@ public class MbrBtn : MonoBehaviour
 {
     // Start is called before the first frame update
     public Button btn;
+    public Image Arrow;
     public void ShowDetail()
     {
         TeamManager.Ins.CurrMbrIdx = transform.GetSiblingIndex();

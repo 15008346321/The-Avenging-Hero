@@ -9,17 +9,32 @@ using UnityEngine.UI;
 public class TeamManager : MonoBehaviour
 {
     public static TeamManager Ins;
-    public List<UnitData> TeamData = new();
+    public List<UnitData> TeamData = new(), EnemyData = new();
     public Button[] MbrBtn = new Button[4];
-    public TextMeshProUGUI[] MbrBtnTMP = new TextMeshProUGUI[4], DetailAttrTMP = new TextMeshProUGUI[8],
-        DetailPassiveTMP = new TextMeshProUGUI[4];
-    public TextMeshProUGUI DetailName,AtkName, AtkDscrp, CombName, CombDscrp, WeaponName, WeaponDscrp, 
-        ArmorName, ArmorDscrp, SupportName, SupportDscrp;
+    public TextMeshProUGUI[] 
+        MbrBtnTMP = new TextMeshProUGUI[4], 
+        BloodNameTMP = new TextMeshProUGUI[10],
+        BloodPointTMP = new TextMeshProUGUI[10],
+        TagNodes1 = new TextMeshProUGUI[4], 
+        TagNodes2 = new TextMeshProUGUI[4], 
+        TagNodes3 = new TextMeshProUGUI[4],
+        TagNodes4 = new TextMeshProUGUI[4],
+        BloodName,
+        BloodPoint;
+    public TextMeshProUGUI SkillInfoTMP;
     public Image DetailIcon;
-    public Image[] MbrImgs = new Image[4], DetailImgs = new Image[5], GearSlotImgs = new Image[3];
-    public int CurrMbrIdx = 0;
-    public GameObject TeamNode,DetailNode;
-    //TODO 火属性额外伤害， 水属性生命上限治疗效果，风属性速度，雷属性魔抗，土属性物抗护盾
+    public Image[] 
+        MbrImgs = new Image[4], 
+        DetailImgs = new Image[5], 
+        //GearSlotImgs = new Image[3],
+        Arrows = new Image[4],
+        BloodImgs;
+    public int CurrMbrIdx;
+    public bool TagChanged = true;
+    public GameObject TeamNode,DetailNode,TagPrefab,BloodPrefab;
+    public List<TextMeshProUGUI[]> TagNodes = new();
+
+    //TODO 火属性额外伤害， 水属性生命上限治疗效果，风属性速度，雷属性魔抗，土属性物抗护盾 在血脉中实现
     private void Awake()
     {
         if (Ins == null) Ins = this;
@@ -33,9 +48,14 @@ public class TeamManager : MonoBehaviour
     {
         //TODO改到配置表中
         TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],1));
-        //TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 2));
-        //TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 3));
-        //TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],4));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 2));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 3));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 4));
+
+        TagNodes.Add(TagNodes1);
+        TagNodes.Add(TagNodes2);
+        TagNodes.Add(TagNodes3);
+        TagNodes.Add(TagNodes4);
     }
 
     //在UI/TeamBtn按钮上绑定 刷新小队面板
@@ -43,103 +63,113 @@ public class TeamManager : MonoBehaviour
     {
         TeamNode.SetActive(true);
 
-        //名字头像
-        DetailName.text = TeamData[CurrMbrIdx].Name;
-        //DetailIcon.sprite = CSVManager.Ins.Character[DetailName.text];
+        foreach (var item in Arrows)
+        {
+            item.enabled = false;
+        }
+        Arrows[CurrMbrIdx].enabled = true;
+
+        //设置标签
+        for (int i = 0; i < TeamData.Count; i++)
+        {
+            for (int j = 0; j< 4; j++)
+            {
+                if(j < TeamData[i].Tags.Length )
+                {
+                    TagNodes[i][j].text = TeamData[i].Tags[j];
+                    TagNodes[i][j].transform.parent.gameObject.SetActive(true);
+                }
+                else 
+                {
+                    TagNodes[i][j].transform.parent.gameObject.SetActive(false);
+                }
+            }
+        }
 
         //属性
-        DetailAttrTMP[0].text = TeamData[CurrMbrIdx].MaxHp.ToString();
-        DetailAttrTMP[1].text = TeamData[CurrMbrIdx].Speed.ToString();
-        DetailAttrTMP[2].text = TeamData[CurrMbrIdx].Atk.ToString();
-        DetailAttrTMP[3].text = TeamData[CurrMbrIdx].Fire.ToString();
-        DetailAttrTMP[4].text = TeamData[CurrMbrIdx].Water.ToString();
-        DetailAttrTMP[5].text = TeamData[CurrMbrIdx].Wind.ToString();
-        DetailAttrTMP[6].text = TeamData[CurrMbrIdx].Thunder.ToString();
-        DetailAttrTMP[7].text = TeamData[CurrMbrIdx].Earth.ToString();
-
-        //技能装备
-        AtkName.text = TeamData[CurrMbrIdx].AtkName;
-        AtkDscrp.text = CSVManager.Ins.Atks[AtkName.text][2];
-
-        CombName.text = TeamData[CurrMbrIdx].CombName;
-        CombDscrp.text = CSVManager.Ins.Combs[CombName.text][2];
-
-        WeaponName.text = TeamData[CurrMbrIdx].Weapon?.Name;
-        WeaponDscrp.text = TeamData[CurrMbrIdx].Weapon?.Dscrp;
-
-        ArmorName.text = TeamData[CurrMbrIdx].Armor?.Name;
-        ArmorDscrp.text = TeamData[CurrMbrIdx].Armor?.Dscrp;
-
-        SupportName.text = TeamData[CurrMbrIdx].Support?.Name;
-        SupportDscrp.text = TeamData[CurrMbrIdx].Support?.Dscrp;
-
-        //DetailImgs[0].sprite = CSVManager.Ins.Items[AtkName.text];
-        //DetailImgs[1].sprite = CSVManager.Ins.Items[CombName.text];
-        //DetailImgs[2].sprite = CSVManager.Ins.Items[WeaponName.text];
-        //DetailImgs[3].sprite = CSVManager.Ins.Items[ArmorName.text];
-        //DetailImgs[4].sprite = CSVManager.Ins.Items[SupportName.text];
-
-        //被动
-        DetailPassiveTMP[0].text = TeamData[CurrMbrIdx].Passive1;
-        DetailPassiveTMP[1].text = TeamData[CurrMbrIdx].Passive2;
-        DetailPassiveTMP[2].text = TeamData[CurrMbrIdx].Passive3;
-        DetailPassiveTMP[3].text = TeamData[CurrMbrIdx].Passive4;
+        int counter = 0;
+        foreach (var item in TeamData[CurrMbrIdx].Bloods)
+        {
+            if (item.Value == 0) continue;
+            BloodNameTMP[counter].transform.parent.parent.gameObject.SetActive(true);
+            BloodNameTMP[counter].text = item.Name;
+            BloodPointTMP[counter].text = item.Value.ToString();
+            BloodImgs[counter].sprite = CSVManager.Ins.BloodIcons[item.Name];
+            counter += 1;
+        }
+        for (int i = counter; i < 10; i++)
+        {
+            BloodNameTMP[i].transform.parent.parent.gameObject.SetActive(false);
+        }
 
         //队员按钮
-        for (int i = 0; i < TeamData.Count -1; i++)
+        int TCounter = 0;
+        for (int i = 0; i < TeamData.Count; i++)
         {
-            //MbrImgs[0].sprite = CSVManager.Ins.Character[TeamData[i].Name];
+            //MbrImgs[i].sprite = CSVManager.Ins.Character[TeamData[i].Name];
             MbrBtnTMP[i].text = TeamData[i].Name;
-            MbrImgs[i].sprite = TeamData[i].sprite;
+            TCounter += 1;
         }
-    }
-
-    public void ShowGearSlot(int i)
-    {
-        GearSlotImgs[i].DOFade(0.75f,1f).SetEase(Ease.Linear).SetLoops(-1,LoopType.Yoyo);
-    }
-
-    public void StopShowGearSlot()
-    {
-        foreach (var item in GearSlotImgs)
+        if (TCounter < 4)
         {
-            item.DOKill();
-            item.DOFade(0.4f, 0.5f);
+            for (int i = TCounter; i < 4; i++)
+            { 
+                MbrBtnTMP[i].transform.parent.gameObject.SetActive(false);
+            }
         }
+
+        SkillInfoTMP.text = TeamData[CurrMbrIdx].SkillDscrp;
+
     }
 }
 [Serializable]
 public class UnitData
 {
-    public int MaxHp, Atk, Fire, Water, Wind, Thunder, Earth, Cell,Speed ;
-    public string Name,AtkName,CombName,WeaponName,ArmorName,SupportName,Passive1, Passive2, Passive3, Passive4;
+    public int MaxHp, Atk, Cell, Speed;
+    public string Name,SkillDscrp;
+    public string[] Tags = new string[4];
+    public List<Blood> Bloods = new();
     public Sprite sprite;
-    public ComponentBaseAtk NormalAtk;
-    public ComponentBaseComb Comb;
-    public ComponentBaseWeapon Weapon;
-    public ComponentBaseArmor Armor;
-    public ComponentBaseSupport Support;
 
-
-    public UnitData(string[] data, int pos)
+    public UnitData(string[] data, int cell)
     {
         Name = data[1];
-        Cell = pos;
+        Cell = cell;
 
-        int result;
         MaxHp   = int.Parse(data[2]);
-        Atk     = int.TryParse(data[3], out result) ? result : 0;
-        Fire    = int.TryParse(data[4], out result) ? result : 0;
-        Water   = int.TryParse(data[5], out result) ? result : 0;
-        Wind    = int.TryParse(data[6], out result) ? result : 0;
-        Thunder = int.TryParse(data[7], out result) ? result : 0;
-        Earth   = int.TryParse(data[8], out result) ? result : 0;
-        Speed   = int.Parse(data[9]);
-        AtkName  = data[10];
-        CombName = data[11];
-        Passive1  = data[12];
+        Atk     = int.Parse(data[3]);
+        Speed   = int.Parse(data[4]);
+        SkillDscrp = data[5];
+        Tags    = data[6].Split("&");
+        if(data[7]!="") Bloods.Add(new Blood("火元素",int.Parse(data[7])));
+        if(data[8]!="") Bloods.Add(new Blood("水元素", int.Parse(data[8])));
+        if(data[9]!="") Bloods.Add(new Blood("风元素", int.Parse(data[9])));
+        if(data[10]!="") Bloods.Add(new Blood("雷元素", int.Parse(data[10])));
+        if(data[11]!="") Bloods.Add(new Blood("土元素", int.Parse(data[11])));
+        int yitai = 100;
+        foreach (var item in Bloods)
+        {
+            yitai -= item.Value;
+        }
+        Bloods.Add(new Blood("以太", yitai));
+    }
+}
+[Serializable]
+public class Blood
+{
+    public string Name;
+    public int Value, Level;
+    public Blood(string name, int value)
+    {
+        Name = name;
+        Value = value;
+        SetLevel();
+    }
 
-        //Todo 特性 装备
-        //sprite = CSVManager.Ins.Character[Name];
+    void SetLevel()
+    {
+        if (EventsMgr.Ins.Level1Blood.Contains(Name)) Level = 1;
+        else if (EventsMgr.Ins.Level2Blood.Contains(Name)) Level = 2;
+        else if (EventsMgr.Ins.Level3Blood.Contains(Name)) Level = 3;
     }
 }

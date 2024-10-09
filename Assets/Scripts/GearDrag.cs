@@ -35,9 +35,9 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
         transform.SetParent(BagManager.Ins.DragParent);
         OwnerNum.SetActive(false);
         GearType.SetActive(false);
-        if (Gear.Type == "武器") TeamManager.Ins.ShowGearSlot(0);
-        if (Gear.Type == "防具") TeamManager.Ins.ShowGearSlot(1);
-        if (Gear.Type == "辅助") TeamManager.Ins.ShowGearSlot(2);
+        //if (Gear.Type == "武器") TeamManager.Ins.ShowGearSlot(0);
+        //if (Gear.Type == "防具") TeamManager.Ins.ShowGearSlot(1);
+        //if (Gear.Type == "辅助") TeamManager.Ins.ShowGearSlot(2);
     }
 
     void IDragHandler.OnDrag(PointerEventData eventData)
@@ -47,100 +47,100 @@ public class GearDrag :MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragH
 
     void IEndDragHandler.OnEndDrag(PointerEventData eventData)
     {
-        TeamManager.Ins.StopShowGearSlot();
+    //    //TeamManager.Ins.StopShowGearSlot();
 
-        var list = GraphicRaycaster(Input.mousePosition);
+    //    var list = GraphicRaycaster(Input.mousePosition);
         
-        foreach (var item in list)
-        {
-            //检测是否在物品上 Item Slot在背包中换位置 武器防具辅助在角色面板上面换
-            if (item.gameObject.tag == "Item")
-            {
-                //如果在物品上则执行以下代码
-                //---交换位置---//
-                IsGearOrSlot = true;
-                RectTransform.position = item.gameObject.transform.position;
-                transform.SetParent(item.gameObject.transform.parent);
-                transform.localPosition = Vector2.zero;
-                item.gameObject.transform.SetParent(StartParent);
-                item.gameObject.transform.localPosition = Vector2.zero;
-                break;
-            }
-            //检测是否在格子上
-            else if (item.gameObject.tag == "Slot")
-            {
-                //如果在格子上则将isSlot设置为true方便后续代码
-                IsGearOrSlot = true;
-                //保存格子位置坐标以便切换位置
-                transform.SetParent(item.gameObject.transform);
-                transform.localPosition = Vector2.zero;
-                break;
-            }
-            //武器防具辅助 逻辑一样
-            else if (item.gameObject.tag == "WeaponSlot" && Gear.Type == "武器")
-            {
+    //    foreach (var item in list)
+    //    {
+    //        //检测是否在物品上 Item Slot在背包中换位置 武器防具辅助在角色面板上面换
+    //        if (item.gameObject.tag == "Item")
+    //        {
+    //            //如果在物品上则执行以下代码
+    //            //---交换位置---//
+    //            IsGearOrSlot = true;
+    //            RectTransform.position = item.gameObject.transform.position;
+    //            transform.SetParent(item.gameObject.transform.parent);
+    //            transform.localPosition = Vector2.zero;
+    //            item.gameObject.transform.SetParent(StartParent);
+    //            item.gameObject.transform.localPosition = Vector2.zero;
+    //            break;
+    //        }
+    //        //检测是否在格子上
+    //        else if (item.gameObject.tag == "Slot")
+    //        {
+    //            //如果在格子上则将isSlot设置为true方便后续代码
+    //            IsGearOrSlot = true;
+    //            //保存格子位置坐标以便切换位置
+    //            transform.SetParent(item.gameObject.transform);
+    //            transform.localPosition = Vector2.zero;
+    //            break;
+    //        }
+    //        //武器防具辅助 逻辑一样
+    //        else if (item.gameObject.tag == "WeaponSlot" && Gear.Type == "武器")
+    //        {
 
-                GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
-                OwnerNum.SetActive(true);
-                GearType.SetActive(true);
+    //            GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
+    //            OwnerNum.SetActive(true);
+    //            GearType.SetActive(true);
 
-                //当前的单位
-                UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
+    //            //当前的单位
+    //            UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
 
-                if (ud.Weapon == Gear) return;
+    //            if (ud.Weapon == Gear) return;
 
-                //把当目标单位已有装备去除
-                ud.Weapon?.GearDrag.OwnerNum.SetActive(false);
-                ud.Weapon?.OnRemove();
+    //            //把当目标单位已有装备去除
+    //            ud.Weapon?.GearDrag.OwnerNum.SetActive(false);
+    //            ud.Weapon?.OnRemove();
 
-                //去除该装备的原单位
-                if(Gear.OwnerUnitData!=null) Gear.OnRemove();
-                Gear.OnAdd(ud);
-            }
-            else if (item.gameObject.tag == "ArmorSlot" && Gear.Type == "防具")
-            {
-                GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
-                OwnerNum.SetActive(true);
-                GearType.SetActive(true);
+    //            //去除该装备的原单位
+    //            if(Gear.OwnerUnitData!=null) Gear.OnRemove();
+    //            Gear.OnAdd(ud);
+    //        }
+    //        else if (item.gameObject.tag == "ArmorSlot" && Gear.Type == "防具")
+    //        {
+    //            GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
+    //            OwnerNum.SetActive(true);
+    //            GearType.SetActive(true);
 
-                //当前的单位
-                UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
+    //            //当前的单位
+    //            UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
 
-                if (ud.Armor == Gear) return;
+    //            if (ud.Armor == Gear) return;
 
-                //把当目标单位已有装备去除
-                ud.Armor?.GearDrag.OwnerNum.SetActive(false);
-                ud.Armor?.OnRemove();
+    //            //把当目标单位已有装备去除
+    //            ud.Armor?.GearDrag.OwnerNum.SetActive(false);
+    //            ud.Armor?.OnRemove();
 
-                //去除该装备的原单位
-                if (Gear.OwnerUnitData != null) Gear.OnRemove();
-                Gear.OnAdd(ud);
-            }
-            else if (item.gameObject.tag == "SupportSlot" && Gear.Type == "辅助")
-            {
-                GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
-                OwnerNum.SetActive(true);
-                GearType.SetActive(true);
+    //            //去除该装备的原单位
+    //            if (Gear.OwnerUnitData != null) Gear.OnRemove();
+    //            Gear.OnAdd(ud);
+    //        }
+    //        else if (item.gameObject.tag == "SupportSlot" && Gear.Type == "辅助")
+    //        {
+    //            GearOwnerIcon[TeamManager.Ins.CurrMbrIdx].SetAsLastSibling();
+    //            OwnerNum.SetActive(true);
+    //            GearType.SetActive(true);
 
-                //当前的单位
-                UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
+    //            //当前的单位
+    //            UnitData ud = TeamManager.Ins.TeamData[TeamManager.Ins.CurrMbrIdx];
 
-                if (ud.Support == Gear) return;
+    //            if (ud.Support == Gear) return;
 
-                //把当目标单位已有装备去除
-                ud.Support?.GearDrag.OwnerNum.SetActive(false);
-                ud.Support?.OnRemove();
+    //            //把当目标单位已有装备去除
+    //            ud.Support?.GearDrag.OwnerNum.SetActive(false);
+    //            ud.Support?.OnRemove();
 
-                //去除该装备的原单位
-                if (Gear.OwnerUnitData != null) Gear.OnRemove();
-                Gear.OnAdd(ud);
-            }
-            else
-            {
-                transform.SetParent(StartParent);
-                transform.localPosition = Vector2.zero;
-            }
-        }
+    //            //去除该装备的原单位
+    //            if (Gear.OwnerUnitData != null) Gear.OnRemove();
+    //            Gear.OnAdd(ud);
+    //        }
+    //        else
+    //        {
+    //            transform.SetParent(StartParent);
+    //            transform.localPosition = Vector2.zero;
+    //        }
+    //    }
     }
 
     private List<RaycastResult> GraphicRaycaster(Vector2 pos)

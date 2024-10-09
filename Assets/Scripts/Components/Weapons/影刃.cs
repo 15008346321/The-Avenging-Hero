@@ -21,7 +21,7 @@ public class 影刃 : ComponentBaseWeapon
         CurrSP += 1;
         if (CurrSP == SP)
         {
-            OwnerUnit.NormalAtk.RemainAtkCount += 1;
+            OwnerUnit.AtkCountCurr += 1;
             CurrSP = 0;
         }
     }

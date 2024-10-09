@@ -24,7 +24,7 @@ public class BuffBurned : ComponentBaseBuff
     public override void OnTurnEnd()
     {
         //流血暂定掉血0.2攻击力
-        BattleMgr.Ins.ShowFont(OwnerUnit, Mathf.RoundToInt(BuffFrom.Fire * 0.3f), "Burned");
+        //BattleMgr.Ins.ShowFont(OwnerUnit, Mathf.RoundToInt(BuffFrom.Fire * 0.3f), "Burned");
         CurrStack -= 1;
         if (CurrStack <= 0)
         {

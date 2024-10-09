@@ -10,7 +10,7 @@ public class CSVManager : MonoBehaviour
     public static CSVManager Ins;
     public List<string[]> StartText, Events1;
     public Dictionary<string, string[]> Units, Atks,Combs,Uniques,Gears;
-    public Dictionary<string, Sprite> Character,Items;
+    public Dictionary<string, Sprite> Character,Items,BloodIcons = new();
 
     private void Awake()
     {
@@ -27,6 +27,7 @@ public class CSVManager : MonoBehaviour
         Atks = GetAtks();
         Combs = GetCombs();
         Gears = GetGears();
+        GetBloodIcon();
         //Skills = GetSkills();
         //Features = GetFeatures();
         //Relics = GetRelics();
@@ -50,6 +51,15 @@ public class CSVManager : MonoBehaviour
         //    全物品表.Add(item[1], item);
         //}
     }
+    private void GetBloodIcon()
+    {
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Texture/Icon/Blood");
+
+        foreach (var item in sprites)
+        {
+            BloodIcons.Add(item.name, item);
+        }
+    }
 
     private Dictionary<string, Sprite> GetCharacterSprites()
     {
@@ -63,8 +73,6 @@ public class CSVManager : MonoBehaviour
     }
     public List<string[]> ReadCSVToList(string pathType, string fileName)
     {
-
-        print(pathType + " " + fileName);
 
         string filePath = "Configs/" + pathType + "/" + fileName;
 

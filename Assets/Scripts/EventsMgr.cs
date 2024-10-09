@@ -8,9 +8,13 @@ using UnityEngine.UI;
 public class EventsMgr : MonoBehaviour
 {
     Dictionary<string, string[]> Events=new(), Battles=new(), Relics=new();
+    public List<string> Level1Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
+    public List<string> Level2Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
+    public List<string> Level3Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
     List<string[]> RelicsList = new();
     string[] currentEvent;
     Image[] RoadImage = new Image[2];
+    public UnitData[] UnitDatas = new UnitData[3];
     public Image FadeImg;
     public Button ExploreBtn,StatuePrayBtn;
     public Button[]
@@ -25,15 +29,15 @@ public class EventsMgr : MonoBehaviour
         EventChooseTMPs    = new TextMeshProUGUI[2],
         BounusRelicsName   = new TextMeshProUGUI[3],
         BounusRelicsEffect = new TextMeshProUGUI[3];
-    float[] RoadRate = {30,50,10,10};//神像，战斗，公会，商店
-    public int EventPoint, MaxEventPoint,shopCount = 0,campCount = 0, StatueIdx,StatueMbrIdx,PrayCount,BonusGold;
+    float[] RoadRate = {0,50,0,10};//神像，战斗，公会，商店
+    public int EventPoint, MaxEventPoint,shopCount = 0,campCount = 0, StatueIdx,StatueMbrIdx,PrayCount,BonusGold,Gold;
     public string monsters, bonus;
-    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP, PrayCountTMP,BonusGoldTMP,GoldTMP;
+    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP, PrayCountTMP,UIBonusGoldTMP,UIGoldTMP;
     public Transform RoadParentNode, EventParentNode, EventContentNode, EventResultNode,DailyNode,
         ShopNode, StatueNode, StatueParent, StatueMbrParent;
-    public GameObject BonusNode;
     public static EventsMgr Ins;
-   
+    public bool IsMoveToBattle, IsMoveToStatue;
+
     private void Awake()
     {
         if (Ins == null) Ins = this;
@@ -72,18 +76,18 @@ public class EventsMgr : MonoBehaviour
         MainTMP = DailyNode.Find("Bg/TextBg/TMP").GetComponent<TextMeshProUGUI>();
 
         //初始化神像按钮
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 3; i++)
         {
             StatueBtns[i] = StatueParent.GetChild(i).GetComponent<Button>();
             var j = i;
             StatueBtns[i].onClick.AddListener(() => StatueIdx = j);
         }
-        for (int i = 0; i < 4; i++)
-        {
-            StatueMbrBtns[i] = StatueMbrParent.GetChild(i).GetComponent<Button>();
-            var j = i;
-            StatueMbrBtns[i].onClick.AddListener(() => StatueMbrIdx = j);
-        }
+        //for (int i = 0; i < 4; i++)
+        //{
+        //    StatueMbrBtns[i] = StatueMbrParent.GetChild(i).GetComponent<Button>();
+        //    var j = i;
+        //    StatueMbrBtns[i].onClick.AddListener(() => StatueMbrIdx = j);
+        //}
     }
 
     private void GenNewRoom()
@@ -107,6 +111,11 @@ public class EventsMgr : MonoBehaviour
             RoadBtns[0].transform.localPosition = new Vector2(0,100);
             RoadBtns[1].gameObject.SetActive(true);
         }
+
+        //避免误触
+        RoadBtns[0].enabled = false;
+        RoadBtns[1].enabled = false;
+
         //避免二选一是同样的选项
         bool done1 = false, done2 = false, done3 = false, done4 = false;
 
@@ -184,50 +193,6 @@ public class EventsMgr : MonoBehaviour
         throw new System.NotImplementedException();
     }
 
-    //pray 按钮绑定调用
-    public void Pray()
-    {//交流情报与任务接取
-     //魔法物品交易会
-     //竞技挑战与角斗赛
-     //神秘事件调查
-     //文化交流与节日庆典
-     //遭遇敌对势力或盗贼团伙
-        if (PrayCount > 0)
-        {
-            switch (StatueIdx)
-            {
-                case 0:
-                    TeamManager.Ins.TeamData[StatueMbrIdx].MaxHp += 1;
-                    break;
-                case 1:
-                    TeamManager.Ins.TeamData[StatueMbrIdx].Atk += 1;
-                    break;
-                case 2:
-                    TeamManager.Ins.TeamData[StatueMbrIdx].Speed += 1;
-                    break;
-                case 3:
-                    TeamManager.Ins.TeamData[StatueMbrIdx].Fire += 1;
-                    break;
-                case 4:
-                    TeamManager.Ins.TeamData[StatueMbrIdx].Water += 1;
-                    break;
-                case 5:
-                    TeamManager.Ins.TeamData[StatueMbrIdx].Wind += 1;
-                    break;
-                case 6:
-                    TeamManager.Ins.TeamData[StatueMbrIdx].Thunder += 1;
-                    break;
-                case 7:
-                    TeamManager.Ins.TeamData[StatueMbrIdx].Earth += 1;
-                    break;
-                default:
-                    break;
-            }
-            PrayCount -= 1;
-            PrayCountTMP.text = "(祈祷次数:" + PrayCount+ ")";
-        }
-    }
-
     public void FeelMagic(int j)
     {
         //if (j == 0) BattleMgr.Ins.player.Fire    += 1;
@@ -251,9 +216,14 @@ public class EventsMgr : MonoBehaviour
 
     public void SetRoadToBattle()
     {
-        SetRandomBattles();
-        BattleMgr.Ins.InitEnemys(monsters);
-        ScrollBg.Ins.MoveEnemy = true;
+        //设置敌人
+        var ranNum = Random.Range(0, LevelManager.Ins.CurrentLevel.Battles.Count);
+        BattleMgr.Ins.EnemysStr = LevelManager.Ins.CurrentLevel.Battles[ranNum][1];
+        LevelManager.Ins.CurrentLevel.Battles.Remove(LevelManager.Ins.CurrentLevel.Battles[ranNum]);
+        //生成
+        BattleMgr.Ins.TeamRun();
+        IsMoveToBattle = true;
+        FadeIn();
     }
 
     public void SetRoadToEvent()
@@ -290,13 +260,6 @@ public class EventsMgr : MonoBehaviour
         //    BounusRelicsName[i].text = RelicsList[i][1];
         //    BounusRelicsEffect[i].text = RelicsList[i][3];
         //}
-    }
-
-    public void SetRandomBattles()
-    {
-        var ranNum = Random.Range(0,LevelManager.Ins.CurrentLevel.Battles.Count);
-        monsters = LevelManager.Ins.CurrentLevel.Battles[ranNum][1];
-        LevelManager.Ins.CurrentLevel.Battles.Remove(LevelManager.Ins.CurrentLevel.Battles[ranNum]);
     }
 
 
@@ -340,21 +303,14 @@ public class EventsMgr : MonoBehaviour
 
     public void Option(int index)
     {
-        string code;
-        switch (index)
+        string code = index switch
         {
-            case 0:
-                code = currentEvent[3];
-                break;
-            case 1:
-                code = currentEvent[5];
-                break;
-            default:
-                code = "";
-                break;
-        }
+            0 => currentEvent[3],
+            1 => currentEvent[5],
+            _ => "",
+        };
         //TODO道具属性飞入动画
-        BattleMgr.Ins.OurTeamRun();
+        BattleMgr.Ins.TeamRun();
         //ExecuteMgr.Ins.ExecuteCode(code);
         EventContentNode.gameObject.SetActive(false);
         RoadParentNode.gameObject.SetActive(true);
@@ -371,7 +327,7 @@ public class EventsMgr : MonoBehaviour
         {
             EventPoint -= 1;
             EPTMP.text = "" + EventPoint;
-            BattleMgr.Ins.OurTeamRun();
+            BattleMgr.Ins.TeamRun();
             FadeIn();
         }
     }
@@ -381,24 +337,56 @@ public class EventsMgr : MonoBehaviour
         FadeImg.raycastTarget = true;
         //人往前走 变黑
         BattleMgr.Ins.OurRunningPos.DOLocalMoveX(600, 2);
+        //用一秒变黑
+
         FadeImg.DOFade(1f, 1f).OnComplete(() =>
         {
             //生成事件 人走出来 变亮
-            ExploreBtn.gameObject.SetActive(false);
-            GenNewRoom();
-            BattleMgr.Ins.OurRunningPos.DOKill();
-            RoadParentNode.gameObject.SetActive(true);
+
+            //进入战斗 或者  探索
+            if (IsMoveToBattle)
+            {
+                BattleMgr.Ins.InitTeam(true);
+                RoadParentNode.gameObject.SetActive(false);
+            }
+            else if (IsMoveToStatue)
+            {
+                StatueNode.gameObject.SetActive(true);
+                ExploreBtn.gameObject.SetActive(false);
+                Statue.Ins.SetRandomStatue();
+            }
+            else
+            {
+                ExploreBtn.gameObject.SetActive(false);
+                GenNewRoom();
+                BattleMgr.Ins.OurRunningPos.DOKill();
+                RoadParentNode.gameObject.SetActive(true);
+            }
+
             BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-1000, 0f);
             BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-579, 1f);
+
+            //变亮
             FadeImg.DOFade(0f, 1f).OnComplete(() =>
             {
-                BattleMgr.Ins.OurTeamIdle();
+                BattleMgr.Ins.TeamIdle();
                 FadeImg.raycastTarget = false;
+                RoadBtns[0].enabled = true;
+                RoadBtns[1].enabled = true;
+                if (IsMoveToBattle)
+                {
+                    IsMoveToBattle = false;
+                    BattleMgr.Ins.EnterBattle();
+                    SetUnitCanDrag(true);
+                }
+                if (IsMoveToStatue)
+                {
+                    SetUnitCanDrag(true);
+                }
             }
             );
         }
         );
-
     }
 
     public void SetBonusGold(int num)
@@ -407,20 +395,33 @@ public class EventsMgr : MonoBehaviour
         for (int i = 0; i < num; i++)
         {
             BonusGold += 2;
-            BonusGold += Random.Range(0, 1);
+            BonusGold += Random.Range(0, 2);
         }
     }
 
     public void ShowBonus()
     {
-        BonusNode.SetActive(true);
-        BonusGoldTMP.text = BonusGold.ToString();
+        print("ennemy count" + TeamManager.Ins.EnemyData.Count);
+        SetBonusGold(TeamManager.Ins.EnemyData.Count);
+        UIBonusGoldTMP.text = "+" + BonusGold;
+        UIBonusGoldTMP.DOFade(1, 1f).OnComplete(
+            () =>
+                {
+                    UIBonusGoldTMP.DOFade(0, 1f);
+                }
+        );
+        ExploreBtn.gameObject.SetActive(true);
+        Gold += BonusGold;
+        UIGoldTMP.text = Gold.ToString();
+        BattleMgr.Ins.InitTeam(false);
+        IsMoveToStatue = true;
     }
-    public void OnClickBonusConfirm()
+
+    public void SetUnitCanDrag(bool CanDrag = false)
     {
-        BonusNode.SetActive( false );
-        ExploreBtn.gameObject.SetActive(true );
-        GoldTMP.text = (BagManager.Ins.Gold + BonusGold).ToString();
-        BattleMgr.Ins.InitTeam();
+        foreach (var item in BattleMgr.Ins.Team)
+        {
+            item.TMP.raycastTarget = CanDrag;
+        }
     }
 }

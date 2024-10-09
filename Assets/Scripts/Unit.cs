@@ -6,118 +6,46 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Linq;
 using System;
+using TMPro;
 
 public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
-    public int Cell,ID,Damage;
-    public float Hp, MaxHp, Atk, Shield, Fire, Water, Wind, Thunder, Earth, Speed;
+    public int Cell,Damage,AtkCountMax,AtkCountCurr;
+    public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
-    public bool isBoss, isDead, 致盲, 麻痹;
-    public ComponentBaseAtk NormalAtk;
-    public ComponentBaseComb Comb;
-    public ComponentBaseWeapon Weapon;
-    public ComponentBaseArmor Armor;
-    public ComponentBaseSupport Support;
-    public List<ComponentBase> Components = new();
+    public bool isBoss, isDead, 致盲, 麻痹,IsEnemy,IsEnterUnitMove;
     public List<ComponentBaseBuff> Buffs = new();
+    public string[] Tags = new string[4];
 
+    public TextMeshProUGUI TMP,SpeedTMP;
     public Animator Animator;
     public Image HpBar, Icon;
-    public Transform CloseAtkPos,StartParent;
+    public Transform StartParent,FontPos,RunPosParent;
     public RectTransform TMPNameNode;
-    public CanvasGroup CanvasGroup;
     public EventSystem _EventSystem;
     public GraphicRaycaster gra;
     public UnitData OriData;
+    public Action FinishAtkAction, FinishBehaviorAction;
 
     public void Awake()
     {
         _EventSystem = FindObjectOfType<EventSystem>();
         gra = FindObjectOfType<GraphicRaycaster>();
+        FinishAtkAction += OnFinishAtk;
+        HpBar = transform.Find("Canvas/HpBar").GetComponent<Image>();
+        TMP = transform.Find("Canvas/TMP").GetComponent<TextMeshProUGUI>();
+        SpeedTMP = transform.Find("Canvas/Speed/TMP").GetComponent<TextMeshProUGUI>();
+
+        FontPos = transform.Find("Canvas/FontPos");
     }
+
     #region====初始化方法
     public void Init(UnitData data)
     {
-        //name = data.Name;
-        //Icon.sprite = data.sprite;
-        NormalAtk = Activator.CreateInstance(Type.GetType(data.AtkName)) as ComponentBaseAtk;
-        NormalAtk.Init(CSVManager.Ins.Atks[data.AtkName], this);
-        Comb = Activator.CreateInstance(Type.GetType(data.CombName)) as ComponentBaseComb;
-        Comb.Init(CSVManager.Ins.Combs[data.CombName],this);
-
-        if (data.Weapon != null)
-        {
-            Weapon = data.Weapon;
-            Weapon.OwnerUnit = this;
-            Components.Add(Weapon);
-        }
-        if (data.Armor != null)
-        {
-            Armor = data.Armor;
-            Armor.OwnerUnit = this;
-            Components.Add(Armor);
-        }
-        if (data.Support != null)
-        {
-            Support = data.Support;
-            Support.OwnerUnit = this;
-            Components.Add(Support);
-        }
-
         Hp = MaxHp = data.MaxHp;
         Atk = data.Atk;
-        Fire = data.Fire;
-        Water = data.Water;
-        Wind = data.Wind;
-        Thunder = data.Thunder;
-        Earth = data.Earth;
         Speed = data.Speed;
-
-        SetElement();
-    }
-
-    public void EnemyInitAttr(string Mname)
-    {
-        //0id 1名称2最大生命值3攻击4火5水6风7雷8土9特性10普攻11追打12被动
-        string[] data = CSVManager.Ins.Units[Mname];
-        name = Mname;
-        //根据单位拥有的技能名字，从所有追打中检索出来加入该单位追打
-        //0id 1名称2类型3效果4价格5code6追打状态7造成状态
-        //NormalAtk = new Skill(CSVManager.Ins.全技能表[属性[9]]);
-        //if (属性[10] != "") Comb = new Skill(CSVManager.Ins.全技能表[属性[10]]);
-        //if (属性[11] != "") Special = new Skill(CSVManager.Ins.全技能表[属性[11]]);
-
-        int result;
-        Hp      = int.Parse(data[2]);
-        MaxHp   = int.TryParse(data[2], out result) ? result : 0;
-        Atk     = int.TryParse(data[3], out result) ? result : 0;
-        Fire    = int.TryParse(data[4], out result) ? result : 0;
-        Water   = int.TryParse(data[5], out result) ? result : 0;
-        Wind    = int.TryParse(data[6], out result) ? result : 0;
-        Thunder = int.TryParse(data[7], out result) ? result : 0;
-        Earth   = int.TryParse(data[8], out result) ? result : 0;
-        Speed   = int.Parse(data[9]);
-
-        SetElement();
-
-        NormalAtk = Activator.CreateInstance(Type.GetType(data[10])) as ComponentBaseAtk;
-        NormalAtk.Init(CSVManager.Ins.Atks[data[10]], this);
-        Comb = Activator.CreateInstance(Type.GetType(data[11])) as ComponentBaseComb;
-        Comb.Init( CSVManager.Ins.Combs[data[11]], this);
-
-        //AttrInfo.Instance.ShowInfo(this);
-        //AP.Play("idle");
-    }
-
-    public void SetElement()
-    {
-        float a = 0;
-        if (Atk > a) { a = Atk; Element = "物理"; }
-        if (Fire > a) { a = Fire; Element = "火"; }
-        if (Water > a) { a = Water; Element = "水"; }
-        if (Wind > a) { a = Wind; Element = "风"; }
-        if (Thunder > a) { a = Thunder; Element = "雷"; }
-        if (Earth > a) { a = Earth; Element = "土"; }
+        AtkCountMax = 1;
     }
    
     #endregion
@@ -125,24 +53,44 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public void OnBeginDrag(PointerEventData eventData)
     {
         StartParent = transform.parent;
-        //CanvasGroup.blocksRaycasts = false;
-        BattleMgr.Ins.SetPosSlotAlpha(0.4f);
+        if (EventsMgr.Ins.IsMoveToStatue)
+        {
+
+        }
+        else
+        {
+            BattleMgr.Ins.SetPosSlotAlpha(0.4f);
+
+        }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        transform.position = eventData.position;
-
-        if (eventData.pointerEnter.CompareTag("Pos"))
+        Animator.enabled = false;
+        TMP.raycastTarget = false;
+        //100是Canvas.planeDistance
+        Vector3 globalMousePos = Camera.main.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, 100));
+        // 设置对象的位置  
+        transform.position = globalMousePos;
+        //神像时
+        if (EventsMgr.Ins.IsMoveToStatue)
+        {
+        }
+        //战斗时
+        else
         {
             BattleMgr.Ins.SetPosSlotAlpha(0.4f);
-            eventData.pointerEnter.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            if (eventData.pointerEnter.CompareTag("Pos"))
+            {
+                eventData.pointerEnter.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            }
         }
 
-        if (eventData.pointerEnter.transform.parent.CompareTag("Our"))
+        //用tmp判断 路劲结构:slot/Unit/canvas/tmp
+        if (eventData.pointerEnter.transform.parent.parent.CompareTag("Our"))
         {
-            BattleMgr.Ins.SetPosSlotAlpha(0.4f);
-            eventData.pointerEnter.transform.parent.parent.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            //设置slot的alpha
+            eventData.pointerEnter.transform.parent.parent.parent.GetComponent<Image>().color = new Color(1, 1, 1, 1);
         }
     }
 
@@ -151,42 +99,50 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         BattleMgr.Ins.SetPosSlotAlpha(0f);
 
-        var list = GraphicRaycaster(Input.mousePosition);
 
-        foreach (var item in list)
+            //print(item.gameObject.name);
+            //if (item.gameObject.transform.CompareTag("Our"))
+            //{
+            //    ChangePos(transform.GetComponent<Unit>(), item.gameObject.transform.parent.GetComponent<Unit>());
+            //    transform.SetParent(item.gameObject.transform.parent.parent);
+            //    transform.localPosition = Vector2.zero;
+            //    item.gameObject.transform.parent.SetParent(StartParent);
+            //    item.gameObject.transform.parent.localPosition = Vector2.zero;
+            //}
+        if (eventData.pointerEnter.CompareTag("Pos"))
         {
-            if (item.gameObject.transform.parent.CompareTag("Our"))
+            transform.SetParent(eventData.pointerEnter.transform);
+            OriData.Cell = Cell = int.Parse(transform.parent.name);
+            transform.localPosition = Vector2.zero;
+        }
+        else if (eventData.pointerEnter.CompareTag("Pray"))
+        {
+            transform.SetParent(eventData.pointerEnter.transform);
+            transform.localPosition = Vector2.zero;
+            EventsMgr.Ins.UnitDatas[transform.parent.GetSiblingIndex()] = OriData;
+        }
+        else if (eventData.pointerEnter.CompareTag("Our"))
+        {
+            (eventData.pointerEnter.transform.parent.parent.parent, transform.parent) = (transform.parent, eventData.pointerEnter.transform.parent.parent.parent);
+            transform.localPosition = Vector2.zero;
+            eventData.pointerEnter.transform.parent.parent.transform.localPosition = Vector2.zero;
+            if (transform.parent.CompareTag("Pray"))
             {
-                ChangePos(transform.GetComponent<Unit>(), item.gameObject.transform.parent.GetComponent<Unit>());
-                transform.SetParent(item.gameObject.transform.parent.parent);
-                transform.localPosition = Vector2.zero;
-                item.gameObject.transform.parent.SetParent(StartParent);
-                item.gameObject.transform.parent.localPosition = Vector2.zero;
-            }
-            else if (item.gameObject.CompareTag("Pos"))
-            {
-                print("enter slot");
-                transform.SetParent(item.gameObject.transform);
-                transform.GetComponent<Unit>().Cell = int.Parse(transform.parent.name);
-                transform.GetComponent<Unit>().OriData.Cell = int.Parse(transform.parent.name);
-                print("msg " + transform.name + "当前位置: " + transform.GetComponent<Unit>().Cell);
-                transform.localPosition = Vector2.zero;
-            }
-            else
-            {
-                print("enter null");
-                transform.localPosition = Vector2.zero;
+                EventsMgr.Ins.UnitDatas[transform.parent.GetSiblingIndex()] = OriData;
             }
         }
-        //CanvasGroup.blocksRaycasts = true;
+        else
+        {
+            transform.localPosition = Vector2.zero;
+        }
+        TMP.raycastTarget = true;
+        Animator.enabled = true;
     }
 
     private void ChangePos(Unit unit1, Unit unit2)
     {
         (unit2.Cell, unit1.Cell) = (unit1.Cell, unit2.Cell);
         (unit2.OriData.Cell, unit1.OriData.Cell) = (unit1.OriData.Cell, unit2.OriData.Cell);
-        print("msg " + unit1.name + "当前位置: " + unit1.Cell);
-        print("msg " + unit2.name + "当前位置: " + unit2.Cell);
     }
 
     private List<RaycastResult> GraphicRaycaster(Vector2 pos)
@@ -205,10 +161,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #region ====战斗中移动
     public void UnitMove(int TargetCell)
     {
-        Transform moveParent = transform.parent;
+        IsEnterUnitMove = true;
         GameObject Our;
         GameObject Ene;
-        if (CompareTag("Our"))
+        if (!IsEnemy)
         {
             Our = BattleMgr.Ins.ourObj;
             Ene = BattleMgr.Ins.eneObj;
@@ -218,20 +174,24 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             Our = BattleMgr.Ins.eneObj;
             Ene = BattleMgr.Ins.ourObj;
         }
-        moveParent.DOMove(Our.transform.GetChild(TargetCell - 1).position, 1f).OnComplete(
+        Animator.enabled = false;
+        transform.DOMove(Our.transform.GetChild(TargetCell - 1).position, 1f).OnComplete(
             () => 
             {
-                moveParent.SetParent(Our.transform.GetChild(TargetCell - 1));
+                transform.SetParent(Our.transform.GetChild(TargetCell - 1));
                 Cell = TargetCell;
-             }
+                Animator.enabled = true;
+                BattleMgr.Ins.FindNextActionUnit();
+            }
         );
     }
 
     internal void MoveToEnemyFrontRow()
     {
+        IsEnterUnitMove = false;
         GameObject Our;
         GameObject Ene;
-        if (CompareTag("Our"))
+        if (!IsEnemy)
         {
             Our = BattleMgr.Ins.ourObj;
             Ene = BattleMgr.Ins.eneObj;
@@ -333,7 +293,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         else if (Cell == 2)
         {
             //1有空 上路有敌人去1
-            if (Our.transform.GetChild(1).childCount == 0 
+            if (Our.transform.GetChild(0).childCount == 0 
                 && (Ene.transform.GetChild(0).childCount > 0 || Ene.transform.GetChild(3).childCount > 0 || Ene.transform.GetChild(6).childCount > 0))
             {
                 UnitMove(1);
@@ -407,17 +367,17 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 UnitMove(8);
             }
         }
-        else
+        if (!IsEnterUnitMove)
         {
-            BattleMgr.Ins.ShowFont(this, "行动失败");
+            FindNextActionUnit();
         }
+
     }
     #endregion
     #region====流程方法
-    public void Reload()
+    public void ReloadAtk()
     {
-        NormalAtk.RemainAtkCount = NormalAtk.TotalAtkCount;
-        Comb.RemainCombCount = Comb.TotalCombCount;
+        AtkCountCurr = AtkCountMax;
     }
     public void FindNextActionUnit()
     {
@@ -425,58 +385,69 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     #endregion
     #region====单位通用方法
-    public Unit GetOppositeTarget()
+    public virtual void GetTargets()
     {
+        BattleMgr.Ins.Targets.Clear();
+
         GameObject SearchFor;
-        if (CompareTag("Our")) { SearchFor = BattleMgr.Ins.eneObj; }
+        if (!IsEnemy) { SearchFor = BattleMgr.Ins.eneObj; }
         else { SearchFor = BattleMgr.Ins.ourObj; }
+
+        Unit u = null;
+
+        // 根据Cell的值确定要搜索的行  
+        int[] rowIndices;
         if (new[] { 1, 4, 7 }.Contains(Cell))
         {
-            //受击单位第一排
-            if (SearchFor.transform.GetChild(0).childCount > 0) return SearchFor.transform.GetChild(0).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(3).childCount > 0) return SearchFor.transform.GetChild(3).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(6).childCount > 0) return SearchFor.transform.GetChild(6).GetChild(0).GetChild(0).GetComponent<Unit>();
+            rowIndices = new[] { 0, 3, 6 }; // 第一排  
         }
         else if (new[] { 2, 5, 8 }.Contains(Cell))
         {
-            //第二排
-            if (SearchFor.transform.GetChild(1).childCount > 0) return SearchFor.transform.GetChild(1).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(4).childCount > 0) return SearchFor.transform.GetChild(4).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(7).childCount > 0) return SearchFor.transform.GetChild(7).GetChild(0).GetChild(0).GetComponent<Unit>();
+            rowIndices = new[] { 1, 4, 7 }; // 第二排  
         }
         else
         {
-            //第三排
-            if (SearchFor.transform.GetChild(2).childCount > 0) return SearchFor.transform.GetChild(2).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(5).childCount > 0) return SearchFor.transform.GetChild(5).GetChild(0).GetChild(0).GetComponent<Unit>();
-            if (SearchFor.transform.GetChild(8).childCount > 0) return SearchFor.transform.GetChild(8).GetChild(0).GetChild(0).GetComponent<Unit>();
+            rowIndices = new[] { 2, 5, 8 }; // 第三排  
         }
-        return null;
-    }
-    public void CheckComb(string currDebuff)
-    {
-        if (BattleMgr.Ins.MainTarget.isDead) return;
-        List<Unit> units;
-        if (CompareTag("Our"))
+
+        // 遍历行索引  
+        foreach (int index in rowIndices)
         {
-            units = BattleMgr.Ins.Team;
-        }
-        else
-        {
-            units = BattleMgr.Ins.Enemys;
-        }
-        foreach (var item in units)
-        {
-            if (item.Comb. CombTypes.Contains(currDebuff) 
-                && item.Comb.RemainCombCount > 0 
-                && !item.麻痹)
+            if (SearchFor.transform.GetChild(index).childCount > 0)
             {
-                BattleMgr.Ins.AnimQueue.Insert(0, item.ID + ":Comb");
-                item.Comb.RemainCombCount -= 1;
-                break;
+                u = SearchFor.transform.GetChild(index).GetChild(0).GetComponent<Unit>();
+                if (u != null)
+                {
+                    BattleMgr.Ins.Targets.Add(u);
+                    break; // 找到后跳出循环  
+                }
             }
         }
     }
+    //public void CheckComb(string currDebuff)
+    //{
+    //    if (BattleMgr.Ins.MainTarget.isDead) return;
+    //    List<Unit> units;
+    //    if (!IsEnemy)
+    //    {
+    //        units = BattleMgr.Ins.Team;
+    //    }
+    //    else
+    //    {
+    //        units = BattleMgr.Ins.Enemys;
+    //    }
+    //    foreach (var item in units)
+    //    {
+    //        if (item.Comb. CombTypes.Contains(currDebuff) 
+    //            && item.Comb.RemainCombCount > 0 
+    //            && !item.麻痹)
+    //        {
+    //            BattleMgr.Ins.AnimQueue.Insert(0, item.ID + ":Comb");
+    //            item.Comb.RemainCombCount -= 1;
+    //            break;
+    //        }
+    //    }
+    //}
     public void UpdateHpBar()
     {
         //c# int 1/int 3 = 0
@@ -492,41 +463,40 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public void GetRandomMagic(int value)
     {
         var r = UnityEngine.Random.Range(0, 5);
-        if (r == 0)
-        {
-            Fire += value;
-            BattleMgr.Ins.ShowFont(this, "火属性+" + value);
-        }
-        else if (r == 1)
-        {
-            Water += value;
-            BattleMgr.Ins.ShowFont(this, "水属性+" + value);
-        }
-        else if (r == 2)
-        {
-            Wind += value;
-            BattleMgr.Ins.ShowFont(this, "风属性+" + value);
-        }
-        else if (r == 3)
-        {
-            Thunder += value;
-            BattleMgr.Ins.ShowFont(this, "雷属性+" + value);
-        }
-        else if (r == 4)
-        {
-            Earth += value;
-            BattleMgr.Ins.ShowFont(this, "土属性+" + value);
-        }
+        //if (r == 0)
+        //{
+        //    Fire += value;
+        //    BattleMgr.Ins.ShowFont(this, "火属性+" + value);
+        //}
+        //else if (r == 1)
+        //{
+        //    Water += value;
+        //    BattleMgr.Ins.ShowFont(this, "水属性+" + value);
+        //}
+        //else if (r == 2)
+        //{
+        //    Wind += value;
+        //    BattleMgr.Ins.ShowFont(this, "风属性+" + value);
+        //}
+        //else if (r == 3)
+        //{
+        //    Thunder += value;
+        //    BattleMgr.Ins.ShowFont(this, "雷属性+" + value);
+        //}
+        //else if (r == 4)
+        //{
+        //    Earth += value;
+        //    BattleMgr.Ins.ShowFont(this, "土属性+" + value);
+        //}
     }
 #region====战斗方法
     public void ExecuteAtk()
     {
-        NormalAtk.GetTargets();
+        GetTargets();
 
         if (BattleMgr.Ins.Targets.Count == 0)//没有目标就走位 然后进行下一个
         {
             MoveToEnemyFrontRow();
-            BattleMgr.Ins.FindNextActionUnit();
         }
         else
         {
@@ -536,81 +506,81 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 BattleMgr.Ins.FindNextActionUnit();
                 return;
             }
-            Animator.Play("closeAtk1");//后面两方法在动画帧后段调用
+            Animator.Play("atk");//后面两方法在动画帧后段调用
         }
     }
    
     //输出的攻击伤害 动画上调用
     public void CaculDamageOnAtk()
     {
-        NormalAtk.AtkTargets();
+        BattleMgr.Ins.CaculDamage(this);
     }
     //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等) 动画上调用
     public void AddAtkEffectOnAtk()
     {
-        NormalAtk.OnAtk();
+        //
     }
-    public void ExecuteComb() 
-    {
-        Comb.GetTargets();
-        if (BattleMgr.Ins.MainTarget == null) return;
-        Animator.Play("closeAtk2");
-    }
-    //输出的追打伤害
-    public void CaculDamageOnComb()
-    {
-        Comb.CombTargets();
-    }
-    //在动画帧攻击之后调用 加追打时特效(Debuff 追打养成等)
-    public void AddAtkEffectOnComb()
-    {
-        Comb.OnComb();
-    }
+    //public void ExecuteComb() 
+    //{
+    //    Comb.GetTargets();
+    //    if (BattleMgr.Ins.MainTarget == null) return;
+    //    Animator.Play("closeAtk2");
+    //}
+    ////输出的追打伤害
+    //public void CaculDamageOnComb()
+    //{
+    //    Comb.CombTargets();
+    //}
+    ////在动画帧攻击之后调用 加追打时特效(Debuff 追打养成等)
+    //public void AddAtkEffectOnComb()
+    //{
+    //    Comb.OnComb();
+    //}
     //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
     public void TakeAtkDamage(Unit DamageFrom, float rate, string AttrType = "Atk", string AtkType = "Atk")
     {
         float damageReduce = 1, damageRate = 1;
-        switch (AttrType)
-        {
-            case "Fire":
-                damageReduce = DamageFrom.Fire / (DamageFrom.Fire + Fire);
-                if (Element == "风") damageRate = 1.5f;
-                Damage = Mathf.RoundToInt(DamageFrom.Fire * damageReduce * damageRate);
-                break;
-            case "Water":
-                damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
-                if (Element == "火") damageRate = 1.5f;
-                Damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
-                break;
-            case "Wind":
-                damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
-                if (Element == "土") damageRate = 1.5f;
-                Damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
-                break;
-            case "Thunder":
-                damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
-                if (Element == "水") damageRate = 1.5f;
-                Damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
-                break;
-            case "Earth":
-                damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
-                if (Element == "雷") damageRate = 1.5f;
-                Damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
-                break;
-            default:
-                damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
-                Damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
-                break;
-        }
-        Damage = Mathf.RoundToInt(Damage * rate);
-        if(AtkType == "Atk") RcAtk();
-        if(AtkType == "Comb") RcComb();
-        if (AttrType == "Atk") RcAtk();
-        if (AttrType == "Fire") RcFire();
-        if (AttrType == "Water") RcComb();
-        if (AttrType == "Wind") RcAtk();
-        if (AttrType == "Thunder") RcComb();
-        if (AttrType == "Earth") RcComb();
+        //switch (AttrType)
+        //{
+        //    case "Fire":
+        //        damageReduce = DamageFrom.Fire / (DamageFrom.Fire + Fire);
+        //        if (Element == "风") damageRate = 1.5f;
+        //        Damage = Mathf.RoundToInt(DamageFrom.Fire * damageReduce * damageRate);
+        //        break;
+        //    case "Water":
+        //        damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
+        //        if (Element == "火") damageRate = 1.5f;
+        //        Damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
+        //        break;
+        //    case "Wind":
+        //        damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
+        //        if (Element == "土") damageRate = 1.5f;
+        //        Damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
+        //        break;
+        //    case "Thunder":
+        //        damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
+        //        if (Element == "水") damageRate = 1.5f;
+        //        Damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
+        //        break;
+        //    case "Earth":
+        //        damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
+        //        if (Element == "雷") damageRate = 1.5f;
+        //        Damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
+        //        break;
+        //    default:
+        //        damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
+        //        Damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
+        //        break;
+        //}
+        //Damage = Mathf.RoundToInt(Damage * rate);
+        //if(AtkType == "Atk") RcAtk();
+        //if(AtkType == "Comb") RcComb();
+        //if (AttrType == "Atk") RcAtk();
+        //if (AttrType == "Fire") RcFire();
+        //if (AttrType == "Water") RcComb();
+        //if (AttrType == "Wind") RcAtk();
+        //if (AttrType == "Thunder") RcComb();
+        //if (AttrType == "Earth") RcComb();
 
         BattleMgr.Ins.ShowFont(this, Damage, "Hurt");
     }//被攻击时特效 减伤 养成
@@ -618,10 +588,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public void RcAtk()
     {
         foreach (var item in Buffs)
-        {
-            item.RcAtk();
-        }
-        foreach (var item in Components)
         {
             item.RcAtk();
         }
@@ -633,18 +599,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             item.RcComb();
         }
-        foreach (var item in Components)
-        {
-            item.RcComb();
-        }
     }
     public void RcPhs()
     {
         foreach (var item in Buffs)
-        {
-            item.RcPhs();
-        }
-        foreach (var item in Components)
         {
             item.RcPhs();
         }
@@ -655,18 +613,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             item.RcFire();
         }
-        foreach (var item in Components)
-        {
-            item.RcFire();
-        }
     }
     public void RcWater()
     {
         foreach (var item in Buffs)
-        {
-            item.RcWater();
-        }
-        foreach (var item in Components)
         {
             item.RcWater();
         }
@@ -677,18 +627,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             item.RcWind();
         }
-        foreach (var item in Components)
-        {
-            item.RcWind();
-        }
     }
     public void RcThunder()
     {
         foreach (var item in Buffs)
-        {
-            item.RcThunder();
-        }
-        foreach (var item in Components)
         {
             item.RcThunder();
         }
@@ -699,17 +641,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             item.RcEarth();
         }
-        foreach (var item in Components)
-        {
-            item.RcEarth();
-        }
     }
     public void OnBattleStart()
     {
-        foreach (var item in Components)
-        {
-            item.OnBattleStart();
-        }
     }
     public void OnTurnEnd()
     {
@@ -720,5 +654,16 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             Buffs[i].OnTurnEnd();
         }
     }
+
+    public virtual void OnTurnStart()
+    {
+
+    }
     #endregion
+
+    public void OnFinishAtk()
+    {
+        Animator.Play("idle");
+        BattleMgr.Ins.FindNextActionUnit();
+    }
 }

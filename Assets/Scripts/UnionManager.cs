@@ -7,9 +7,8 @@ public class UnionManager : MonoBehaviour
     // Start is called before the first frame update
     public void OnClickTravel()
     {
-        Debug.LogError("OnClickTravel");
         Menu.Ins.EnterNewLevel();
-        BattleMgr.Ins.InitTeam();
+        BattleMgr.Ins.InitTeam(false);
         EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
     }
 }

@@ -16,26 +16,34 @@ public class Test : MonoBehaviour
     public string filePath;
     public bool b;
     public List<string[]> data = new();
-    public void Test9()
+    public List<GameObject> GL = new();
+
+    public void Test10()
     {
-        TextAsset ta = Resources.Load<TextAsset>("Configs/Battles/后山");
-
-        string csv = ta.text;
-
-        StringReader reader = new StringReader(csv);
-        //去掉第一行
-        reader.ReadLine();
-
-        string line;
-
-        List<string[]> data = new();
-
-        while ((line = reader.ReadLine())!=null)
-        {
-            string[] values = line.Split(',');
-            data.Add(values);
-        }
+        TeamManager.Ins.TagNodes[0][0].text = "aa";
+        print(TeamManager.Ins.TeamData[0].Tags[0]);
+        TeamManager.Ins.TagNodes[0][0].text = TeamManager.Ins.TeamData[0].Tags[0];
     }
+    //public void Test9()
+    //{
+    //    TextAsset ta = Resources.Load<TextAsset>("Configs/Battles/后山");
+
+    //    string csv = ta.text;
+
+    //    StringReader reader = new StringReader(csv);
+    //    //去掉第一行
+    //    reader.ReadLine();
+
+    //    string line;
+
+    //    List<string[]> data = new();
+
+    //    while ((line = reader.ReadLine())!=null)
+    //    {
+    //        string[] values = line.Split(',');
+    //        data.Add(values);
+    //    }
+    //}
     //public void Test6()
     //{
     //    BagManager.Ins.GenerateGear("冒险剑");
