@@ -413,7 +413,6 @@ public class EventsMgr : MonoBehaviour
         ExploreBtn.gameObject.SetActive(true);
         Gold += BonusGold;
         UIGoldTMP.text = Gold.ToString();
-        BattleMgr.Ins.InitTeam(false);
         IsMoveToStatue = true;
     }
 

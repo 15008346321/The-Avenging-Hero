@@ -12,17 +12,17 @@ public class Statue : MonoBehaviour
         RefreshCost;
     public int[] 
         StatueNum = new int[3],
-        RefreshCount,
         LockedNum = new int[3];
     public List<int>
         RepeatNum = new(),
         CantRepeatNum = new();
-    public TextMeshProUGUI RefeshCostTMP;
+    public TextMeshProUGUI RefreshCostTMP;
     public TextMeshProUGUI[]
         StatueTMPs = new TextMeshProUGUI[3];
     public Button PrayBtn,RefreshBtn;
     public Button[] LockBtns = new Button[3];
     public Image[] LockImgs = new Image[6];
+    public GameObject RefreshBlock;
     private void Awake()
     {
         if (Ins == null) Ins = this;
@@ -39,7 +39,22 @@ public class Statue : MonoBehaviour
         StatueNum[1] = GetNonRepeatRandomNum();
         StatueNum[2] = GetNonRepeatRandomNum();
         SetStatueTMPs();
-        RefreshCount = new int[] { 1, 1, 1 };
+        LockedNum = new int[] { 0,0,0 };
+        for (int i = 0; i < LockImgs.Length; i++)
+        {
+            if (i%2 == 0)
+            {
+                LockImgs[i].enabled = true;
+            }
+            else
+            {
+                LockImgs[i].enabled = false;
+            }
+        }
+        RefreshBlock.SetActive(false);
+        RefreshCost = 0;
+        RefreshCostTMP.text = RefreshCost.ToString();
+        PrayBtn.enabled = true;
     }
 
     public int GetNonRepeatRandomNum()
@@ -61,6 +76,26 @@ public class Statue : MonoBehaviour
     public void LockStatue(int num)
     {
         LockedNum[num] += 1;
+
+        //三个都锁上就激活block
+        var LockCount = 0;
+        foreach (var item in LockedNum)
+        {
+            if(item%2 == 1)LockCount++;
+            if(LockCount == 3)
+            {
+                RefreshBlock.SetActive(true);
+            }
+            else
+            {
+                if (EventsMgr.Ins.Gold >= RefreshCost)
+                {
+                    RefreshBlock.SetActive(false);
+                }
+            }
+            print(LockCount);
+        }
+
         if (LockedNum[num]%2 == 0)
         {
             LockImgs[num*2].enabled = true;
@@ -76,7 +111,7 @@ public class Statue : MonoBehaviour
     public void RefreshStatue()
     {
         RefreshCost += 1;
-        RefeshCostTMP.text = RefreshCost.ToString();
+        RefreshCostTMP.text = RefreshCost.ToString();
         for (int i = 0; i < LockedNum.Length; i++)
         { 
             if (LockedNum[i] % 2 == 0)
@@ -102,9 +137,11 @@ public class Statue : MonoBehaviour
         EventsMgr.Ins.UIGoldTMP.text = EventsMgr.Ins.Gold.ToString();
         if (EventsMgr.Ins.Gold < RefreshCost)
         {
-            RefreshBtn.enabled = false;
-            RefreshBtn.GetComponent<Image>().color = Color.gray;
-            //todo 把tmp也灰了
+            RefreshBlock.SetActive(true);
+        }
+        else
+        {
+            RefreshBlock.SetActive(false);
         }
     }
 
@@ -209,7 +246,7 @@ public class Statue : MonoBehaviour
             if (unitData.Bloods[idx].Value == 0)
                 unitData.Bloods.RemoveAt(idx);
             Count++;
-            if(Count == 5) UnFinish = false;
+            if(Count == 3) UnFinish = false;
         }
         AddBlood(unitData, num, "火元素");
     }

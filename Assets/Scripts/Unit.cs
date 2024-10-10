@@ -511,7 +511,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
    
     //输出的攻击伤害 动画上调用
-    public void CaculDamageOnAtk()
+    public virtual void OnAtkMonent()
     {
         BattleMgr.Ins.CaculDamage(this);
     }

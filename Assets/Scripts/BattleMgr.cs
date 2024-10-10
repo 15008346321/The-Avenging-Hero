@@ -73,7 +73,7 @@ public class BattleMgr : MonoBehaviour
 
             GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
             Unit u = Instantiate(g).transform.GetComponent<Unit>();
-            print(u.name + " ins id " + u.GetInstanceID());
+            u.name =  u.name + u.GetInstanceID();
             u.OriData = Datas[i];//修改属性 存档时修改
             u.Cell = Datas[i].Cell;
             u.Init(Datas[i]);//把data属性赋予unit
