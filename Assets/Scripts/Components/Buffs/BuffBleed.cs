@@ -23,11 +23,11 @@ public class BuffBleed : ComponentBaseBuff
     public override void OnTurnEnd()
     {
         //流血暂定掉血0.2攻击力
-        BattleMgr.Ins.ShowFont(OwnerUnit, Mathf.RoundToInt(BuffFrom.Atk * 0.2f) * CurrStack, "Bleed");
-        CurrStack -= 1;
-        if (CurrStack <= 0)
-        {
-            OwnerUnit.Buffs.Remove(this);
-        }
+        //BattleMgr.Ins.ShowFont(OwnerUnit, Mathf.RoundToInt(BuffFrom.Atk * 0.2f) * CurrStack, "Bleed");
+        //CurrStack -= 1;
+        //if (CurrStack <= 0)
+        //{
+        //    OwnerUnit.Buffs.Remove(this);
+        //}
     }
 }

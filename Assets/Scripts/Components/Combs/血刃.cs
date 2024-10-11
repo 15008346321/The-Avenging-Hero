@@ -13,7 +13,7 @@ public class 血刃 : ComponentBaseComb
         BattleMgr.Ins.ShowSkillName(OwnerUnit, "血刃");
         foreach (var item in BattleMgr.Ins.Targets)
         {
-            item.TakeAtkDamage(OwnerUnit, 0.3f);
+            //item.TakeDamage(OwnerUnit, 0.3f);
         }
     }
 }

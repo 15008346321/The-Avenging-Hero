@@ -364,22 +364,6 @@ public class BattleMgr : MonoBehaviour
         CombDetailCount = 0;
     }
 
-    public void ShowFont(Unit u, int value, string type)
-    {
-        GameObject font = Instantiate(HurtFont);
-        HurtFont hf = font.GetComponent<HurtFont>();
-        hf.Init(u, value.ToString(), value);
-        hf.animator.Play(type);
-    }
-
-    public void ShowFont(Unit u, string text)
-    {
-        GameObject font = Instantiate(HurtFont);
-        HurtFont hf = font.GetComponent<HurtFont>();
-        hf.Init(u, text);
-        hf.animator.Play("ShowString");
-    }
-
     public void CheckBattleEnd()
     {
         if (isBattling == false) return;//防止同时死亡时重复判断
@@ -407,6 +391,8 @@ public class BattleMgr : MonoBehaviour
 
     public IEnumerator OnTurnEnd()
     {
+
+        print("1");
         for (int i = 0; i < AllUnit.Count; i++)
         {
             AllUnit[i].OnTurnEnd();
@@ -465,18 +451,11 @@ public class BattleMgr : MonoBehaviour
         return null;
     }
 
-    public void CaculDamage(Unit DamageFrom)
+    public void CaculDamage(float damage)
     {
-        float damage = DamageFrom.Atk;
         foreach (var item in Targets)
         {
-            ShowFont(item, (int)damage, "Hurt");
-            item.Hp -= damage;
-            item.UpdateHpBar();
-            if (item.Hp <= 0)
-            {
-                item.isDead = true;
-            }
+            item.TakeDamage(damage);
         }
     }
 }

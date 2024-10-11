@@ -47,10 +47,10 @@ public class TeamManager : MonoBehaviour
     private void InitTeam()
     {
         //TODO改到配置表中
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"],1));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 2));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 3));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["初级剑士"], 4));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["剑士"],1));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["剑士"], 2));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["火焰法师"], 3));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["火焰法师"], 4));
 
         TagNodes.Add(TagNodes1);
         TagNodes.Add(TagNodes2);
@@ -141,12 +141,12 @@ public class UnitData
         Speed   = int.Parse(data[4]);
         SkillDscrp = data[5];
         Tags    = data[6].Split("&");
-        if(data[7]!="") Bloods.Add(new Blood("火元素",int.Parse(data[7])));
-        if(data[8]!="") Bloods.Add(new Blood("水元素", int.Parse(data[8])));
-        if(data[9]!="") Bloods.Add(new Blood("风元素", int.Parse(data[9])));
-        if(data[10]!="") Bloods.Add(new Blood("雷元素", int.Parse(data[10])));
-        if(data[11]!="") Bloods.Add(new Blood("土元素", int.Parse(data[11])));
-        int yitai = 100;
+        if(data[7]!="") Bloods.Add(new Blood("火元素",float.Parse(data[7])));
+        if(data[8]!="") Bloods.Add(new Blood("水元素", float.Parse(data[8])));
+        if(data[9]!="") Bloods.Add(new Blood("风元素", float.Parse(data[9])));
+        if(data[10]!="") Bloods.Add(new Blood("雷元素", float.Parse(data[10])));
+        if(data[11]!="") Bloods.Add(new Blood("土元素", float.Parse(data[11])));
+        float yitai = 100;
         foreach (var item in Bloods)
         {
             yitai -= item.Value;
@@ -158,8 +158,9 @@ public class UnitData
 public class Blood
 {
     public string Name;
-    public int Value, Level;
-    public Blood(string name, int value)
+    public float Value;
+    public int Level;
+    public Blood(string name, float value)
     {
         Name = name;
         Value = value;

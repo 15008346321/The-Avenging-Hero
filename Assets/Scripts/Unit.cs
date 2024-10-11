@@ -13,14 +13,15 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public int Cell,Damage,AtkCountMax,AtkCountCurr;
     public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
-    public bool isBoss, isDead, 致盲, 麻痹,IsEnemy,IsEnterUnitMove;
-    public List<ComponentBaseBuff> Buffs = new();
+    public bool isBoss, isDead,IsEnemy,IsEnterUnitMove;
+    public List<BuffBase> Buffs = new();
+    public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
 
     public TextMeshProUGUI TMP,SpeedTMP;
     public Animator Animator;
     public Image HpBar, Icon;
-    public Transform StartParent,FontPos,RunPosParent;
+    public Transform StartParent,StatePos,RunPosParent;
     public RectTransform TMPNameNode;
     public EventSystem _EventSystem;
     public GraphicRaycaster gra;
@@ -35,8 +36,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         HpBar = transform.Find("Canvas/HpBar").GetComponent<Image>();
         TMP = transform.Find("Canvas/TMP").GetComponent<TextMeshProUGUI>();
         SpeedTMP = transform.Find("Canvas/Speed/TMP").GetComponent<TextMeshProUGUI>();
+        Animator = transform.GetComponent<Animator>();
 
-        FontPos = transform.Find("Canvas/FontPos");
+        StatePos = transform.Find("Canvas/FontPos");
     }
 
     #region====初始化方法
@@ -46,6 +48,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         Atk = data.Atk;
         Speed = data.Speed;
         AtkCountMax = 1;
+        Bloods = data.Bloods;
     }
    
     #endregion
@@ -500,9 +503,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
         else
         {
-            if (致盲)
+            if (Buffs.Exists(item=>item.Name == "致盲"))
             {
-                BattleMgr.Ins.ShowFont(this, "致盲-行动失败");
+                StatePoolMgr.Ins.状态(this, "致盲-行动失败");
                 BattleMgr.Ins.FindNextActionUnit();
                 return;
             }
@@ -513,7 +516,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //输出的攻击伤害 动画上调用
     public virtual void OnAtkMonent()
     {
-        BattleMgr.Ins.CaculDamage(this);
+        BattleMgr.Ins.CaculDamage((int)Atk);
     }
     //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等) 动画上调用
     public void AddAtkEffectOnAtk()
@@ -537,40 +540,59 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //    Comb.OnComb();
     //}
     //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
-    public void TakeAtkDamage(Unit DamageFrom, float rate, string AttrType = "Atk", string AtkType = "Atk")
+    public void TakeDamage(float Damage,DamageType damageType = DamageType.物理伤害)
     {
-        float damageReduce = 1, damageRate = 1;
-        //switch (AttrType)
+        Hp -= Damage;
+        UpdateHpBar();
+        CheckDeath();
+        //float damageReduce = 1, damageRate = 1;
+        switch (damageType)
+        {
+            case DamageType.物理伤害:
+                StatePoolMgr.Ins.物理伤害(this, Damage);
+                break;
+            case DamageType.火元素伤害:
+                StatePoolMgr.Ins.火元素伤害(this, Damage);
+                break;
+            case DamageType.燃烧伤害:
+                StatePoolMgr.Ins.燃烧伤害(this, Damage);
+                break;
+        }
+        //switch (damageType)
         //{
-        //    case "Fire":
-        //        damageReduce = DamageFrom.Fire / (DamageFrom.Fire + Fire);
-        //        if (Element == "风") damageRate = 1.5f;
-        //        Damage = Mathf.RoundToInt(DamageFrom.Fire * damageReduce * damageRate);
+        //    case "物理伤害":
+        //        StatePoolMgr.Ins.物理伤害(this, Damage);
         //        break;
-        //    case "Water":
-        //        damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
-        //        if (Element == "火") damageRate = 1.5f;
-        //        Damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
+        //    case "火元素伤害":
+        //        StatePoolMgr.Ins.火元素伤害(this, Damage);
         //        break;
-        //    case "Wind":
-        //        damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
-        //        if (Element == "土") damageRate = 1.5f;
-        //        Damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
+        //    case "燃烧伤害":
+        //        StatePoolMgr.Ins.燃烧伤害(this, Damage);
         //        break;
-        //    case "Thunder":
-        //        damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
-        //        if (Element == "水") damageRate = 1.5f;
-        //        Damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
-        //        break;
-        //    case "Earth":
-        //        damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
-        //        if (Element == "雷") damageRate = 1.5f;
-        //        Damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
-        //        break;
-        //    default:
-        //        damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
-        //        Damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
-        //        break;
+            //case "Water":
+            //    damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
+            //    if (Element == "火") damageRate = 1.5f;
+            //    Damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
+            //    break;
+            //case "Wind":
+            //    damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
+            //    if (Element == "土") damageRate = 1.5f;
+            //    Damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
+            //    break;
+            //case "Thunder":
+            //    damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
+            //    if (Element == "水") damageRate = 1.5f;
+            //    Damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
+            //    break;
+            //case "Earth":
+            //    damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
+            //    if (Element == "雷") damageRate = 1.5f;
+            //    Damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
+            //    break;
+            //default:
+            //    damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
+            //    Damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
+            //    break;
         //}
         //Damage = Mathf.RoundToInt(Damage * rate);
         //if(AtkType == "Atk") RcAtk();
@@ -582,14 +604,26 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         //if (AttrType == "Thunder") RcComb();
         //if (AttrType == "Earth") RcComb();
 
-        BattleMgr.Ins.ShowFont(this, Damage, "Hurt");
+        //BattleMgr.Ins.ShowFont(this, Damage, "Hurt");
     }//被攻击时特效 减伤 养成
+
+    public void CheckDeath()
+    {
+        if (Hp <= 0)
+        {
+            isDead = true;
+            transform.SetParent(BattleMgr.Ins. DeadParent);
+            BattleMgr.Ins.CheckBattleEnd();
+            if (BattleMgr.Ins.isBattling == false) return;
+            BattleMgr.Ins.SortBySpeed();
+        }
+    }
 
     public void RcAtk()
     {
         foreach (var item in Buffs)
         {
-            item.RcAtk();
+            //item.RcAtk();
         }
     }
 
@@ -597,49 +631,49 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         foreach (var item in Buffs)
         {
-            item.RcComb();
+            //item.RcComb();
         }
     }
     public void RcPhs()
     {
         foreach (var item in Buffs)
         {
-            item.RcPhs();
+            //item.RcPhs();
         }
     }
     public void RcFire()
     {
         foreach (var item in Buffs)
         {
-            item.RcFire();
+            //item.RcFire();
         }
     }
     public void RcWater()
     {
         foreach (var item in Buffs)
         {
-            item.RcWater();
+            //item.RcWater();
         }
     }
     public void RcWind()
     {
         foreach (var item in Buffs)
         {
-            item.RcWind();
+            //item.RcWind();
         }
     }
     public void RcThunder()
     {
         foreach (var item in Buffs)
         {
-            item.RcThunder();
+            //item.RcThunder();
         }
     }
     public void RcEarth()
     {
         foreach (var item in Buffs)
         {
-            item.RcEarth();
+            //item.RcEarth();
         }
     }
     public void OnBattleStart()
@@ -647,8 +681,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     public void OnTurnEnd()
     {
-        致盲 = false;
-        麻痹 = false;
         for (int i = 0; i < Buffs.Count; i++)
         {
             Buffs[i].OnTurnEnd();
