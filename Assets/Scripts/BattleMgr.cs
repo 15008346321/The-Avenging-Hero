@@ -194,8 +194,6 @@ public class BattleMgr : MonoBehaviour
 
     public void SortBySpeed()
     {
-
-        print("sort");
         Team.Sort((x, y) => x.Speed.CompareTo(y.Speed));
         Enemys.Sort((x, y) => x.Speed.CompareTo(y.Speed));
         AllUnit.Clear();
@@ -391,8 +389,6 @@ public class BattleMgr : MonoBehaviour
 
     public IEnumerator OnTurnEnd()
     {
-
-        print("1");
         for (int i = 0; i < AllUnit.Count; i++)
         {
             AllUnit[i].OnTurnEnd();
@@ -407,7 +403,6 @@ public class BattleMgr : MonoBehaviour
         AllUnit.Clear();
         Team.Clear();
 
-        print("team count" + Team.Count);
         Enemys.Clear();
         AnimQueue.Clear();
         for (int i = 0; i < ourObj.transform.childCount - 1; i++)

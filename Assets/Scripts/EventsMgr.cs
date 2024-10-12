@@ -401,13 +401,12 @@ public class EventsMgr : MonoBehaviour
 
     public void ShowBonus()
     {
-        print("ennemy count" + TeamManager.Ins.EnemyData.Count);
         SetBonusGold(TeamManager.Ins.EnemyData.Count);
-        UIBonusGoldTMP.text = "+" + BonusGold;
-        UIBonusGoldTMP.DOFade(1, 1f).OnComplete(
+        UIBonusGoldTMP.text = "<sprite=\"coin\" index=0>+" + BonusGold;
+        UIBonusGoldTMP.transform.DOLocalMoveX(72, 0.5f).OnComplete(
             () =>
                 {
-                    UIBonusGoldTMP.DOFade(0, 1f);
+                    UIBonusGoldTMP.transform.DOLocalMoveX(-100, 0.5f).SetDelay(1f);
                 }
         );
         ExploreBtn.gameObject.SetActive(true);

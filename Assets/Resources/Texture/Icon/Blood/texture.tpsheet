@@ -1,0 +1,21 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# https://assetstore.unity.com/packages/tools/sprite-management/texturepacker-importer-16641
+#
+# created with Free texture packer v0.6.7
+# http://free-tex-packer.com
+#
+:format=40300
+:texture=texture.png
+:size=561x687
+:pivotpoints=enabled
+:borders=disabled
+
+水元素.png;0;454;127;233; 0.5;0.5; 0;0;0;0
+火元素.png;0;225;155;229; 0.5;0.5; 0;0;0;0
+风元素.png;127;461;228;226; 0.5;0.5; 0;0;0;0
+以太.png;0;0;225;225; 0.5;0.5; 0;0;0;0
+土元素.png;155;244;224;217; 0.5;0.5; 0;0;0;0
+雷元素.png;355;481;206;206; 0.5;0.5; 0;0;0;0

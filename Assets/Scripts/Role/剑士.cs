@@ -28,8 +28,8 @@ public class 剑士 : Unit
 
     public override void OnAtkMonent()
     {
-        base.OnAtkMonent();
         Repel();
+        base.OnAtkMonent();
     }
 
     public void Repel()

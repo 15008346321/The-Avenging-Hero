@@ -542,6 +542,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
     public void TakeDamage(float Damage,DamageType damageType = DamageType.物理伤害)
     {
+
+        print(name + "takedamage");
         Hp -= Damage;
         UpdateHpBar();
         CheckDeath();
@@ -609,10 +611,15 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public void CheckDeath()
     {
+
+        print(name + "CheckDeath");
         if (Hp <= 0)
         {
+
+            print("Hp <= 0");
             isDead = true;
-            transform.SetParent(BattleMgr.Ins. DeadParent);
+            transform.SetParent(BattleMgr.Ins.DeadParent);
+            print(name + transform.parent.name);
             BattleMgr.Ins.CheckBattleEnd();
             if (BattleMgr.Ins.isBattling == false) return;
             BattleMgr.Ins.SortBySpeed();

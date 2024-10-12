@@ -9574,6 +9574,7 @@ RectTransform:
   - {fileID: 2000938245}
   - {fileID: 627184246}
   - {fileID: 1712386067}
+  - {fileID: 657707644}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -12311,7 +12312,7 @@ RectTransform:
   - {fileID: 1570241228}
   - {fileID: 1377512133}
   - {fileID: 105401398}
-  m_Father: {fileID: 1747538319}
+  m_Father: {fileID: 531275202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -18870,8 +18871,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 195, y: 0}
-  m_SizeDelta: {x: 120.8503, y: 50}
+  m_AnchoredPosition: {x: -101, y: -76}
+  m_SizeDelta: {x: 206.0096, y: 70.9982}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1034665506
 MonoBehaviour:
@@ -33136,6 +33137,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Prefab: {fileID: 6516444726443623700, guid: b3554228acdaadc44bc16e409bf8e279, type: 3}
   PoolMax: 10
+  SameTimeStateCount: 0
+  time: 0
   Pool: []
 --- !u!1 &1728958349
 GameObject:
@@ -33581,7 +33584,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1027909803}
-  - {fileID: 657707644}
   - {fileID: 898448492}
   m_Father: {fileID: 531275202}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
