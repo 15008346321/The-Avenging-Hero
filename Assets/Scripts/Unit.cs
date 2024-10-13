@@ -21,7 +21,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public TextMeshProUGUI TMP,SpeedTMP;
     public Animator Animator;
     public Image HpBar, Icon;
-    public Transform StartParent,StatePos,RunPosParent;
+    public Transform StartParent,StatePos,RunPosParent,DragParent;
     public RectTransform TMPNameNode;
     public EventSystem _EventSystem;
     public GraphicRaycaster gra;
@@ -37,7 +37,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         TMP = transform.Find("Canvas/TMP").GetComponent<TextMeshProUGUI>();
         SpeedTMP = transform.Find("Canvas/Speed/TMP").GetComponent<TextMeshProUGUI>();
         Animator = transform.GetComponent<Animator>();
-
+        DragParent = GameObject.Find("Canvas/UI/DragParent").transform;
         StatePos = transform.Find("Canvas/FontPos");
     }
 
@@ -56,9 +56,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public void OnBeginDrag(PointerEventData eventData)
     {
         StartParent = transform.parent;
+        transform.SetParent(DragParent);
         if (EventsMgr.Ins.IsMoveToStatue)
         {
-
+            Statue.Ins.RequireCheck(this);
         }
         else
         {
@@ -66,6 +67,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
         }
     }
+
+ 
 
     public void OnDrag(PointerEventData eventData)
     {
@@ -136,10 +139,19 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
         else
         {
+            transform.SetParent(StartParent);
             transform.localPosition = Vector2.zero;
         }
         TMP.raycastTarget = true;
         Animator.enabled = true;
+
+        if (EventsMgr.Ins.IsMoveToStatue)
+        {
+            foreach (var item in Statue.Ins.PrayPosBlock)
+            {
+                item.SetActive(false);
+            }
+        }
     }
 
     private void ChangePos(Unit unit1, Unit unit2)

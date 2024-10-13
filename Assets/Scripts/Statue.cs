@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 public class Statue : MonoBehaviour
 {
     public static Statue Ins;
+    public List<bool> StatueRequireResult = new();
     public int 
         StatueTotal = 3,
         RefreshCost;
@@ -23,6 +25,7 @@ public class Statue : MonoBehaviour
     public Button[] LockBtns = new Button[3];
     public Image[] LockImgs = new Image[6];
     public GameObject RefreshBlock;
+    public GameObject[] PrayPosBlock = new GameObject[3];
     private void Awake()
     {
         if (Ins == null) Ins = this;
@@ -159,13 +162,13 @@ public class Statue : MonoBehaviour
             switch (StatueNum[i])
             {
                 case 0:
-                    StatueTMPs[i].text = "转化1以太为1火元素";
+                    StatueTMPs[i].text = "转化1<sprite=\"元素\" name=\"以太\">以太为1<sprite=\"元素\" name=\"火元素\">火元素";
                     break;
                 case 1:
-                    StatueTMPs[i].text = "转化3基础元素为2火元素";
+                    StatueTMPs[i].text = "转化3基础元素为2<sprite=\"元素\" name=\"火元素\">火元素";
                     break;
                 case 2:
-                    StatueTMPs[i].text = "获得1以太";
+                    StatueTMPs[i].text = "获得1<sprite=\"元素\" name=\"以太\">以太";
                     break;
                 default:
                     break;
@@ -207,6 +210,59 @@ public class Statue : MonoBehaviour
         EventsMgr.Ins.IsMoveToStatue = false;
         gameObject.SetActive(false);
         EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
+    }
+
+    public void RequireCheck(Unit u)
+    {
+        StatueRequireResult.Clear();
+        for (int i = 0; i < 3; i++)
+        {
+            StatueRequireResult.Add(true);
+        }
+        foreach (var item in PrayPosBlock)
+        {
+            item.SetActive(false);
+        }
+
+        print("StatueNum.Length " + StatueNum.Length);
+        for (int i = 0; i < StatueNum.Length; i++)
+        {
+            switch (StatueNum[i])
+            {
+                case 0:
+
+                    print("statue0");
+                    if(!u.Bloods.Any(item=>item.Name == "以太" && item.Value > 0))
+                     {
+                        StatueRequireResult[i] = false;
+                    }
+                    break;
+                case 1:
+                    print("statue1");
+                    print("");
+                    if (!(u.Bloods.Where(item => item.Name != "火元素" && item.Level == 1).Sum(item=>item.Value)>= 3f))
+                    {
+
+                        print("火元素不足");
+                        StatueRequireResult[i] = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        for (int i = 0; i < StatueRequireResult.Count; i++)
+        {
+            print(i + StatueRequireResult[i].ToString());
+
+            if (StatueRequireResult[i] == false)
+            {
+                PrayPosBlock[i].SetActive(true);
+
+                print(i + "激活");
+            }
+        }
     }
 
     void AddBlood(UnitData unitData, int num, string type)

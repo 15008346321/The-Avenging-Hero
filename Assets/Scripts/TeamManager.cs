@@ -11,10 +11,11 @@ public class TeamManager : MonoBehaviour
     public static TeamManager Ins;
     public List<UnitData> TeamData = new(), EnemyData = new();
     public Button[] MbrBtn = new Button[4];
-    public TextMeshProUGUI[] 
+    public TextMeshProUGUI[]
+        uGUIs = new TextMeshProUGUI[5],
         MbrBtnTMP = new TextMeshProUGUI[4], 
-        BloodNameTMP = new TextMeshProUGUI[10],
-        BloodPointTMP = new TextMeshProUGUI[10],
+        BloodNameTMP = new TextMeshProUGUI[14],
+        BloodPointTMP = new TextMeshProUGUI[14],
         TagNodes1 = new TextMeshProUGUI[4], 
         TagNodes2 = new TextMeshProUGUI[4], 
         TagNodes3 = new TextMeshProUGUI[4],
@@ -28,9 +29,10 @@ public class TeamManager : MonoBehaviour
         DetailImgs = new Image[5], 
         //GearSlotImgs = new Image[3],
         Arrows = new Image[4],
-        BloodImgs;
-    public int CurrMbrIdx;
+        BloodImgs = new Image[14];
+    public int CurrMbrIdx,BloodInsNum = 14;
     public bool TagChanged = true;
+    public Transform BloodParent;
     public GameObject TeamNode,DetailNode,TagPrefab,BloodPrefab;
     public List<TextMeshProUGUI[]> TagNodes = new();
 
@@ -42,9 +44,9 @@ public class TeamManager : MonoBehaviour
     }
     void Start()
     {
-        InitTeam();
+        Init();
     }
-    private void InitTeam()
+    private void Init()
     {
         //TODO改到配置表中
         TeamData.Add(new UnitData(CSVManager.Ins.Units["剑士"],1));
@@ -56,6 +58,16 @@ public class TeamManager : MonoBehaviour
         TagNodes.Add(TagNodes2);
         TagNodes.Add(TagNodes3);
         TagNodes.Add(TagNodes4);
+
+        for (int i = 0; i < BloodInsNum; i++)
+        {
+            GameObject g = Instantiate(BloodPrefab);
+            g.transform.SetParent(BloodParent);
+            TextMeshProUGUI[] uGUIs = g.transform.GetComponentsInChildren<TextMeshProUGUI>();
+            BloodNameTMP[i] = uGUIs[0];
+            BloodPointTMP[i] = uGUIs[1];
+            BloodImgs[i] = g.transform.GetChild(0).GetComponent<Image>();
+        }
     }
 
     //在UI/TeamBtn按钮上绑定 刷新小队面板
@@ -97,7 +109,7 @@ public class TeamManager : MonoBehaviour
             BloodImgs[counter].sprite = CSVManager.Ins.BloodIcons[item.Name];
             counter += 1;
         }
-        for (int i = counter; i < 10; i++)
+        for (int i = counter; i < BloodInsNum; i++)
         {
             BloodNameTMP[i].transform.parent.parent.gameObject.SetActive(false);
         }
@@ -169,7 +181,8 @@ public class Blood
 
     void SetLevel()
     {
-        if (EventsMgr.Ins.Level1Blood.Contains(Name)) Level = 1;
+        if (EventsMgr.Ins.Level0Blood.Contains(Name)) Level = 0;
+        else if (EventsMgr.Ins.Level1Blood.Contains(Name)) Level = 1;
         else if (EventsMgr.Ins.Level2Blood.Contains(Name)) Level = 2;
         else if (EventsMgr.Ins.Level3Blood.Contains(Name)) Level = 3;
     }

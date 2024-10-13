@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class EventsMgr : MonoBehaviour
 {
     Dictionary<string, string[]> Events=new(), Battles=new(), Relics=new();
+    public List<string> Level0Blood = new() { "以太" };
     public List<string> Level1Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
     public List<string> Level2Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
     public List<string> Level3Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
