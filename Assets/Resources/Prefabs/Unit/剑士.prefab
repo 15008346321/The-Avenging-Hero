@@ -60,8 +60,73 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 9c2bfe2b54be50640b6c1f7a018bdaa0, type: 2}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6734803477313602793, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 279632705322490797, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2918560389432650203}
   m_SourcePrefab: {fileID: 100100000, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+--- !u!1 &3182927225445176626 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 279632705322490797, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+  m_PrefabInstance: {fileID: 3444535752615022239}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2918560389432650203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182927225445176626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b7ccf3caa0378c44abf348bbc7f59ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cell: 0
+  Damage: 0
+  AtkCountMax: 0
+  AtkCountCurr: 0
+  Hp: 0
+  MaxHp: 0
+  Atk: 0
+  Shield: 0
+  Speed: 0
+  Element: 
+  isBoss: 0
+  isDead: 0
+  IsEnemy: 0
+  IsEnterUnitMove: 0
+  Buffs: []
+  Bloods: []
+  Tags:
+  - 
+  - 
+  - 
+  - 
+  TMP: {fileID: 0}
+  SpeedTMP: {fileID: 0}
+  Animator: {fileID: 0}
+  HpBar: {fileID: 0}
+  Icon: {fileID: 0}
+  StartParent: {fileID: 0}
+  StatePos: {fileID: 0}
+  RunPosParent: {fileID: 0}
+  DragParent: {fileID: 0}
+  TMPNameNode: {fileID: 0}
+  _EventSystem: {fileID: 0}
+  gra: {fileID: 0}
+  OriData:
+    MaxHp: 0
+    Atk: 0
+    Cell: 0
+    Speed: 0
+    Name: 
+    SkillDscrp: 
+    Tags: []
+    Bloods: []
+    sprite: {fileID: 0}
+  repelTarget: 0

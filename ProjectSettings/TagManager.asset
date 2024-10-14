@@ -8,7 +8,8 @@ TagManager:
   - Our
   - Enemy
   - Slot
-  - Pray
+  - RunPos
+  - PrayPos
   layers:
   - Default
   - TransparentFX

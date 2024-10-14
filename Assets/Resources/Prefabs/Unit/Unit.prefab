@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 3980820232128483769}
   - component: {fileID: 7133220625343294684}
   - component: {fileID: 9182642256774721149}
-  - component: {fileID: 1454030888439142983}
   - component: {fileID: 4118310327452751514}
+  - component: {fileID: 6734803477313602793}
   m_Layer: 5
   m_Name: Unit
   m_TagString: Untagged
@@ -56,59 +56,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1454030888439142983
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 279632705322490797}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b7ccf3caa0378c44abf348bbc7f59ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Cell: 0
-  ID: 0
-  Damage: 0
-  AtkCountMax: 0
-  AtkCountCurr: 0
-  Hp: 0
-  MaxHp: 0
-  Atk: 0
-  Shield: 0
-  Speed: 0
-  Element: 
-  isBoss: 0
-  isDead: 0
-  "\u81F4\u76F2": 0
-  "\u9EBB\u75F9": 0
-  IsEnemy: 0
-  IsEnterUnitMove: 0
-  Tags:
-  - 
-  - 
-  - 
-  - 
-  TMP: {fileID: 0}
-  SpeedTMP: {fileID: 0}
-  Animator: {fileID: 4118310327452751514}
-  HpBar: {fileID: 0}
-  Icon: {fileID: 0}
-  StartParent: {fileID: 0}
-  FontPos: {fileID: 0}
-  TMPNameNode: {fileID: 0}
-  _EventSystem: {fileID: 0}
-  gra: {fileID: 0}
-  OriData:
-    MaxHp: 0
-    Atk: 0
-    Cell: 0
-    Speed: 0
-    Name: 
-    SkillDscrp: 
-    Tags: []
-    sprite: {fileID: 0}
 --- !u!95 &4118310327452751514
 Animator:
   serializedVersion: 5
@@ -130,6 +77,61 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6734803477313602793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279632705322490797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8ef5955ce3903a498b6bf7fed3a0dda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cell: 0
+  Damage: 0
+  AtkCountMax: 0
+  AtkCountCurr: 0
+  Hp: 0
+  MaxHp: 0
+  Atk: 0
+  Shield: 0
+  Speed: 0
+  Element: 
+  isBoss: 0
+  isDead: 0
+  IsEnemy: 0
+  IsEnterUnitMove: 0
+  Buffs: []
+  Bloods: []
+  Tags:
+  - 
+  - 
+  - 
+  - 
+  TMP: {fileID: 0}
+  SpeedTMP: {fileID: 0}
+  Animator: {fileID: 0}
+  HpBar: {fileID: 0}
+  Icon: {fileID: 0}
+  StartParent: {fileID: 0}
+  StatePos: {fileID: 0}
+  RunPosParent: {fileID: 0}
+  DragParent: {fileID: 0}
+  TMPNameNode: {fileID: 0}
+  _EventSystem: {fileID: 0}
+  gra: {fileID: 0}
+  OriData:
+    MaxHp: 0
+    Atk: 0
+    Cell: 0
+    Speed: 0
+    Name: 
+    SkillDscrp: 
+    Tags: []
+    Bloods: []
+    sprite: {fileID: 0}
 --- !u!1 &447185378540706655
 GameObject:
   m_ObjectHideFlags: 0
@@ -5543,6 +5545,7 @@ GameObject:
   - component: {fileID: 8013865766214904899}
   - component: {fileID: 5674121755331689156}
   - component: {fileID: 3346694813717982602}
+  - component: {fileID: 3723453127894404461}
   m_Layer: 0
   m_Name: TMP
   m_TagString: Untagged
@@ -5667,6 +5670,50 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &3723453127894404461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4625712348297569809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 3346694813717982602}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4662628266970372236
 GameObject:
   m_ObjectHideFlags: 0

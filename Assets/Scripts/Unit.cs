@@ -21,6 +21,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public TextMeshProUGUI TMP,SpeedTMP;
     public Animator Animator;
     public Image HpBar, Icon;
+    public Button Btn;
     public Transform StartParent,StatePos,RunPosParent,DragParent;
     public RectTransform TMPNameNode;
     public EventSystem _EventSystem;
@@ -39,6 +40,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         Animator = transform.GetComponent<Animator>();
         DragParent = GameObject.Find("Canvas/UI/DragParent").transform;
         StatePos = transform.Find("Canvas/FontPos");
+        Btn = transform.Find("Canvas/TMP").GetComponent<Button>();
+        Btn.onClick.AddListener(OnClick);
     }
 
     #region====初始化方法
@@ -115,27 +118,28 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             //    item.gameObject.transform.parent.SetParent(StartParent);
             //    item.gameObject.transform.parent.localPosition = Vector2.zero;
             //}
-        if (eventData.pointerEnter.CompareTag("Pos"))
+        if (eventData.pointerEnter.CompareTag("Pos") && !EventsMgr.Ins.IsMoveToStatue)
         {
             transform.SetParent(eventData.pointerEnter.transform);
             OriData.Cell = Cell = int.Parse(transform.parent.name);
             transform.localPosition = Vector2.zero;
         }
-        else if (eventData.pointerEnter.CompareTag("Pray"))
-        {
-            transform.SetParent(eventData.pointerEnter.transform);
-            transform.localPosition = Vector2.zero;
-            EventsMgr.Ins.UnitDatas[transform.parent.GetSiblingIndex()] = OriData;
-        }
+        //else if (eventData.pointerEnter.CompareTag("Pray"))
+        //{
+        //    transform.SetParent(eventData.pointerEnter.transform);
+        //    transform.localPosition = Vector2.zero;
+        //    EventsMgr.Ins.UnitDatas[transform.parent.GetSiblingIndex()] = OriData;
+        //}
         else if (eventData.pointerEnter.CompareTag("Our"))
         {
-            (eventData.pointerEnter.transform.parent.parent.parent, transform.parent) = (transform.parent, eventData.pointerEnter.transform.parent.parent.parent);
+            transform.parent = eventData.pointerEnter.transform.parent.parent.parent;
+            eventData.pointerEnter.transform.parent.parent.parent = StartParent;
             transform.localPosition = Vector2.zero;
             eventData.pointerEnter.transform.parent.parent.transform.localPosition = Vector2.zero;
-            if (transform.parent.CompareTag("Pray"))
-            {
-                EventsMgr.Ins.UnitDatas[transform.parent.GetSiblingIndex()] = OriData;
-            }
+            //if (transform.parent.CompareTag("Pray"))
+            //{
+            //    EventsMgr.Ins.UnitDatas[transform.parent.GetSiblingIndex()] = OriData;
+            //}
         }
         else
         {
@@ -150,6 +154,33 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             foreach (var item in Statue.Ins.PrayPosBlock)
             {
                 item.SetActive(false);
+            }
+        }
+    }
+
+    public void OnClick()
+    {
+        if (EventsMgr.Ins.IsMoveToStatue)
+        {
+            if (transform.parent.CompareTag("RunPos"))
+            {
+                for (int i = 0; i < Statue.Ins.PrayPos.Count; i++)
+                {
+                    print(i + " " + Statue.Ins.PrayPos[i].name );
+                    if (Statue.Ins.PrayPos[i].childCount == 0)
+                    {
+                        transform.SetParent(Statue.Ins.PrayPos[i]);
+                        transform.localPosition = Vector2.zero;
+                        Statue.Ins.PrayUnitDatas[i] = OriData;
+                        break;
+                    }
+                }
+            }
+            else if (transform.parent.CompareTag("PrayPos"))
+            {
+                Statue.Ins.PrayUnitDatas.Remove(transform.parent.GetSiblingIndex());
+                transform.SetParent(StartParent);
+                transform.localPosition = Vector2.zero;
             }
         }
     }
@@ -554,8 +585,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
     public void TakeDamage(float Damage,DamageType damageType = DamageType.物理伤害)
     {
-
-        print(name + "takedamage");
         Hp -= Damage;
         UpdateHpBar();
         CheckDeath();
@@ -623,15 +652,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public void CheckDeath()
     {
-
-        print(name + "CheckDeath");
         if (Hp <= 0)
         {
-
-            print("Hp <= 0");
             isDead = true;
             transform.SetParent(BattleMgr.Ins.DeadParent);
-            print(name + transform.parent.name);
             BattleMgr.Ins.CheckBattleEnd();
             if (BattleMgr.Ins.isBattling == false) return;
             BattleMgr.Ins.SortBySpeed();

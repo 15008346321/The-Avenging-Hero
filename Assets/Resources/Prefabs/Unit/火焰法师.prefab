@@ -58,6 +58,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1454030888439142983, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+    - {fileID: 6734803477313602793, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -94,10 +95,10 @@ MonoBehaviour:
   Element: 
   isBoss: 0
   isDead: 0
-  "\u81F4\u76F2": 0
-  "\u9EBB\u75F9": 0
   IsEnemy: 0
   IsEnterUnitMove: 0
+  Buffs: []
+  Bloods: []
   Tags:
   - 
   - 
@@ -109,8 +110,9 @@ MonoBehaviour:
   HpBar: {fileID: 0}
   Icon: {fileID: 0}
   StartParent: {fileID: 0}
-  FontPos: {fileID: 0}
+  StatePos: {fileID: 0}
   RunPosParent: {fileID: 0}
+  DragParent: {fileID: 0}
   TMPNameNode: {fileID: 0}
   _EventSystem: {fileID: 0}
   gra: {fileID: 0}

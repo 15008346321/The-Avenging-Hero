@@ -26,6 +26,9 @@ public class Statue : MonoBehaviour
     public Image[] LockImgs = new Image[6];
     public GameObject RefreshBlock;
     public GameObject[] PrayPosBlock = new GameObject[3];
+    public List<Transform> PrayPos = new();
+    public Dictionary<int,UnitData> PrayUnitDatas = new();
+
     private void Awake()
     {
         if (Ins == null) Ins = this;
@@ -180,19 +183,19 @@ public class Statue : MonoBehaviour
     public void Pray()
     {
         PrayBtn.enabled = false;
-        for (int i = 0; i < EventsMgr.Ins.UnitDatas.Length; i++)
+        for (int i = 0; i < PrayUnitDatas.Count; i++)
         {
-            if (EventsMgr.Ins.UnitDatas[i].Name == "") continue;
+            if (PrayUnitDatas[i].Name == "") continue;
             switch (StatueNum[i])
             {
                 case 0:
-                    ConvertFire(EventsMgr.Ins.UnitDatas[i]);
+                    ConvertFire(PrayUnitDatas[i]);
                     break;
                 case 1:
-                    ConvertRandomToFire(EventsMgr.Ins.UnitDatas[i]);
+                    ConvertRandomToFire(PrayUnitDatas[i]);
                     break;
                 case 2:
-                    AddBlood(EventsMgr.Ins.UnitDatas[i],1,"以太");
+                    AddBlood(PrayUnitDatas[i],1,"以太");
                     break;
                 default:
                     break;
@@ -292,10 +295,12 @@ public class Statue : MonoBehaviour
         bool UnFinish = true;
         int Count = 0;
         var idx = 0;
+        var breakcount = 0;
         while (UnFinish)
         {
             idx = Random.Range(0, unitData.Bloods.Count);
-
+            //breakcount++;
+            //if (breakcount == 100) break;
             if (unitData.Bloods[idx].Name == "火元素") continue;
             if(unitData.Bloods[idx].Level != 1) continue;
             unitData.Bloods[idx].Value -= 1;

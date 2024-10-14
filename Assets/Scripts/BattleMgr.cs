@@ -80,6 +80,7 @@ public class BattleMgr : MonoBehaviour
             //ourObj.transform.GetChild(u.Cell - 1)
             if (!IsEnemy)
             {
+                u.StartParent = OurRunningPos.GetChild(i);
                 u.transform.SetParent(OurRunningPos.GetChild(i));
                 u.RunPosParent = u.transform.parent;
                 u.transform.localScale = new Vector2(1,1);

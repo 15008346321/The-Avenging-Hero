@@ -15,7 +15,6 @@ public class EventsMgr : MonoBehaviour
     List<string[]> RelicsList = new();
     string[] currentEvent;
     Image[] RoadImage = new Image[2];
-    public UnitData[] UnitDatas = new UnitData[3];
     public Image FadeImg;
     public Button ExploreBtn,StatuePrayBtn;
     public Button[]
