@@ -375,13 +375,15 @@ public class EventsMgr : MonoBehaviour
                 RoadBtns[1].enabled = true;
                 if (IsMoveToBattle)
                 {
-                    IsMoveToBattle = false;
                     BattleMgr.Ins.EnterBattle();
-                    SetUnitCanDrag(true);
                 }
                 if (IsMoveToStatue)
                 {
-                    SetUnitCanDrag(true);
+                    foreach (var item in BattleMgr.Ins.Team)
+                    {
+                        item.ClickImage.enabled = true;
+                    }
+                    Statue.Ins.RequireCheck();
                 }
             }
             );
@@ -413,13 +415,5 @@ public class EventsMgr : MonoBehaviour
         Gold += BonusGold;
         UIGoldTMP.text = Gold.ToString();
         IsMoveToStatue = true;
-    }
-
-    public void SetUnitCanDrag(bool CanDrag = false)
-    {
-        foreach (var item in BattleMgr.Ins.Team)
-        {
-            item.TMP.raycastTarget = CanDrag;
-        }
     }
 }

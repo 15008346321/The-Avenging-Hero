@@ -13,15 +13,16 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public int Cell,Damage,AtkCountMax,AtkCountCurr;
     public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
-    public bool isBoss, isDead,IsEnemy,IsEnterUnitMove;
+    public bool isBoss, isDead,IsEnemy,IsEnterUnitMove, isSkillTriggered;
     public List<BuffBase> Buffs = new();
     public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
 
     public TextMeshProUGUI TMP,SpeedTMP;
     public Animator Animator;
-    public Image HpBar, Icon;
+    public Image HpBar, Icon,ClickImage;
     public Button Btn;
+    public GameObject ClickBlock;
     public Transform StartParent,StatePos,RunPosParent,DragParent;
     public RectTransform TMPNameNode;
     public EventSystem _EventSystem;
@@ -40,8 +41,12 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         Animator = transform.GetComponent<Animator>();
         DragParent = GameObject.Find("Canvas/UI/DragParent").transform;
         StatePos = transform.Find("Canvas/FontPos");
-        Btn = transform.Find("Canvas/TMP").GetComponent<Button>();
+        Btn = transform.Find("Canvas/Click").GetComponent<Button>();
         Btn.onClick.AddListener(OnClick);
+        ClickImage = transform.Find("Canvas/Click").GetComponent<Image>();
+        ClickImage.enabled = false;
+        ClickBlock = transform.Find("Canvas/ClickBlock").gameObject;
+        ClickBlock.SetActive(false);
     }
 
     #region====初始化方法
@@ -58,103 +63,79 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #region ====拖动方法
     public void OnBeginDrag(PointerEventData eventData)
     {
-        StartParent = transform.parent;
-        transform.SetParent(DragParent);
-        if (EventsMgr.Ins.IsMoveToStatue)
+        if (EventsMgr.Ins.IsMoveToBattle)
         {
-            Statue.Ins.RequireCheck(this);
-        }
-        else
-        {
+            StartParent = transform.parent;
+            transform.SetParent(DragParent);
             BattleMgr.Ins.SetPosSlotAlpha(0.4f);
-
         }
     }
 
- 
 
     public void OnDrag(PointerEventData eventData)
     {
-        Animator.enabled = false;
-        TMP.raycastTarget = false;
-        //100是Canvas.planeDistance
-        Vector3 globalMousePos = Camera.main.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, 100));
-        // 设置对象的位置  
-        transform.position = globalMousePos;
-        //神像时
-        if (EventsMgr.Ins.IsMoveToStatue)
+        if (EventsMgr.Ins.IsMoveToBattle)
         {
-        }
-        //战斗时
-        else
-        {
-            BattleMgr.Ins.SetPosSlotAlpha(0.4f);
-            if (eventData.pointerEnter.CompareTag("Pos"))
+            Animator.enabled = false;
+            TMP.raycastTarget = false;
+            //100是Canvas.planeDistance
+            Vector3 globalMousePos = Camera.main.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, 100));
+            // 设置对象的位置  
+            transform.position = globalMousePos;
+            //神像时
+            if (EventsMgr.Ins.IsMoveToStatue)
             {
-                eventData.pointerEnter.GetComponent<Image>().color = new Color(1, 1, 1, 1);
             }
-        }
+            //战斗时
+            else
+            {
+                BattleMgr.Ins.SetPosSlotAlpha(0.4f);
+                if (eventData.pointerEnter.CompareTag("Pos"))
+                {
+                    eventData.pointerEnter.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+                }
+            }
 
-        //用tmp判断 路劲结构:slot/Unit/canvas/tmp
-        if (eventData.pointerEnter.transform.parent.parent.CompareTag("Our"))
-        {
-            //设置slot的alpha
-            eventData.pointerEnter.transform.parent.parent.parent.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            //用tmp判断 路劲结构:slot/Unit/canvas/tmp
+            if (eventData.pointerEnter.transform.parent.parent.CompareTag("Our"))
+            {
+                //设置slot的alpha
+                eventData.pointerEnter.transform.parent.parent.parent.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            }
         }
     }
 
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        BattleMgr.Ins.SetPosSlotAlpha(0f);
+        if (EventsMgr.Ins.IsMoveToBattle)
+        {
+            BattleMgr.Ins.SetPosSlotAlpha(0f);
 
-
-            //print(item.gameObject.name);
-            //if (item.gameObject.transform.CompareTag("Our"))
-            //{
-            //    ChangePos(transform.GetComponent<Unit>(), item.gameObject.transform.parent.GetComponent<Unit>());
-            //    transform.SetParent(item.gameObject.transform.parent.parent);
-            //    transform.localPosition = Vector2.zero;
-            //    item.gameObject.transform.parent.SetParent(StartParent);
-            //    item.gameObject.transform.parent.localPosition = Vector2.zero;
-            //}
-        if (eventData.pointerEnter.CompareTag("Pos") && !EventsMgr.Ins.IsMoveToStatue)
-        {
-            transform.SetParent(eventData.pointerEnter.transform);
-            OriData.Cell = Cell = int.Parse(transform.parent.name);
-            transform.localPosition = Vector2.zero;
-        }
-        //else if (eventData.pointerEnter.CompareTag("Pray"))
-        //{
-        //    transform.SetParent(eventData.pointerEnter.transform);
-        //    transform.localPosition = Vector2.zero;
-        //    EventsMgr.Ins.UnitDatas[transform.parent.GetSiblingIndex()] = OriData;
-        //}
-        else if (eventData.pointerEnter.CompareTag("Our"))
-        {
-            transform.parent = eventData.pointerEnter.transform.parent.parent.parent;
-            eventData.pointerEnter.transform.parent.parent.parent = StartParent;
-            transform.localPosition = Vector2.zero;
-            eventData.pointerEnter.transform.parent.parent.transform.localPosition = Vector2.zero;
-            //if (transform.parent.CompareTag("Pray"))
-            //{
-            //    EventsMgr.Ins.UnitDatas[transform.parent.GetSiblingIndex()] = OriData;
-            //}
-        }
-        else
-        {
-            transform.SetParent(StartParent);
-            transform.localPosition = Vector2.zero;
-        }
-        TMP.raycastTarget = true;
-        Animator.enabled = true;
-
-        if (EventsMgr.Ins.IsMoveToStatue)
-        {
-            foreach (var item in Statue.Ins.PrayPosBlock)
+            print(eventData.pointerEnter.tag);
+            if (eventData.pointerEnter.CompareTag("Pos"))
             {
-                item.SetActive(false);
+                transform.SetParent(eventData.pointerEnter.transform);
+                OriData.Cell = Cell = int.Parse(transform.parent.name);
+                transform.localPosition = Vector2.zero;
             }
+            else if (eventData.pointerEnter.CompareTag("Our"))
+            {
+                transform.parent = eventData.pointerEnter.transform.parent.parent.parent;
+                eventData.pointerEnter.transform.parent.parent.parent = StartParent;
+                transform.localPosition = Vector2.zero;
+                eventData.pointerEnter.transform.parent.parent.transform.localPosition = Vector2.zero;
+
+                Cell = transform.parent.GetSiblingIndex()+1;
+                eventData.pointerEnter.transform.parent.parent.GetComponent<Unit>().Cell = eventData.pointerEnter.transform.parent.parent.parent.GetSiblingIndex()+1;
+            }
+            else
+            {
+                transform.SetParent(StartParent);
+                transform.localPosition = Vector2.zero;
+            }
+            TMP.raycastTarget = true;
+            Animator.enabled = true;
         }
     }
 
@@ -182,6 +163,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 transform.SetParent(StartParent);
                 transform.localPosition = Vector2.zero;
             }
+            Statue.Ins.RequireCheck();
         }
     }
 
@@ -601,6 +583,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 StatePoolMgr.Ins.燃烧伤害(this, Damage);
                 break;
         }
+        RcAtk();
         //switch (damageType)
         //{
         //    case "物理伤害":
@@ -612,30 +595,30 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         //    case "燃烧伤害":
         //        StatePoolMgr.Ins.燃烧伤害(this, Damage);
         //        break;
-            //case "Water":
-            //    damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
-            //    if (Element == "火") damageRate = 1.5f;
-            //    Damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
-            //    break;
-            //case "Wind":
-            //    damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
-            //    if (Element == "土") damageRate = 1.5f;
-            //    Damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
-            //    break;
-            //case "Thunder":
-            //    damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
-            //    if (Element == "水") damageRate = 1.5f;
-            //    Damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
-            //    break;
-            //case "Earth":
-            //    damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
-            //    if (Element == "雷") damageRate = 1.5f;
-            //    Damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
-            //    break;
-            //default:
-            //    damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
-            //    Damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
-            //    break;
+        //case "Water":
+        //    damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
+        //    if (Element == "火") damageRate = 1.5f;
+        //    Damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
+        //    break;
+        //case "Wind":
+        //    damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
+        //    if (Element == "土") damageRate = 1.5f;
+        //    Damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
+        //    break;
+        //case "Thunder":
+        //    damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
+        //    if (Element == "水") damageRate = 1.5f;
+        //    Damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
+        //    break;
+        //case "Earth":
+        //    damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
+        //    if (Element == "雷") damageRate = 1.5f;
+        //    Damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
+        //    break;
+        //default:
+        //    damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
+        //    Damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
+        //    break;
         //}
         //Damage = Mathf.RoundToInt(Damage * rate);
         //if(AtkType == "Atk") RcAtk();
@@ -662,7 +645,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
     }
 
-    public void RcAtk()
+    public virtual void RcAtk()
     {
         foreach (var item in Buffs)
         {

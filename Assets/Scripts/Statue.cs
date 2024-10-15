@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public class Statue : MonoBehaviour
 {
     public static Statue Ins;
-    public List<bool> StatueRequireResult = new();
     public int 
         StatueTotal = 3,
         RefreshCost;
@@ -25,7 +24,6 @@ public class Statue : MonoBehaviour
     public Button[] LockBtns = new Button[3];
     public Image[] LockImgs = new Image[6];
     public GameObject RefreshBlock;
-    public GameObject[] PrayPosBlock = new GameObject[3];
     public List<Transform> PrayPos = new();
     public Dictionary<int,UnitData> PrayUnitDatas = new();
 
@@ -120,10 +118,19 @@ public class Statue : MonoBehaviour
         RefreshCostTMP.text = RefreshCost.ToString();
         for (int i = 0; i < LockedNum.Length; i++)
         { 
+            //没有锁的格子
             if (LockedNum[i] % 2 == 0)
             {
-                var cout = 0;
+                //把单位放回去
+                if (PrayPos[i].childCount != 0)
+                {
+                    Unit u = PrayPos[i].GetChild(0).GetComponent<Unit>();
+                    u.transform.SetParent(u.StartParent);
+                    u.transform.localPosition = Vector2.zero;
+                }
+                var TestCout = 0;
                 bool continueWhile = true;
+                //记录当前神像 刷个不一样的
                 int num = StatueNum[i];
                 RepeatNum.Remove(StatueNum[i]);
                 while(continueWhile)
@@ -133,14 +140,19 @@ public class Statue : MonoBehaviour
                     {
                         continueWhile = false;
                     }
-                    cout += 1;
-                    if (cout > 100) break;
+                    TestCout += 1;
+                    if (TestCout > 100) break;
                 }
                 SetStatueTMPs();
             }
         }
+
+        RequireCheck();
+
+        //刷新花钱
         EventsMgr.Ins.Gold -= RefreshCost;
         EventsMgr.Ins.UIGoldTMP.text = EventsMgr.Ins.Gold.ToString();
+        //没钱不能刷新
         if (EventsMgr.Ins.Gold < RefreshCost)
         {
             RefreshBlock.SetActive(true);
@@ -209,61 +221,54 @@ public class Statue : MonoBehaviour
         {
             item.transform.SetParent(item.RunPosParent);
             item.transform.localPosition = Vector2.zero;
+            item.ClickBlock.SetActive(false);
+            item.ClickImage.enabled = false;
         }
         EventsMgr.Ins.IsMoveToStatue = false;
         gameObject.SetActive(false);
         EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
     }
 
-    public void RequireCheck(Unit u)
+    public void RequireCheck()
     {
-        StatueRequireResult.Clear();
-        for (int i = 0; i < 3; i++)
+        foreach (var item in BattleMgr.Ins.Team)
         {
-            StatueRequireResult.Add(true);
+            item.ClickBlock.SetActive(false);
+            item.Btn.enabled = true;
         }
-        foreach (var item in PrayPosBlock)
+
+        var idx = 0;
+        for (int i = 0; i < StatueNum.Length; i++)
         {
-            item.SetActive(false);
+            if (PrayPos[i].childCount == 0)
+            {
+                idx = i;
+                break;
+            }
         }
 
         print("StatueNum.Length " + StatueNum.Length);
-        for (int i = 0; i < StatueNum.Length; i++)
+        foreach (Unit u in BattleMgr.Ins.Team)
         {
-            switch (StatueNum[i])
+            if (u.transform.parent.CompareTag("PrayPos")) continue;
+            switch (StatueNum[idx])
             {
                 case 0:
-
-                    print("statue0");
-                    if(!u.Bloods.Any(item=>item.Name == "以太" && item.Value > 0))
-                     {
-                        StatueRequireResult[i] = false;
+                    if (!u.Bloods.Any(item => item.Name == "以太" && item.Value > 0))
+                    {
+                        u.ClickBlock.SetActive(true) ;
+                        u.Btn.enabled = false;
                     }
                     break;
                 case 1:
-                    print("statue1");
-                    print("");
-                    if (!(u.Bloods.Where(item => item.Name != "火元素" && item.Level == 1).Sum(item=>item.Value)>= 3f))
+                    if (!(u.Bloods.Where(item => item.Name != "火元素" && item.Level == 1).Sum(item => item.Value) >= 3f))
                     {
-
-                        print("火元素不足");
-                        StatueRequireResult[i] = false;
+                        u.ClickBlock.SetActive(true);
+                        u.Btn.enabled = false;
                     }
                     break;
                 default:
                     break;
-            }
-        }
-
-        for (int i = 0; i < StatueRequireResult.Count; i++)
-        {
-            print(i + StatueRequireResult[i].ToString());
-
-            if (StatueRequireResult[i] == false)
-            {
-                PrayPosBlock[i].SetActive(true);
-
-                print(i + "激活");
             }
         }
     }
@@ -295,7 +300,6 @@ public class Statue : MonoBehaviour
         bool UnFinish = true;
         int Count = 0;
         var idx = 0;
-        var breakcount = 0;
         while (UnFinish)
         {
             idx = Random.Range(0, unitData.Bloods.Count);

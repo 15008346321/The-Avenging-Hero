@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class 哥布林 : Unit
 {
@@ -8,13 +9,17 @@ public class 哥布林 : Unit
 
     public override void OnTurnStart()
     {
+        int value;
         if (!IsEnemy)
         {
-            Atk += BattleMgr.Ins.Team.Count;
+            value = BattleMgr.Ins.Team.Count(item => !item.isDead);
         }
         else
         {
-            Atk += BattleMgr.Ins.Enemys.Count;
+            value = BattleMgr.Ins.Enemys.Count(item=>!item.isDead);
         }
+        Atk += value;
+
+        StatePoolMgr.Ins.状态(this, "攻击力+" + value);
     }
 }

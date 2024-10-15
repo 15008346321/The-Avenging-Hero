@@ -103,7 +103,29 @@ public class BattleMgr : MonoBehaviour
             AllUnit.Add(u);
         }
     }
-    
+
+    public Unit SummonCreator(GameObject obj,bool IsEnemy, float ScaleRate)
+    {
+        var Summon = Instantiate(obj);
+        Summon.transform.SetParent(GetNoUnitSlot(IsEnemy));
+        Summon.transform.localPosition = Vector3.zero;
+        Summon.transform.localScale *= ScaleRate;
+        Unit u = Summon.GetComponent<Unit>();
+        if (IsEnemy)
+        {
+            Enemys.Add(u);
+        }
+        else
+        {
+            Team.Add(u);
+        }
+        AllUnit.Add(u);
+        
+        SortBySpeed();
+        return u;
+    }
+
+
     public void TeamIdle()
     {
         foreach (var item in Team)
@@ -160,8 +182,8 @@ public class BattleMgr : MonoBehaviour
     //开始战斗
     public void OnBattleClick()
     {
+        EventsMgr.Ins.IsMoveToBattle = false;
         isBattling = true;
-        EventsMgr.Ins.SetUnitCanDrag();
         Tips.SetActive(false);
         SetPosSlotAlpha(0);
         //SetHpBarActive();
@@ -189,6 +211,7 @@ public class BattleMgr : MonoBehaviour
         foreach (var item in AllUnit)
         {
             item.ReloadAtk();
+            item.OnTurnStart();
         }
         FindNextActionUnit();
     }
@@ -406,14 +429,16 @@ public class BattleMgr : MonoBehaviour
 
         Enemys.Clear();
         AnimQueue.Clear();
-        for (int i = 0; i < ourObj.transform.childCount - 1; i++)
+        for (int i = 0; i < ourObj.transform.childCount; i++)
         {
+
+            print("cell :" +(i+1)+"childcout:" + ourObj.transform.GetChild(i).childCount);
             if (ourObj.transform.GetChild(i).childCount > 0)
             {
                 Destroy(ourObj.transform.GetChild(i).GetChild(0).gameObject);
             }
         }
-        for (int i = 0; i < eneObj.transform.childCount - 1; i++)
+        for (int i = 0; i < eneObj.transform.childCount; i++)
         {
             if (eneObj.transform.GetChild(i).childCount > 0)
             {
@@ -453,5 +478,21 @@ public class BattleMgr : MonoBehaviour
         {
             item.TakeDamage(damage);
         }
+    }
+
+    public Transform GetNoUnitSlot(bool isEnemy)
+    {
+        GameObject obj = null;
+        if(isEnemy) obj = eneObj;
+        else obj = ourObj;
+
+        for (int i = 0; i < obj.transform.childCount; i++)
+        {
+            if(obj.transform.GetChild(i).childCount == 0)
+            {
+                return obj.transform.GetChild(i);
+            }
+        }
+        return null;
     }
 }
