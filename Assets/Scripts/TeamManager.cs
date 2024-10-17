@@ -52,7 +52,7 @@ public class TeamManager : MonoBehaviour
         TeamData.Add(new UnitData(CSVManager.Ins.Units["剑士"],1));
         TeamData.Add(new UnitData(CSVManager.Ins.Units["剑士"], 2));
         TeamData.Add(new UnitData(CSVManager.Ins.Units["火焰法师"], 3));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["火焰法师"], 4));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["弓箭手"], 4));
 
         TagNodes.Add(TagNodes1);
         TagNodes.Add(TagNodes2);
@@ -137,7 +137,7 @@ public class TeamManager : MonoBehaviour
 [Serializable]
 public class UnitData
 {
-    public int MaxHp, Atk, Cell, Speed;
+    public int MaxHp, Atk, Cell, Speed,SkillPointMax;
     public string Name,SkillDscrp;
     public string[] Tags = new string[4];
     public List<Blood> Bloods = new();
@@ -164,6 +164,7 @@ public class UnitData
             yitai -= item.Value;
         }
         Bloods.Add(new Blood("以太", yitai));
+        int.TryParse(data[12], out SkillPointMax);
     }
 }
 [Serializable]

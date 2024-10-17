@@ -10,10 +10,10 @@ using TMPro;
 
 public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
-    public int Cell,Damage,AtkCountMax,AtkCountCurr;
+    public int Cell,Damage,AtkCountMax,AtkCountCurr,SkillPoint,SkillPointMax;
     public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
-    public bool isBoss, isDead,IsEnemy,IsEnterUnitMove, isSkillTriggered;
+    public bool isBoss, isDead,IsEnemy,IsEnterUnitMove, isSkillTriggered, isSkillReady;
     public List<BuffBase> Buffs = new();
     public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
@@ -23,6 +23,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public Image HpBar, Icon,ClickImage;
     public Button Btn;
     public GameObject ClickBlock;
+    public List<Image> SkillPointIcon = new();
     public Transform StartParent,StatePos,RunPosParent,DragParent;
     public RectTransform TMPNameNode;
     public EventSystem _EventSystem;
@@ -57,6 +58,31 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         Speed = data.Speed;
         AtkCountMax = 1;
         Bloods = data.Bloods;
+        SkillPointMax = data.SkillPointMax;
+        InitSkillPointIcon();
+    }
+
+    public void InitSkillPointIcon()
+    {
+        if (SkillPointMax == 0)
+        {
+            transform.Find("Canvas/SkillPointIcon").gameObject.SetActive(false);
+            return;
+        }
+
+        for (int i = 0; i < transform.Find("Canvas/SkillPointIcon").childCount; i++)
+        {
+            if (i >= SkillPointMax)
+            {
+                transform.Find("Canvas/SkillPointIcon").GetChild(i).gameObject.SetActive(false);
+            }
+            else
+            {
+                SkillPointIcon.Add(transform.Find("Canvas/SkillPointIcon").GetChild(i).GetComponent<Image>());
+                SkillPointIcon[i].DOFade(0.5f, 0);
+            }
+        }
+        transform.Find("Canvas/SkillPointIcon").GetComponent<HorizontalLayoutGroup>().spacing = (transform.Find("Canvas/SkillPointIcon").childCount - SkillPointMax) * -12.5f;
     }
    
     #endregion
@@ -537,11 +563,17 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             Animator.Play("atk");//后面两方法在动画帧后段调用
         }
     }
-   
+
+    public virtual void ExecuteSkill()
+    {
+        //获取目标
+        //调用攻击动画
+    }
+
     //输出的攻击伤害 动画上调用
     public virtual void OnAtkMonent()
     {
-        BattleMgr.Ins.CaculDamage((int)Atk);
+        BattleMgr.Ins.CaculDamage(Atk);
     }
     //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等) 动画上调用
     public void AddAtkEffectOnAtk()

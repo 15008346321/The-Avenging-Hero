@@ -9,6 +9,7 @@ using UnityEngine.UI;
 public class BattleMgr : MonoBehaviour
 {
     public List<Unit> Team = new(), TeamMain = new(), Enemys = new(), EnemyMain = new(), AllUnit = new(), Targets = new();
+    public List<int> TopRow = new() { 1, 4, 7 }, MidRow = new() { 2, 5, 8 }, BotRow = new() { 3, 6, 9 };
     public List<string> AnimQueue = new();
     public float TimeCout, CurrTime;
     public Unit MainTarget;
@@ -241,7 +242,18 @@ public class BattleMgr : MonoBehaviour
     public void FindNextActionUnit(float wait = 1f)
     {
         SortBySpeed();
-        var count = 0;
+
+        foreach (var item in AllUnit)
+        {
+            if (item.isSkillReady && !item.isDead)
+            {
+                //用ID遍历AllUnit找到对应的Unit调用普攻
+                //AnimQueue.Add(item.ID + ":NormalAtk");
+                item.ExecuteAtk();
+                break;
+            }
+        }
+
         foreach (var item in AllUnit)
         {
             if(item.AtkCountCurr > 0 && !item.isDead)
@@ -252,13 +264,9 @@ public class BattleMgr : MonoBehaviour
                 item.ExecuteAtk();
                 break;
             }
-            count++;
         }
 
-        if(count == AllUnit.Count)
-        {
-            StartCoroutine(TurnEnd());
-        }
+        StartCoroutine(TurnEnd());
         //PlayFirsrtAnimInQueue会判断没有行动 则回合结束
         //StartCoroutine(PlayFirsrtAnimInQueue(wait));
     }
@@ -494,5 +502,56 @@ public class BattleMgr : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public void AddMaxUnitRowToTarget(int cell, bool isEnemy)
+    {
+        //判断每一行多少
+        GameObject obj = null;
+        if (isEnemy) obj = ourObj;
+        else obj = eneObj;
+        Dictionary<int, int> record = new();
+        for (int i = 0; i < TopRow.Count; i++)
+        {
+            record[0] += obj.transform.GetChild(TopRow[i]).childCount;
+        }
+        for (int i = 0; i < MidRow.Count; i++)
+        {
+            record[1] += obj.transform.GetChild(MidRow[i]).childCount;
+        }
+        for (int i = 0; i < BotRow.Count; i++)
+        {
+            record[2] += obj.transform.GetChild(BotRow[i]).childCount;
+        }
+        //判断最多并且最近的一行
+        int max = record.Max().Value;
+        int PlayerRow = (cell - 1) / 3;
+        int row = 0;
+        for (int i = 0; i < record.Count; i++)
+        {
+            if (record[PlayerRow] == max) row = PlayerRow;
+
+            if (PlayerRow == 0)
+                if (record[1] == max) row = 1;
+                else row = 2;
+            else if (PlayerRow == 1)
+            {
+                if (record[0] == max) row = 0;
+                else row = 2;
+            }
+            else if (PlayerRow == 2)
+            {
+                if (record[1] == max) row = 1;
+                else row = 0;
+            }
+        }
+        //把这一行加进目标
+        if(row == 0)
+        {
+            for (int i = 0; i < TopRow.Count; i++)
+            {
+                Targets.Add( obj.transform.GetChild(TopRow[i]).GetComponent<Unit>());
+            }
+        }
     }
 }
