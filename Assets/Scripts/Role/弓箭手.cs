@@ -27,12 +27,13 @@ public class 弓箭手 : Unit
 
     public override void ExecuteSkill()
     {
+        print(name + "ExecuteSkill");
         BattleMgr.Ins.AddMaxUnitRowToTarget(Cell, IsEnemy);
         SkillPoint = 0;
         foreach (var item in SkillPointIcon)
         {
             item.DOFade(0.5f, 0);
         }
-        Animator.Play("atk");//后面两方法在动画帧后段调用
+        Anim.Play("atk", 0, 0);
     }
 }

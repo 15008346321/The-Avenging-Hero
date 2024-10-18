@@ -19,7 +19,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public string[] Tags = new string[4];
 
     public TextMeshProUGUI TMP,SpeedTMP;
-    public Animator Animator;
+    public Animator Anim;
     public Image HpBar, Icon,ClickImage;
     public Button Btn;
     public GameObject ClickBlock;
@@ -39,7 +39,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         HpBar = transform.Find("Canvas/HpBar").GetComponent<Image>();
         TMP = transform.Find("Canvas/TMP").GetComponent<TextMeshProUGUI>();
         SpeedTMP = transform.Find("Canvas/Speed/TMP").GetComponent<TextMeshProUGUI>();
-        Animator = transform.GetComponent<Animator>();
+        Anim = transform.GetComponent<Animator>();
         DragParent = GameObject.Find("Canvas/UI/DragParent").transform;
         StatePos = transform.Find("Canvas/FontPos");
         Btn = transform.Find("Canvas/Click").GetComponent<Button>();
@@ -102,7 +102,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         if (EventsMgr.Ins.IsMoveToBattle)
         {
-            Animator.enabled = false;
+            Anim.enabled = false;
             TMP.raycastTarget = false;
             //100是Canvas.planeDistance
             Vector3 globalMousePos = Camera.main.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, 100));
@@ -161,7 +161,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 transform.localPosition = Vector2.zero;
             }
             TMP.raycastTarget = true;
-            Animator.enabled = true;
+            Anim.enabled = true;
         }
     }
 
@@ -228,13 +228,13 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             Our = BattleMgr.Ins.eneObj;
             Ene = BattleMgr.Ins.ourObj;
         }
-        Animator.enabled = false;
+        Anim.enabled = false;
         transform.DOMove(Our.transform.GetChild(TargetCell - 1).position, 1f).OnComplete(
             () => 
             {
                 transform.SetParent(Our.transform.GetChild(TargetCell - 1));
                 Cell = TargetCell;
-                Animator.enabled = true;
+                Anim.enabled = true;
                 BattleMgr.Ins.FindNextActionUnit();
             }
         );
@@ -546,6 +546,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 #region====战斗方法
     public void ExecuteAtk()
     {
+
+        print(name + "ExecuteAtk");
         GetTargets();
 
         if (BattleMgr.Ins.Targets.Count == 0)//没有目标就走位 然后进行下一个
@@ -560,7 +562,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 BattleMgr.Ins.FindNextActionUnit();
                 return;
             }
-            Animator.Play("atk");//后面两方法在动画帧后段调用
+            Anim.Play("atk");//后面两方法在动画帧后段调用
         }
     }
 
@@ -573,6 +575,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //输出的攻击伤害 动画上调用
     public virtual void OnAtkMonent()
     {
+
+        print(name + "OnAtkMonent");
         BattleMgr.Ins.CaculDamage(Atk);
     }
     //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等) 动画上调用
@@ -599,6 +603,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
     public void TakeDamage(float Damage,DamageType damageType = DamageType.物理伤害)
     {
+
+        print(name + "takle damage");
         Hp -= Damage;
         UpdateHpBar();
         CheckDeath();
@@ -753,7 +759,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public void OnFinishAtk()
     {
-        Animator.Play("idle");
+        Anim.Play("idle");
         BattleMgr.Ins.FindNextActionUnit();
     }
 }

@@ -13976,6 +13976,9 @@ MonoBehaviour:
   EnemyMain: []
   AllUnit: []
   Targets: []
+  TopRow: 010000000400000007000000
+  MidRow: 020000000500000008000000
+  BotRow: 030000000600000009000000
   AnimQueue: []
   TimeCout: 0
   CurrTime: 0
@@ -30514,10 +30517,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 177836229}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 1684852322}
+        m_TargetAssemblyTypeName: Test, Assembly-CSharp
+        m_MethodName: Test12
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -35219,7 +35222,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2000938246}
         m_TargetAssemblyTypeName: Test, Assembly-CSharp
-        m_MethodName: Test7
+        m_MethodName: Test13
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

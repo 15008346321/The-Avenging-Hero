@@ -112,6 +112,7 @@ public class BattleMgr : MonoBehaviour
         Summon.transform.localPosition = Vector3.zero;
         Summon.transform.localScale *= ScaleRate;
         Unit u = Summon.GetComponent<Unit>();
+        u.Cell = u.transform.parent.GetSiblingIndex() + 1;
         if (IsEnemy)
         {
             Enemys.Add(u);
@@ -131,7 +132,7 @@ public class BattleMgr : MonoBehaviour
     {
         foreach (var item in Team)
         {
-            item.Animator.Play("idle");
+            item.Anim.Play("idle");
         }
     }
 
@@ -139,7 +140,7 @@ public class BattleMgr : MonoBehaviour
     {
         foreach (var item in Team)
         {
-            item.Animator.Play("run");
+            item.Anim.Play("run");
         }
     }
 
@@ -148,13 +149,13 @@ public class BattleMgr : MonoBehaviour
         List<Vector2> v2 = new();
         foreach (var item in Team)
         {
-            item.Animator.enabled = false;
+            item.Anim.enabled = false;
             item.transform.DOMove(ourObj.transform.GetChild(item.Cell - 1).position, 1f).OnComplete
                 (
                     () =>
                     {
-                        item.Animator.enabled = true;
-                        item.Animator.Play("idle");
+                        item.Anim.enabled = true;
+                        item.Anim.Play("idle");
                         item.transform.SetParent(ourObj.transform.GetChild(item.Cell - 1));
                         Tips.SetActive(true);
                         SortBySpeed();
@@ -249,11 +250,13 @@ public class BattleMgr : MonoBehaviour
             {
                 //用ID遍历AllUnit找到对应的Unit调用普攻
                 //AnimQueue.Add(item.ID + ":NormalAtk");
-                item.ExecuteAtk();
-                break;
+
+                print(item.name + "skill is ready");
+                item.ExecuteSkill();
+                item.isSkillReady = false;
+                return;
             }
         }
-
         foreach (var item in AllUnit)
         {
             if(item.AtkCountCurr > 0 && !item.isDead)
@@ -262,7 +265,7 @@ public class BattleMgr : MonoBehaviour
                 //AnimQueue.Add(item.ID + ":NormalAtk");
                 item.AtkCountCurr -= 1;
                 item.ExecuteAtk();
-                break;
+                return;
             }
         }
 
@@ -506,25 +509,34 @@ public class BattleMgr : MonoBehaviour
 
     public void AddMaxUnitRowToTarget(int cell, bool isEnemy)
     {
+        Targets.Clear();
         //判断每一行多少
         GameObject obj = null;
         if (isEnemy) obj = ourObj;
         else obj = eneObj;
         Dictionary<int, int> record = new();
+
+        for (int i = 0; i < 3; i++)
+        {
+            record[i] = 0;
+        }
+
         for (int i = 0; i < TopRow.Count; i++)
         {
-            record[0] += obj.transform.GetChild(TopRow[i]).childCount;
+            record[0] += obj.transform.GetChild(TopRow[i]-1).childCount;
         }
         for (int i = 0; i < MidRow.Count; i++)
         {
-            record[1] += obj.transform.GetChild(MidRow[i]).childCount;
+            record[1] += obj.transform.GetChild(MidRow[i]-1).childCount;
         }
         for (int i = 0; i < BotRow.Count; i++)
         {
-            record[2] += obj.transform.GetChild(BotRow[i]).childCount;
+            record[2] += obj.transform.GetChild(BotRow[i] - 1).childCount;
         }
         //判断最多并且最近的一行
-        int max = record.Max().Value;
+        int max = record.Max(pair=>pair.Value);
+
+        print("max: " + max);
         int PlayerRow = (cell - 1) / 3;
         int row = 0;
         for (int i = 0; i < record.Count; i++)
@@ -545,12 +557,14 @@ public class BattleMgr : MonoBehaviour
                 else row = 0;
             }
         }
+
+        print("row" + row);
         //把这一行加进目标
-        if(row == 0)
+        for (int i = 0; i < 3; i++)
         {
-            for (int i = 0; i < TopRow.Count; i++)
+            if(obj.transform.GetChild(i*3+row).childCount >0)
             {
-                Targets.Add( obj.transform.GetChild(TopRow[i]).GetComponent<Unit>());
+                Targets.Add(obj.transform.GetChild(i * 3 + row).GetChild(0).GetComponent<Unit>());
             }
         }
     }

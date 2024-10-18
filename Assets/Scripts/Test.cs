@@ -5,6 +5,7 @@ using DG.Tweening;
 using System.IO;
 using System.Reflection;
 using System;
+using System.Linq;
 
 public class Test : MonoBehaviour
 {
@@ -17,13 +18,32 @@ public class Test : MonoBehaviour
     public bool b;
     public List<string[]> data = new();
     public List<GameObject> GL = new();
+    public Dictionary<int, int> id = new Dictionary<int, int>();
 
-    public void Test10()
+    public void Test13()
     {
-        TeamManager.Ins.TagNodes[0][0].text = "aa";
-        print(TeamManager.Ins.TeamData[0].Tags[0]);
-        TeamManager.Ins.TagNodes[0][0].text = TeamManager.Ins.TeamData[0].Tags[0];
+        unit.Anim.Play("idle");
     }
+    public void Test12()
+    {
+        unit.Anim.Play("atk");
+    }
+
+    //public void Test10()
+    //{
+    //    TeamManager.Ins.TagNodes[0][0].text = "aa";
+    //    print(TeamManager.Ins.TeamData[0].Tags[0]);
+    //    TeamManager.Ins.TagNodes[0][0].text = TeamManager.Ins.TeamData[0].Tags[0];
+    //}
+
+    //public void Test11()
+    //{
+    //    for (int i = 0; i < 3; i++)
+    //    {
+    //        id[i] = i;
+    //    }
+    //    print(id.Max(a=>a.Value));
+    //}
     //public void Test9()
     //{
     //    TextAsset ta = Resources.Load<TextAsset>("Configs/Battles/后山");
