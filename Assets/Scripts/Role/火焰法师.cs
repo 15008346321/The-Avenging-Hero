@@ -9,9 +9,9 @@ public class 法师 : Unit
     List<int> BehindCells = new() { 7,8,9 };
     public bool repelTarget = false;
 
-    public override void OnAtkMonent()
+    public override void 攻击帧()
     {
-        base.OnAtkMonent();
+        base.攻击帧();
         FireBall();
     }
 

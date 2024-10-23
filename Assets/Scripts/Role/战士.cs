@@ -3,38 +3,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 剑士 : Unit
+public class 战士 : Unit
 {
     // Start is called before the first frame update
     List<int> BehindCells = new() { 7,8,9 };
-    public bool repelTarget = false;
-    public override void GetTargets()
+    public bool 找到击退目标 = false;
+    public override void 获取攻击目标()
     {
-        base.GetTargets();
+        BattleMgr.Ins.获取正前方目标(IsEnemy, Cell);
         if(BattleMgr.Ins.Targets.Count > 0)
         {
             Unit t2 = BattleMgr.Ins.FindUnitOnCell(BattleMgr.Ins.Targets[0].Cell + 3, IsEnemy);
             if (t2 != null)
             {
                 BattleMgr.Ins.Targets.Add(t2);
-                repelTarget = false;
+                找到击退目标 = false;
             }
             else
             {
-                repelTarget = true;
+                找到击退目标 = true;
             }
         }
     }
 
-    public override void OnAtkMonent()
+    public override void 攻击帧()
     {
-        Repel();
-        base.OnAtkMonent();
+        击退();
+        base.攻击帧();
     }
 
-    public void Repel()
+    public void 击退()
     {
-        if (!repelTarget) return;
+        if (!找到击退目标) return;
         if (!BehindCells.Contains(BattleMgr.Ins.Targets[0].Cell))
         {
             GameObject side;
@@ -53,6 +53,4 @@ public class 剑士 : Unit
             BattleMgr.Ins.Targets[0].transform.DOLocalMoveX(0, 0.5f);
         }
     }
-
-
 }

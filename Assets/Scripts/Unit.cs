@@ -8,13 +8,14 @@ using System.Linq;
 using System;
 using TMPro;
 
+
 public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
     public int Cell,Damage,AtkCountMax,AtkCountCurr,SkillPoint,SkillPointMax;
     public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
     public bool isBoss, isDead,IsEnemy,IsEnterUnitMove, isSkillTriggered, isSkillReady;
-    public List<BuffBase> Buffs = new();
+    public List<Buff> Buffs = new();
     public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
 
@@ -35,7 +36,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         _EventSystem = FindObjectOfType<EventSystem>();
         gra = FindObjectOfType<GraphicRaycaster>();
-        FinishAtkAction += OnFinishAtk;
+        FinishAtkAction += 行动结束;
         HpBar = transform.Find("Canvas/HpBar").GetComponent<Image>();
         TMP = transform.Find("Canvas/TMP").GetComponent<TextMeshProUGUI>();
         SpeedTMP = transform.Find("Canvas/Speed/TMP").GetComponent<TextMeshProUGUI>();
@@ -439,45 +440,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     #endregion
     #region====单位通用方法
-    public virtual void GetTargets()
-    {
-        BattleMgr.Ins.Targets.Clear();
 
-        GameObject SearchFor;
-        if (!IsEnemy) { SearchFor = BattleMgr.Ins.eneObj; }
-        else { SearchFor = BattleMgr.Ins.ourObj; }
 
-        Unit u = null;
-
-        // 根据Cell的值确定要搜索的行  
-        int[] rowIndices;
-        if (new[] { 1, 4, 7 }.Contains(Cell))
-        {
-            rowIndices = new[] { 0, 3, 6 }; // 第一排  
-        }
-        else if (new[] { 2, 5, 8 }.Contains(Cell))
-        {
-            rowIndices = new[] { 1, 4, 7 }; // 第二排  
-        }
-        else
-        {
-            rowIndices = new[] { 2, 5, 8 }; // 第三排  
-        }
-
-        // 遍历行索引  
-        foreach (int index in rowIndices)
-        {
-            if (SearchFor.transform.GetChild(index).childCount > 0)
-            {
-                u = SearchFor.transform.GetChild(index).GetChild(0).GetComponent<Unit>();
-                if (u != null)
-                {
-                    BattleMgr.Ins.Targets.Add(u);
-                    break; // 找到后跳出循环  
-                }
-            }
-        }
-    }
     //public void CheckComb(string currDebuff)
     //{
     //    if (BattleMgr.Ins.MainTarget.isDead) return;
@@ -514,82 +478,73 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     
     #endregion
-    public void GetRandomMagic(int value)
-    {
-        var r = UnityEngine.Random.Range(0, 5);
-        //if (r == 0)
-        //{
-        //    Fire += value;
-        //    BattleMgr.Ins.ShowFont(this, "火属性+" + value);
-        //}
-        //else if (r == 1)
-        //{
-        //    Water += value;
-        //    BattleMgr.Ins.ShowFont(this, "水属性+" + value);
-        //}
-        //else if (r == 2)
-        //{
-        //    Wind += value;
-        //    BattleMgr.Ins.ShowFont(this, "风属性+" + value);
-        //}
-        //else if (r == 3)
-        //{
-        //    Thunder += value;
-        //    BattleMgr.Ins.ShowFont(this, "雷属性+" + value);
-        //}
-        //else if (r == 4)
-        //{
-        //    Earth += value;
-        //    BattleMgr.Ins.ShowFont(this, "土属性+" + value);
-        //}
-    }
 #region====战斗方法
     public void ExecuteAtk()
     {
 
         print(name + "ExecuteAtk");
-        GetTargets();
+        Buff 盲目 = Buffs.Find(item => item.Name == BuffsEnum.盲目);
+        if (盲目 != null)
+        {
+            StatePoolMgr.Ins.状态(this, "盲目-行动失败");
+            盲目.层数减少(1);
+            BattleMgr.Ins.FindNextActionUnit();
+            return;
+        }
 
+        BattleMgr.Ins.获取正前方目标(IsEnemy, Cell);
         if (BattleMgr.Ins.Targets.Count == 0)//没有目标就走位 然后进行下一个
         {
             MoveToEnemyFrontRow();
         }
         else
         {
-            if (Buffs.Exists(item=>item.Name == "致盲"))
-            {
-                StatePoolMgr.Ins.状态(this, "致盲-行动失败");
-                BattleMgr.Ins.FindNextActionUnit();
-                return;
-            }
             Anim.Play("atk");//后面两方法在动画帧后段调用
         }
     }
 
-    public virtual void ExecuteSkill()
+    //特殊攻击目标需要重写 默认正前方 
+    public virtual void 获取攻击目标()
     {
-        //获取目标
-        //调用攻击动画
+        BattleMgr.Ins.获取正前方目标(IsEnemy,Cell);
     }
 
-    //输出的攻击伤害 动画上调用
-    public virtual void OnAtkMonent()
+    //如果攻击有特殊逻辑则重写 动画上调用
+    public virtual void 攻击帧()
     {
-
-        print(name + "OnAtkMonent");
         BattleMgr.Ins.CaculDamage(Atk);
+        攻击特效();
     }
-    //在动画帧攻击之后调用 加攻击时特效(Debuff 攻击养成等) 动画上调用
-    public void AddAtkEffectOnAtk()
+
+    //攻击时特效重写实现(获取技能点 附加伤害...)
+    public virtual void 攻击特效()
     {
         //
     }
-    //public void ExecuteComb() 
-    //{
-    //    Comb.GetTargets();
-    //    if (BattleMgr.Ins.MainTarget == null) return;
-    //    Animator.Play("closeAtk2");
-    //}
+    public void ExecuteSkill()
+    {
+        //需要重写实现逻辑
+        获取技能目标();
+
+
+        //之后调用base执行下面代码 把技能点消了
+        SkillPoint = 0;
+        foreach (var item in SkillPointIcon)
+        {
+            item.DOFade(0.5f, 0);
+        }
+        //动画中会执行 技能帧();
+        Anim.Play("skill", 0, 0);
+    }
+
+    //需要重写 默认正前方目标 
+    public virtual void 获取技能目标() 
+    {
+        BattleMgr.Ins.获取正前方目标(IsEnemy, Cell);
+    }
+    public virtual void 技能帧()
+    {
+    }
     ////输出的追打伤害
     //public void CaculDamageOnComb()
     //{
@@ -621,7 +576,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 StatePoolMgr.Ins.燃烧伤害(this, Damage);
                 break;
         }
-        RcAtk();
+        受到攻击时();
         //switch (damageType)
         //{
         //    case "物理伤害":
@@ -683,7 +638,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
     }
 
-    public virtual void RcAtk()
+    public virtual void 受到攻击时()
     {
         foreach (var item in Buffs)
         {
@@ -757,9 +712,25 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     #endregion
 
-    public void OnFinishAtk()
+    public void 行动结束()
     {
         Anim.Play("idle");
         BattleMgr.Ins.FindNextActionUnit();
+    }
+
+    public void AddBuff(BuffsEnum buff)
+    {
+        switch (buff)
+        {
+            case BuffsEnum.燃烧:
+                Buffs.Add(new 燃烧(this));
+                break;
+            case BuffsEnum.盲目:
+                Buffs.Add(new 盲目(this));
+
+                break;
+            default:
+                break;
+        }
     }
 }

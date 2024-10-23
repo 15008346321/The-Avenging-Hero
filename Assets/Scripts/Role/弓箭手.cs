@@ -9,31 +9,23 @@ public class 弓箭手 : Unit
     List<int> BehindCells = new() { 7,8,9 };
     public bool repelTarget = false;
 
-    public override void OnAtkMonent()
-    {
-        base.OnAtkMonent();
-        穿透剑();
-    }
-
-    public void 穿透剑()
+    public override void 攻击特效()
     {
         SkillPoint++;
         SkillPointIcon[SkillPoint - 1].DOFade(1, 0);
-        if (SkillPoint == 3)
+        if (SkillPoint == SkillPointMax)
         {
             isSkillReady = true;
         }
     }
 
-    public override void ExecuteSkill()
+    public override void 获取技能目标()
     {
-        print(name + "ExecuteSkill");
-        BattleMgr.Ins.AddMaxUnitRowToTarget(Cell, IsEnemy);
-        SkillPoint = 0;
-        foreach (var item in SkillPointIcon)
-        {
-            item.DOFade(0.5f, 0);
-        }
-        Anim.Play("atk", 0, 0);
+        BattleMgr.Ins.获取最多单位一行的目标(Cell, IsEnemy);
+    }
+
+    public override void 技能帧()
+    {
+        BattleMgr.Ins.CaculDamage(Atk);
     }
 }

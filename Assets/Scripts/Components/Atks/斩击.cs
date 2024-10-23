@@ -9,7 +9,7 @@ public class 斩击 : ComponentBaseAtk
     public override void GetTargets()
     {
         BattleMgr.Ins.Targets.Clear();
-        OwnerUnit.GetTargets();
+        //OwnerUnit.GetTargets();
         Unit u = BattleMgr.Ins.Targets[0];
         if (u != null)
         {

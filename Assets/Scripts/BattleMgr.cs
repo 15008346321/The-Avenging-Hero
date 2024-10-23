@@ -72,6 +72,7 @@ public class BattleMgr : MonoBehaviour
         {
             string uname = Datas[i].Name;
 
+            print(uname);
             GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
             Unit u = Instantiate(g).transform.GetComponent<Unit>();
             u.name =  u.name + u.GetInstanceID();
@@ -426,6 +427,7 @@ public class BattleMgr : MonoBehaviour
     {
         for (int i = 0; i < AllUnit.Count; i++)
         {
+            if(AllUnit[i].isDead == true)continue;
             AllUnit[i].OnTurnEnd();
         }
         yield return null;
@@ -491,6 +493,14 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
+    public void SetDebuff(BuffsEnum debuff)
+    {
+        foreach (var item in Targets)
+        {
+            item.AddBuff(debuff);
+        }
+    }
+
     public Transform GetNoUnitSlot(bool isEnemy)
     {
         GameObject obj = null;
@@ -507,7 +517,38 @@ public class BattleMgr : MonoBehaviour
         return null;
     }
 
-    public void AddMaxUnitRowToTarget(int cell, bool isEnemy)
+    public void 获取正前方目标(bool IsEnemy,int Cell) 
+    {
+        Targets.Clear();
+
+        GameObject obj;
+        if (IsEnemy) obj = ourObj;
+        else obj = eneObj;
+
+        Unit u = null;
+
+        // 根据Cell的值确定要搜索的行  
+        List<int> row;
+        if (TopRow.Contains(Cell)) row = TopRow;
+        else if (MidRow.Contains(Cell)) row = MidRow;
+        else row = BotRow;
+
+        // 遍历行索引  
+        foreach (var item in row)
+        {
+            if (obj.transform.GetChild(item - 1).childCount > 0)
+            {
+                u = obj.transform.GetChild(item - 1).GetChild(0).GetComponent<Unit>();
+                if (u != null)
+                {
+                    Targets.Add(u);
+                    return;
+                }
+            }
+        }
+    }
+
+    public void 获取最多单位一行的目标(int cell, bool isEnemy)
     {
         Targets.Clear();
         //判断每一行多少
@@ -541,7 +582,11 @@ public class BattleMgr : MonoBehaviour
         int row = 0;
         for (int i = 0; i < record.Count; i++)
         {
-            if (record[PlayerRow] == max) row = PlayerRow;
+            if (record[PlayerRow] == max) 
+            {
+                row = PlayerRow;
+                break;
+            }
 
             if (PlayerRow == 0)
                 if (record[1] == max) row = 1;
@@ -568,4 +613,96 @@ public class BattleMgr : MonoBehaviour
             }
         }
     }
+
+    public RowColumn 获取有单位的最前排(bool isEnemy)
+    {
+        GameObject obj = null;
+        if (isEnemy) obj = ourObj;
+        else obj = eneObj;
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (obj.transform.GetChild(i).childCount > 0)
+            {
+                return RowColumn.Clm1;
+            }
+        }
+        for (int i = 4; i < 6; i++)
+        {
+            if (obj.transform.GetChild(i).childCount > 0)
+            {
+                return RowColumn.Clm2;
+            }
+        }
+        for (int i = 7; i < 9; i++)
+        {
+            if (obj.transform.GetChild(i).childCount > 0)
+            {
+                return RowColumn.Clm3;
+            }
+        }
+        return RowColumn.Clm1;
+    }
+
+    public void 获取指定行列所有目标(RowColumn rc,bool isEnemy)
+    {
+        Targets.Clear();
+        GameObject obj = null;
+        if (isEnemy) obj = ourObj;
+        else obj = eneObj;
+
+        switch (rc)
+        {
+            case RowColumn.Row1:
+                for (int i = 0; i < 3; i++)
+                {
+                    Targets.Add(obj.transform.GetChild(i * 3).GetChild(0).GetComponent<Unit>());
+                }
+                break;
+            case RowColumn.Row2:
+                for (int i = 0; i < 3; i++)
+                {
+                    Targets.Add(obj.transform.GetChild(i * 3 + 1).GetChild(0).GetComponent<Unit>());
+                }
+                break;
+            case RowColumn.Row3:
+                for (int i = 0; i < 3; i++)
+                {
+                    Targets.Add(obj.transform.GetChild(i * 3 + 2).GetChild(0).GetComponent<Unit>());
+                }
+                break;
+            case RowColumn.Clm1:
+                for (int i = 0; i < 3; i++)
+                {
+                    Targets.Add(obj.transform.GetChild(i).GetChild(0).GetComponent<Unit>());
+                }
+                break;
+            case RowColumn.Clm2:
+                for (int i = 0; i < 3; i++)
+                {
+                    Targets.Add(obj.transform.GetChild(i+3).GetChild(0).GetComponent<Unit>());
+                }
+                break;
+            case RowColumn.Clm3:
+                for (int i = 0; i < 3; i++)
+                {
+                    Targets.Add(obj.transform.GetChild(i+6).GetChild(0).GetComponent<Unit>());
+                }
+                break;
+            default:
+                break;
+        }
+
+    }
 }
+
+public enum RowColumn
+{
+    Row1,
+    Row2,
+    Row3,
+    Clm1,
+    Clm2,
+    Clm3,
+}
+

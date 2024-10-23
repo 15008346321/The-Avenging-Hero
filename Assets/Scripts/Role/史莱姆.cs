@@ -6,9 +6,9 @@ using UnityEngine;
 public class 史莱姆 : Unit
 {
     // Start is called before the first frame update
-    public override void RcAtk()
+    public override void 受到攻击时()
     {
-        base.RcAtk();
+        base.受到攻击时();
         if (Hp * 2 < MaxHp)
         {
             分裂();
