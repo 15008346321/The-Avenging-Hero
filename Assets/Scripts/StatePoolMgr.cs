@@ -97,6 +97,16 @@ public class StatePoolMgr : MonoBehaviour
         s.gameObject.SetActive(true);
         s.animator.Play("状态");
     }
+
+    public void 治疗(Unit u, float value)
+    {
+        State s = Get();
+        s.tmp.text = value.ToString();
+        s.transform.SetParent(u.StatePos);
+        s.transform.localPosition = Vector2.zero;
+        s.gameObject.SetActive(true);
+        s.animator.Play("治疗");
+    }
 }
 
 public enum DamageType

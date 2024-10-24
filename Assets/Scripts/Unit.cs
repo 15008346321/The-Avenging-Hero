@@ -479,7 +479,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     
     #endregion
 #region====战斗方法
-    public void ExecuteAtk()
+    public virtual void ExecuteAtk()
     {
 
         print(name + "ExecuteAtk");
@@ -533,6 +533,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             item.DOFade(0.5f, 0);
         }
+        isSkillReady = false;
+
         //动画中会执行 技能帧();
         Anim.Play("skill", 0, 0);
     }
@@ -626,6 +628,17 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         //BattleMgr.Ins.ShowFont(this, Damage, "Hurt");
     }//被攻击时特效 减伤 养成
 
+    public void TakeHeal(float HealValue)
+    {
+        Hp += HealValue;
+        StatePoolMgr.Ins.治疗(this, HealValue);
+        if (Hp >= MaxHp)
+        {
+            Hp = MaxHp;
+        }
+        UpdateHpBar() ;
+        受到治疗时();
+    }
     public void CheckDeath()
     {
         if (Hp <= 0)
@@ -644,6 +657,11 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             //item.RcAtk();
         }
+    }
+
+    public virtual void 受到治疗时()
+    {
+
     }
 
     public void RcComb()
@@ -727,7 +745,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 break;
             case BuffsEnum.盲目:
                 Buffs.Add(new 盲目(this));
-
                 break;
             default:
                 break;

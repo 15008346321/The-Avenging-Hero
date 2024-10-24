@@ -254,7 +254,6 @@ public class BattleMgr : MonoBehaviour
 
                 print(item.name + "skill is ready");
                 item.ExecuteSkill();
-                item.isSkillReady = false;
                 return;
             }
         }
@@ -493,6 +492,14 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
+    public void Heal(float damage)
+    {
+        foreach (var item in Targets)
+        { 
+            item.TakeDamage(damage); 
+        }
+    }
+
     public void SetDebuff(BuffsEnum debuff)
     {
         foreach (var item in Targets)
@@ -644,11 +651,11 @@ public class BattleMgr : MonoBehaviour
         return RowColumn.Clm1;
     }
 
-    public void 获取指定行列所有目标(RowColumn rc,bool isEnemy)
+    public void 获取指定行列所有目标(RowColumn rc,bool IsEnemy)
     {
         Targets.Clear();
         GameObject obj = null;
-        if (isEnemy) obj = ourObj;
+        if (IsEnemy) obj = ourObj;
         else obj = eneObj;
 
         switch (rc)
@@ -693,6 +700,16 @@ public class BattleMgr : MonoBehaviour
                 break;
         }
 
+    }
+
+    internal void 获取阵营血量最低目标(bool IsEnemy)
+    {
+        Targets.Clear();
+        List<Unit> Units = null;
+        if (IsEnemy) Units = Enemys;
+        else Units = Team;
+
+        Targets.Add(Units.OrderBy(u => u.Hp).First());
     }
 }
 

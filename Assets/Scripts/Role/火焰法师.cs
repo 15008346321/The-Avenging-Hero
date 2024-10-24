@@ -6,16 +6,8 @@ using UnityEngine;
 public class 法师 : Unit
 {
     // Start is called before the first frame update
-    List<int> BehindCells = new() { 7,8,9 };
-    public bool repelTarget = false;
 
-    public override void 攻击帧()
-    {
-        base.攻击帧();
-        FireBall();
-    }
-
-    public void FireBall()
+    public override void 攻击特效()
     {
         float damage = Mathf.Round(Bloods.Find(item => item.Name == "火元素").Value * 0.5f);
 
