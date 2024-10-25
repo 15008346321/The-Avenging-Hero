@@ -9,6 +9,7 @@ public class Buff
     public string Dscrp;
     public Unit BuffFrom, Owner;
     public int Stack, MaxStack;
+    public bool IsDebuff;
     public virtual void OnTurnEnd()
     {
         //实现自身逻辑 如减少层数
@@ -22,7 +23,31 @@ public class Buff
         if (Stack <= 0)
         {
             Owner.Buffs.Remove(this);
+            if(Owner.BuffIcon.sprite.name == Name.ToString())
+            {
+                bool FindDebuff = false;
+                foreach (var b in Owner.Buffs)
+                {
+                    if (b.IsDebuff)
+                    {
+                        Owner.BuffIcon.sprite = CSVManager.Ins.BuffIcons[b.Name.ToString()];
+                        FindDebuff = true;
+                        break;
+                    }
+                }
+                if (!FindDebuff)
+                {
+                    Owner.BuffIcon.enabled = false;
+                }
+            }
         }
+    }
+
+    public void DebuffOnAdd()
+    {
+        IsDebuff = true;
+        Owner.BuffIcon.sprite = CSVManager.Ins.BuffIcons[Name.ToString()];
+        Owner.BuffIcon.enabled = true;
     }
 }
 
@@ -40,6 +65,7 @@ public class 燃烧 : Buff
         Owner = u;
         Stack = 1;
         Dscrp = "回合结束时造成最大生命值5%的伤害";
+        DebuffOnAdd();
     }
 
     public override void OnTurnEnd()
@@ -58,5 +84,6 @@ public class 盲目 : Buff
         Owner = u;
         Stack = 1;
         Dscrp = "无法攻击";
+        DebuffOnAdd();
     }
 }

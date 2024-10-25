@@ -75,7 +75,7 @@ public class BattleMgr : MonoBehaviour
             print(uname);
             GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
             Unit u = Instantiate(g).transform.GetComponent<Unit>();
-            u.name =  u.name + u.GetInstanceID();
+            u.name +=  u.GetInstanceID();
             u.OriData = Datas[i];//修改属性 存档时修改
             u.Cell = Datas[i].Cell;
             u.Init(Datas[i]);//把data属性赋予unit
@@ -510,7 +510,7 @@ public class BattleMgr : MonoBehaviour
 
     public Transform GetNoUnitSlot(bool isEnemy)
     {
-        GameObject obj = null;
+        GameObject obj;
         if(isEnemy) obj = eneObj;
         else obj = ourObj;
 
@@ -532,7 +532,6 @@ public class BattleMgr : MonoBehaviour
         if (IsEnemy) obj = ourObj;
         else obj = eneObj;
 
-        Unit u = null;
 
         // 根据Cell的值确定要搜索的行  
         List<int> row;
@@ -545,8 +544,7 @@ public class BattleMgr : MonoBehaviour
         {
             if (obj.transform.GetChild(item - 1).childCount > 0)
             {
-                u = obj.transform.GetChild(item - 1).GetChild(0).GetComponent<Unit>();
-                if (u != null)
+                if (obj.transform.GetChild(item - 1).GetChild(0).TryGetComponent<Unit>(out Unit u))
                 {
                     Targets.Add(u);
                     return;
@@ -559,7 +557,7 @@ public class BattleMgr : MonoBehaviour
     {
         Targets.Clear();
         //判断每一行多少
-        GameObject obj = null;
+        GameObject obj;
         if (isEnemy) obj = ourObj;
         else obj = eneObj;
         Dictionary<int, int> record = new();
@@ -623,7 +621,7 @@ public class BattleMgr : MonoBehaviour
 
     public RowColumn 获取有单位的最前排(bool isEnemy)
     {
-        GameObject obj = null;
+        GameObject obj;
         if (isEnemy) obj = ourObj;
         else obj = eneObj;
 
@@ -654,7 +652,7 @@ public class BattleMgr : MonoBehaviour
     public void 获取指定行列所有目标(RowColumn rc,bool IsEnemy)
     {
         Targets.Clear();
-        GameObject obj = null;
+        GameObject obj;
         if (IsEnemy) obj = ourObj;
         else obj = eneObj;
 
@@ -705,11 +703,11 @@ public class BattleMgr : MonoBehaviour
     internal void 获取阵营血量最低目标(bool IsEnemy)
     {
         Targets.Clear();
-        List<Unit> Units = null;
+        List<Unit> Units;
         if (IsEnemy) Units = Enemys;
         else Units = Team;
 
-        Targets.Add(Units.OrderBy(u => u.Hp).First());
+        Targets.Add(Units.Where(u=>u.isDead == false).OrderBy(u => u.Hp).FirstOrDefault());
     }
 }
 
@@ -722,4 +720,3 @@ public enum RowColumn
     Clm2,
     Clm3,
 }
-

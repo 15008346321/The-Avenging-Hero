@@ -21,7 +21,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public TextMeshProUGUI TMP,SpeedTMP;
     public Animator Anim;
-    public Image HpBar, Icon,ClickImage;
+    public Image HpBar, Icon,ClickImage,BuffIcon;
     public Button Btn;
     public GameObject ClickBlock;
     public List<Image> SkillPointIcon = new();
@@ -38,6 +38,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         gra = FindObjectOfType<GraphicRaycaster>();
         FinishAtkAction += 行动结束;
         HpBar = transform.Find("Canvas/HpBar").GetComponent<Image>();
+        BuffIcon = transform.Find("Canvas/BuffIcon").GetComponent<Image>();
+        BuffIcon.enabled = false;
         TMP = transform.Find("Canvas/TMP").GetComponent<TextMeshProUGUI>();
         SpeedTMP = transform.Find("Canvas/Speed/TMP").GetComponent<TextMeshProUGUI>();
         Anim = transform.GetComponent<Animator>();
@@ -744,6 +746,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 Buffs.Add(new 燃烧(this));
                 break;
             case BuffsEnum.盲目:
+                
                 Buffs.Add(new 盲目(this));
                 break;
             default:
