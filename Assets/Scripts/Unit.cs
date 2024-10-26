@@ -15,7 +15,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
     public bool isBoss, isDead,IsEnemy,IsEnterUnitMove, isSkillTriggered, isSkillReady;
-    public List<Buff> Buffs = new();
+    public List<Buff> BuffsList = new();
     public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
 
@@ -485,7 +485,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
 
         print(name + "ExecuteAtk");
-        Buff 盲目 = Buffs.Find(item => item.Name == BuffsEnum.盲目);
+        Buff 盲目 = BuffsList.Find(item => item.Name == BuffsEnum.盲目);
         if (盲目 != null)
         {
             StatePoolMgr.Ins.状态(this, "盲目-行动失败");
@@ -632,6 +632,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public void TakeHeal(float HealValue)
     {
+        if (BuffsList.Exists(b => b.Name == BuffsEnum.燃烧)) HealValue = 0;
         Hp += HealValue;
         StatePoolMgr.Ins.治疗(this, HealValue);
         if (Hp >= MaxHp)
@@ -655,7 +656,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public virtual void 受到攻击时()
     {
-        foreach (var item in Buffs)
+        foreach (var item in BuffsList)
         {
             //item.RcAtk();
         }
@@ -668,49 +669,49 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public void RcComb()
     {
-        foreach (var item in Buffs)
+        foreach (var item in BuffsList)
         {
             //item.RcComb();
         }
     }
     public void RcPhs()
     {
-        foreach (var item in Buffs)
+        foreach (var item in BuffsList)
         {
             //item.RcPhs();
         }
     }
     public void RcFire()
     {
-        foreach (var item in Buffs)
+        foreach (var item in BuffsList)
         {
             //item.RcFire();
         }
     }
     public void RcWater()
     {
-        foreach (var item in Buffs)
+        foreach (var item in BuffsList)
         {
             //item.RcWater();
         }
     }
     public void RcWind()
     {
-        foreach (var item in Buffs)
+        foreach (var item in BuffsList)
         {
             //item.RcWind();
         }
     }
     public void RcThunder()
     {
-        foreach (var item in Buffs)
+        foreach (var item in BuffsList)
         {
             //item.RcThunder();
         }
     }
     public void RcEarth()
     {
-        foreach (var item in Buffs)
+        foreach (var item in BuffsList)
         {
             //item.RcEarth();
         }
@@ -720,9 +721,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     public void OnTurnEnd()
     {
-        for (int i = 0; i < Buffs.Count; i++)
+        for (int i = 0; i < BuffsList.Count; i++)
         {
-            Buffs[i].OnTurnEnd();
+            BuffsList[i].OnTurnEnd();
         }
     }
 
@@ -743,11 +744,11 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         switch (buff)
         {
             case BuffsEnum.燃烧:
-                Buffs.Add(new 燃烧(this));
+                BuffsList.Add(new 燃烧(this));
                 break;
             case BuffsEnum.盲目:
                 
-                Buffs.Add(new 盲目(this));
+                BuffsList.Add(new 盲目(this));
                 break;
             default:
                 break;

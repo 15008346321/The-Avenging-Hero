@@ -22,11 +22,11 @@ public class Buff
         Debug.Log("层数减少 curr:" + Stack);
         if (Stack <= 0)
         {
-            Owner.Buffs.Remove(this);
+            Owner.BuffsList.Remove(this);
             if(Owner.BuffIcon.sprite.name == Name.ToString())
             {
                 bool FindDebuff = false;
-                foreach (var b in Owner.Buffs)
+                foreach (var b in Owner.BuffsList)
                 {
                     if (b.IsDebuff)
                     {
@@ -55,6 +55,7 @@ public enum BuffsEnum
 {
     燃烧,
     盲目,
+    出血,
 }
 
 public class 燃烧 : Buff
@@ -64,7 +65,7 @@ public class 燃烧 : Buff
         Name = BuffsEnum.燃烧;
         Owner = u;
         Stack = 1;
-        Dscrp = "回合结束时造成最大生命值5%的伤害";
+        Dscrp = "回合结束时受到最大生命值5%的伤害,燃烧存在时治疗无效";
         DebuffOnAdd();
     }
 
@@ -84,6 +85,18 @@ public class 盲目 : Buff
         Owner = u;
         Stack = 1;
         Dscrp = "无法攻击";
+        DebuffOnAdd();
+    }
+}
+
+public class 出血 : Buff
+{
+    public 出血(Unit u)
+    {
+        Name = BuffsEnum.出血;
+        Owner = u;
+        Stack = 2;
+        Dscrp = "回合结束时受到最大生命值5%的伤害,持续两回合";
         DebuffOnAdd();
     }
 }
