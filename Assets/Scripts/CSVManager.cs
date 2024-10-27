@@ -10,7 +10,7 @@ public class CSVManager : MonoBehaviour
     public static CSVManager Ins;
     public List<string[]> StartText, Events1;
     public Dictionary<string, string[]> Units, Atks,Combs,Uniques,Gears;
-    public Dictionary<string, Sprite> Character,Items,BloodIcons = new(),BuffIcons = new();
+    public Dictionary<string, Sprite> Character,Items,TypeIcon = new();
 
     private void Awake()
     {
@@ -27,8 +27,7 @@ public class CSVManager : MonoBehaviour
         Atks = GetAtks();
         Combs = GetCombs();
         Gears = GetGears();
-        GetBloodIcon();
-        GetBuffIcon();
+        GetTypeIcon();
         //Skills = GetSkills();
         //Features = GetFeatures();
         //Relics = GetRelics();
@@ -52,23 +51,13 @@ public class CSVManager : MonoBehaviour
         //    全物品表.Add(item[1], item);
         //}
     }
-    private void GetBloodIcon()
+    private void GetTypeIcon()
     {
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Texture/Icon/Blood");
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Texture/Icon/Types");
 
         foreach (var item in sprites)
         {
-            BloodIcons.Add(item.name, item);
-        }
-    }
-
-    private void GetBuffIcon()
-    {
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Texture/Icon/Buffs");
-
-        foreach (var item in sprites)
-        {
-            BuffIcons.Add(item.name, item);
+            TypeIcon.Add(item.name, item);
         }
     }
 

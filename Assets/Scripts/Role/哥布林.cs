@@ -12,11 +12,11 @@ public class 哥布林 : Unit
         int value;
         if (!IsEnemy)
         {
-            value = BattleMgr.Ins.Team.Count(item => !item.isDead);
+            value = BattleMgr.Ins.Team.Count(item => !item.IsDead);
         }
         else
         {
-            value = BattleMgr.Ins.Enemys.Count(item=>!item.isDead);
+            value = BattleMgr.Ins.Enemys.Count(item=>!item.IsDead);
         }
         Atk += value;
 

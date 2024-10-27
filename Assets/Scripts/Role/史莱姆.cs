@@ -17,14 +17,14 @@ public class 史莱姆 : Unit
 
     public void 分裂()
     {
-        if (isSkillTriggered) return;
+        if (IsSkillTriggered) return;
 
         Unit u1 = BattleMgr.Ins.SummonCreator(gameObject, IsEnemy, 0.8f);
-        u1.isSkillTriggered = true;
+        u1.IsSkillTriggered = true;
         Unit u2 = BattleMgr.Ins.SummonCreator(gameObject, IsEnemy, 0.8f);
-        u2.isSkillTriggered = true;
+        u2.IsSkillTriggered = true;
 
-        isDead = true;
+        IsDead = true;
         transform.SetParent(BattleMgr.Ins.DeadParent);
         StatePoolMgr.Ins.状态(this, "分裂+");
     }

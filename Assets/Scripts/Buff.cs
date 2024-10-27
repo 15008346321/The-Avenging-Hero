@@ -30,7 +30,7 @@ public class Buff
                 {
                     if (b.IsDebuff)
                     {
-                        Owner.BuffIcon.sprite = CSVManager.Ins.BuffIcons[b.Name.ToString()];
+                        Owner.BuffIcon.sprite = CSVManager.Ins.TypeIcon[b.Name.ToString()];
                         FindDebuff = true;
                         break;
                     }
@@ -46,7 +46,7 @@ public class Buff
     public void DebuffOnAdd()
     {
         IsDebuff = true;
-        Owner.BuffIcon.sprite = CSVManager.Ins.BuffIcons[Name.ToString()];
+        Owner.BuffIcon.sprite = CSVManager.Ins.TypeIcon[Name.ToString()];
         Owner.BuffIcon.enabled = true;
     }
 }

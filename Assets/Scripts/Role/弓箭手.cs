@@ -5,17 +5,13 @@ using UnityEngine;
 
 public class 弓箭手 : Unit
 {
-    // Start is called before the first frame update
-    List<int> BehindCells = new() { 7,8,9 };
-    public bool repelTarget = false;
-
     public override void 攻击特效()
     {
         SkillPoint++;
         SkillPointIcon[SkillPoint - 1].DOFade(1, 0);
         if (SkillPoint == SkillPointMax)
         {
-            isSkillReady = true;
+            IsSkillReady = true;
         }
     }
 

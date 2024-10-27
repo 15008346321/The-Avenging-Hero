@@ -14,7 +14,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public int Cell,Damage,AtkCountMax,AtkCountCurr,SkillPoint,SkillPointMax;
     public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
-    public bool isBoss, isDead,IsEnemy,IsEnterUnitMove, isSkillTriggered, isSkillReady;
+    public bool isBoss, IsDead,IsEnemy,IsEnterUnitMove, IsSkillTriggered, IsSkillReady,IsAtkChanged;
     public List<Buff> BuffsList = new();
     public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
@@ -31,7 +31,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public GraphicRaycaster gra;
     public UnitData OriData;
     public Action FinishAtkAction, FinishBehaviorAction;
-
     public void Awake()
     {
         _EventSystem = FindObjectOfType<EventSystem>();
@@ -56,6 +55,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #region====初始化方法
     public void Init(UnitData data)
     {
+        TMP.text = data.Name;
         Hp = MaxHp = data.MaxHp;
         Atk = data.Atk;
         Speed = data.Speed;
@@ -483,8 +483,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 #region====战斗方法
     public virtual void ExecuteAtk()
     {
-
-        print(name + "ExecuteAtk");
         Buff 盲目 = BuffsList.Find(item => item.Name == BuffsEnum.盲目);
         if (盲目 != null)
         {
@@ -494,7 +492,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             return;
         }
 
-        BattleMgr.Ins.获取正前方目标(IsEnemy, Cell);
+        获取攻击目标();
         if (BattleMgr.Ins.Targets.Count == 0)//没有目标就走位 然后进行下一个
         {
             MoveToEnemyFrontRow();
@@ -535,7 +533,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             item.DOFade(0.5f, 0);
         }
-        isSkillReady = false;
+        IsSkillReady = false;
 
         //动画中会执行 技能帧();
         Anim.Play("skill", 0, 0);
@@ -562,8 +560,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
     public void TakeDamage(float Damage,DamageType damageType = DamageType.物理伤害)
     {
-
-        print(name + "takle damage");
         Hp -= Damage;
         UpdateHpBar();
         CheckDeath();
@@ -571,13 +567,13 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         switch (damageType)
         {
             case DamageType.物理伤害:
-                StatePoolMgr.Ins.物理伤害(this, Damage);
+                StatePoolMgr.Ins.类型伤害(this, Damage,"物理");
                 break;
             case DamageType.火元素伤害:
-                StatePoolMgr.Ins.火元素伤害(this, Damage);
+                StatePoolMgr.Ins.类型伤害(this, Damage,"火元素");
                 break;
             case DamageType.燃烧伤害:
-                StatePoolMgr.Ins.燃烧伤害(this, Damage);
+                StatePoolMgr.Ins.类型伤害(this, Damage,"燃烧");
                 break;
         }
         受到攻击时();
@@ -634,7 +630,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         if (BuffsList.Exists(b => b.Name == BuffsEnum.燃烧)) HealValue = 0;
         Hp += HealValue;
-        StatePoolMgr.Ins.治疗(this, HealValue);
+        StatePoolMgr.Ins.类型伤害(this, HealValue,"治疗");
         if (Hp >= MaxHp)
         {
             Hp = MaxHp;
@@ -646,7 +642,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         if (Hp <= 0)
         {
-            isDead = true;
+            IsDead = true;
             transform.SetParent(BattleMgr.Ins.DeadParent);
             BattleMgr.Ins.CheckBattleEnd();
             if (BattleMgr.Ins.isBattling == false) return;
@@ -716,7 +712,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             //item.RcEarth();
         }
     }
-    public void OnBattleStart()
+    public virtual void OnBattleStart()
     {
     }
     public void OnTurnEnd()

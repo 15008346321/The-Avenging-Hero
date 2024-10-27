@@ -14,7 +14,7 @@ public class 牛头人 : Unit
         SkillPointIcon[SkillPoint - 1].DOFade(1, 0);
         if (SkillPoint == SkillPointMax)
         {
-            isSkillReady = true;
+            IsSkillReady = true;
         }
     }
 

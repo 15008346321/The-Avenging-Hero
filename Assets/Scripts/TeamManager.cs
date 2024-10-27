@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -51,7 +52,7 @@ public class TeamManager : MonoBehaviour
         //TODO改到配置表中
         TeamData.Add(new UnitData(CSVManager.Ins.Units["战士"],1));
         TeamData.Add(new UnitData(CSVManager.Ins.Units["牧师"], 2));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["火焰法师"], 3));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["刺杀者"], 3));
         TeamData.Add(new UnitData(CSVManager.Ins.Units["弓箭手"], 4));
 
         TagNodes.Add(TagNodes1);
@@ -106,7 +107,7 @@ public class TeamManager : MonoBehaviour
             BloodNameTMP[counter].transform.parent.parent.gameObject.SetActive(true);
             BloodNameTMP[counter].text = item.Name;
             BloodPointTMP[counter].text = item.Value.ToString();
-            BloodImgs[counter].sprite = CSVManager.Ins.BloodIcons[item.Name];
+            BloodImgs[counter].sprite = CSVManager.Ins.TypeIcon[item.Name];
             counter += 1;
         }
         for (int i = counter; i < BloodInsNum; i++)
@@ -130,7 +131,12 @@ public class TeamManager : MonoBehaviour
             }
         }
 
-        SkillInfoTMP.text = TeamData[CurrMbrIdx].SkillDscrp;
+        StringBuilder sb = new();
+        foreach (var item in TeamData[CurrMbrIdx].SkillDscrp)
+        {
+            sb.AppendLine(item);
+        }
+        SkillInfoTMP.text = sb.ToString();
 
     }
 }
@@ -138,8 +144,8 @@ public class TeamManager : MonoBehaviour
 public class UnitData
 {
     public int MaxHp, Atk, Cell, Speed,SkillPointMax;
-    public string Name,SkillDscrp;
-    public string[] Tags = new string[4];
+    public string Name;
+    public string[] Tags = new string[4], SkillDscrp;
     public List<Blood> Bloods = new();
     public Sprite sprite;
 
@@ -151,7 +157,7 @@ public class UnitData
         MaxHp   = int.Parse(data[2]);
         Atk     = int.Parse(data[3]);
         Speed   = int.Parse(data[4]);
-        SkillDscrp = data[5];
+        SkillDscrp = data[5].Split("\n");
         Tags    = data[6].Split("&");
         if(data[7]!="") Bloods.Add(new Blood("火元素",float.Parse(data[7])));
         if(data[8]!="") Bloods.Add(new Blood("水元素", float.Parse(data[8])));

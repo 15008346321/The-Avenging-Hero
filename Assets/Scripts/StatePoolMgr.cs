@@ -58,54 +58,26 @@ public class StatePoolMgr : MonoBehaviour
         return null;
     }
 
-    public void 物理伤害(Unit u, float damage)
+    public void 类型伤害(Unit u, float damage, string type)
     {
         State s = Get();
         s.tmp.text = damage.ToString();
+        s.image.sprite = CSVManager.Ins.TypeIcon[type];
         s.transform.SetParent(u.StatePos);
         SetXOffset(s);
         s.gameObject.SetActive(true);
-        s.animator.Play("物理伤害");
-    }
-
-    public void 火元素伤害(Unit u, float damage)
-    {
-        State s = Get();
-        s.tmp.text = damage.ToString();
-        s.transform.SetParent(u.StatePos);
-        SetXOffset(s);
-        s.gameObject.SetActive(true);
-        s.animator.Play("火元素伤害");
-    }
-
-    public void 燃烧伤害(Unit u,float damage) 
-    {
-        State s = Get();
-        s.tmp.text = damage.ToString();
-        s.transform.SetParent(u.StatePos);
-        SetXOffset(s);
-        s.gameObject.SetActive(true);
-        s.animator.Play("燃烧伤害");
+        s.animator.Play("类型伤害");
     }
 
     public void 状态(Unit u, string text) 
     {
         State s = Get();
+
         s.tmp.text = text;
         s.transform.SetParent(u.StatePos);
         s.transform.localPosition = Vector2.zero;
         s.gameObject.SetActive(true);
         s.animator.Play("状态");
-    }
-
-    public void 治疗(Unit u, float value)
-    {
-        State s = Get();
-        s.tmp.text = value.ToString();
-        s.transform.SetParent(u.StatePos);
-        s.transform.localPosition = Vector2.zero;
-        s.gameObject.SetActive(true);
-        s.animator.Play("治疗");
     }
 }
 

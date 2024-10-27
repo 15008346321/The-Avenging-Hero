@@ -72,7 +72,6 @@ public class BattleMgr : MonoBehaviour
         {
             string uname = Datas[i].Name;
 
-            print(uname);
             GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
             Unit u = Instantiate(g).transform.GetComponent<Unit>();
             u.name +=  u.GetInstanceID();
@@ -190,6 +189,7 @@ public class BattleMgr : MonoBehaviour
         Tips.SetActive(false);
         SetPosSlotAlpha(0);
         //SetHpBarActive();
+
         if (isBattleStart == false)
         {
             //InitUnitAttr();
@@ -204,6 +204,7 @@ public class BattleMgr : MonoBehaviour
         isBattleStart = true;
         foreach (var item in AllUnit)
         {
+            print(item.name); 
             item.OnBattleStart();
         }
     }
@@ -230,7 +231,7 @@ public class BattleMgr : MonoBehaviour
         int DeadCount = 0;
         for (int i = 0; i < AllUnit.Count; i++)
         {
-            if (AllUnit[i].isDead) 
+            if (AllUnit[i].IsDead) 
             {
                 DeadCount ++;
                 continue;
@@ -247,7 +248,7 @@ public class BattleMgr : MonoBehaviour
 
         foreach (var item in AllUnit)
         {
-            if (item.isSkillReady && !item.isDead)
+            if (item.IsSkillReady && !item.IsDead)
             {
                 //用ID遍历AllUnit找到对应的Unit调用普攻
                 //AnimQueue.Add(item.ID + ":NormalAtk");
@@ -259,7 +260,7 @@ public class BattleMgr : MonoBehaviour
         }
         foreach (var item in AllUnit)
         {
-            if(item.AtkCountCurr > 0 && !item.isDead)
+            if(item.AtkCountCurr > 0 && !item.IsDead)
             {
                 //用ID遍历AllUnit找到对应的Unit调用普攻
                 //AnimQueue.Add(item.ID + ":NormalAtk");
@@ -401,7 +402,7 @@ public class BattleMgr : MonoBehaviour
     {
         if (isBattling == false) return;//防止同时死亡时重复判断
         //胜利
-        if (Enemys.All(item => item.isDead == true))
+        if (Enemys.All(item => item.IsDead == true))
         {
             EventsMgr.Ins.ShowBonus();
             ResetBattle();
@@ -410,7 +411,7 @@ public class BattleMgr : MonoBehaviour
             BattleBtn.gameObject.SetActive(false);
         }
         //失败
-        else if(Team.All(item => item.isDead == true))
+        else if(Team.All(item => item.IsDead == true))
         {
             EventsMgr.Ins.EventPoint -= Enemys.Count;
             EventsMgr.Ins.EPTMP.text = EventsMgr.Ins.EventPoint.ToString();
@@ -426,7 +427,7 @@ public class BattleMgr : MonoBehaviour
     {
         for (int i = 0; i < AllUnit.Count; i++)
         {
-            if(AllUnit[i].isDead == true)continue;
+            if(AllUnit[i].IsDead == true)continue;
             AllUnit[i].OnTurnEnd();
         }
         yield return null;
@@ -707,7 +708,9 @@ public class BattleMgr : MonoBehaviour
         if (IsEnemy) Units = Enemys;
         else Units = Team;
 
-        Targets.Add(Units.Where(u=>u.isDead == false).OrderBy(u => u.Hp).FirstOrDefault());
+        Targets.Add(Units.Where(u=>u.IsDead == false).OrderBy(u => u.Hp).FirstOrDefault());
+
+        print(Targets[0].name + " HP: " + Targets[0].Hp);
     }
 }
 
