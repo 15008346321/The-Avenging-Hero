@@ -10,7 +10,7 @@ public class 战士 : Unit
     public bool 找到击退目标 = false;
     public override void 获取攻击目标()
     {
-        BattleMgr.Ins.获取正前方目标(IsEnemy, Cell);
+        base.获取攻击目标();
         if(BattleMgr.Ins.Targets.Count > 0)
         {
             Unit t2 = BattleMgr.Ins.FindUnitOnCell(BattleMgr.Ins.Targets[0].Cell + 3, IsEnemy);

@@ -31,30 +31,19 @@ public class 刺杀者 : Unit
         }
         else
         {
-            SkillPoint++;
-            SkillPointIcon[SkillPoint - 1].DOFade(1, 0);
-            if (SkillPoint == SkillPointMax)
-            {
-                IsAtkChanged = true;
-            }
+            获取技能点();
         }
     }
 
     public override void 获取攻击目标()
     {
 
-        print("csz获取攻击目标");
-
-        print("IsAtkChanged: " + IsAtkChanged.ToString());
         if(IsAtkChanged)
         {
-            print("1");
             BattleMgr.Ins.获取阵营血量最低目标(!IsEnemy);
         }
         else
         {
-
-            print("2");
             base.获取攻击目标();
         }
     }

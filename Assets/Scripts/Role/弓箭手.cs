@@ -7,12 +7,7 @@ public class 弓箭手 : Unit
 {
     public override void 攻击特效()
     {
-        SkillPoint++;
-        SkillPointIcon[SkillPoint - 1].DOFade(1, 0);
-        if (SkillPoint == SkillPointMax)
-        {
-            IsSkillReady = true;
-        }
+        获取技能点() ;
     }
 
     public override void 获取技能目标()

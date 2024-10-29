@@ -1,0 +1,142 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &3444535752615022239
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 279632705322490797, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_Name
+      value: "\u683C\u6597\u5BB6"
+      objectReference: {fileID: 0}
+    - target: {fileID: 3346694813717982602, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_text
+      value: "\u523A\u6740\u8005"
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3980820232128483769, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4118310327452751514, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 9c2bfe2b54be50640b6c1f7a018bdaa0, type: 2}
+    m_RemovedComponents:
+    - {fileID: 6734803477313602793, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 279632705322490797, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -2088344903006200531}
+  m_SourcePrefab: {fileID: 100100000, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+--- !u!1 &3182927225445176626 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 279632705322490797, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
+  m_PrefabInstance: {fileID: 3444535752615022239}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-2088344903006200531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3182927225445176626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3733646ef9198c429df080295e78382, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Cell: 0
+  Damage: 0
+  AtkCountMax: 0
+  AtkCountCurr: 0
+  SkillPoint: 0
+  SkillPointMax: 0
+  Hp: 0
+  MaxHp: 0
+  Atk: 0
+  Shield: 0
+  Speed: 0
+  Element: 
+  isBoss: 0
+  IsDead: 0
+  IsEnemy: 0
+  IsEnterUnitMove: 0
+  IsSkillTriggered: 0
+  IsSkillReady: 0
+  IsAtkChanged: 0
+  BuffsList: []
+  Bloods: []
+  Tags:
+  - 
+  - 
+  - 
+  - 
+  TMP: {fileID: 0}
+  SpeedTMP: {fileID: 0}
+  Anim: {fileID: 0}
+  HpBar: {fileID: 0}
+  Icon: {fileID: 0}
+  ClickImage: {fileID: 0}
+  BuffIcon: {fileID: 0}
+  Btn: {fileID: 0}
+  ClickBlock: {fileID: 0}
+  SkillPointIcon: []
+  StartParent: {fileID: 0}
+  StatePos: {fileID: 0}
+  RunPosParent: {fileID: 0}
+  DragParent: {fileID: 0}
+  TMPNameNode: {fileID: 0}
+  _EventSystem: {fileID: 0}
+  gra: {fileID: 0}
+  OriData:
+    MaxHp: 0
+    Atk: 0
+    Cell: 0
+    Speed: 0
+    SkillPointMax: 0
+    Name: 
+    Tags: []
+    SkillDscrp: []
+    Bloods: []
+    sprite: {fileID: 0}

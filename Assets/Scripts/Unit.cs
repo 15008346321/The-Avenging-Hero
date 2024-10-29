@@ -487,7 +487,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         if (盲目 != null)
         {
             StatePoolMgr.Ins.状态(this, "盲目-行动失败");
-            盲目.层数减少(1);
             BattleMgr.Ins.FindNextActionUnit();
             return;
         }
@@ -516,11 +515,11 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         攻击特效();
     }
 
-    //攻击时特效重写实现(获取技能点 附加伤害...)
+    //攻击帧()时调用 攻击时特效重写实现(获取技能点 附加伤害...)
     public virtual void 攻击特效()
     {
-        //
     }
+
     public void ExecuteSkill()
     {
         //需要重写实现逻辑
@@ -572,8 +571,17 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             case DamageType.火元素伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage,"火元素");
                 break;
+            case DamageType.土元素伤害:
+                StatePoolMgr.Ins.类型伤害(this, Damage, "土元素");
+                break;
             case DamageType.燃烧伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage,"燃烧");
+                break;
+            case DamageType.出血伤害:
+                StatePoolMgr.Ins.类型伤害(this, Damage, "出血");
+                break;
+            case DamageType.中毒伤害:
+                StatePoolMgr.Ins.类型伤害(this, Damage, "中毒");
                 break;
         }
         受到攻击时();
@@ -735,19 +743,65 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         BattleMgr.Ins.FindNextActionUnit();
     }
 
-    public void AddBuff(BuffsEnum buff)
+    public void AddBuff(BuffsEnum BuffName)
     {
-        switch (buff)
+        Buff OldBuff = BuffsList.Find(b => b.Name == BuffName);
+        if (OldBuff != null && OldBuff.IsStackable)
+        {
+                OldBuff.CurrStack += OldBuff.OnAddStack;
+                OldBuff.层数改变时特效(OldBuff.OnAddStack);
+                return;
+        }
+
+        if(OldBuff != null)
+        {
+            BuffsList.Remove(OldBuff);
+        }
+
+        switch (BuffName)
         {
             case BuffsEnum.燃烧:
                 BuffsList.Add(new 燃烧(this));
                 break;
             case BuffsEnum.盲目:
-                
                 BuffsList.Add(new 盲目(this));
+                break;
+            case BuffsEnum.出血:
+                BuffsList.Add(new 出血(this));
+                break;
+            case BuffsEnum.麻痹:
+                BuffsList.Add(new 麻痹(this));
+                break;
+            case BuffsEnum.减速:
+                BuffsList.Add(new 减速(this));
+                break;
+            case BuffsEnum.中毒:
+                BuffsList.Add(new 中毒(this));
                 break;
             default:
                 break;
         }
     }
+
+    public void 获取技能点() 
+    {
+        if (IsDead)
+        {
+            return;
+        }
+
+        if (BuffsList.Exists(b => b.Name == BuffsEnum.麻痹))
+        {
+            StatePoolMgr.Ins.状态(this,"麻痹 无法获取技能点");
+            return;
+        }
+
+        SkillPoint += 1;
+        SkillPointIcon[SkillPoint - 1].DOFade(1, 0);
+        if (SkillPoint == SkillPointMax)
+        {
+            IsSkillReady = true;
+        }
+    }
+
 }

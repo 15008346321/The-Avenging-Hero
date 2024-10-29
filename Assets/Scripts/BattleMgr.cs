@@ -444,8 +444,6 @@ public class BattleMgr : MonoBehaviour
         AnimQueue.Clear();
         for (int i = 0; i < ourObj.transform.childCount; i++)
         {
-
-            print("cell :" +(i+1)+"childcout:" + ourObj.transform.GetChild(i).childCount);
             if (ourObj.transform.GetChild(i).childCount > 0)
             {
                 Destroy(ourObj.transform.GetChild(i).GetChild(0).gameObject);
@@ -709,8 +707,6 @@ public class BattleMgr : MonoBehaviour
         else Units = Team;
 
         Targets.Add(Units.Where(u=>u.IsDead == false).OrderBy(u => u.Hp).FirstOrDefault());
-
-        print(Targets[0].name + " HP: " + Targets[0].Hp);
     }
 }
 
