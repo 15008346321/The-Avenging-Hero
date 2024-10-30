@@ -124,7 +124,7 @@ public class 出血 : Buff
     public override void OnTurnEnd()
     {
         float damage = Mathf.Round(Owner.MaxHp * 0.05f);
-        Owner.TakeDamage(damage, DamageType.燃烧伤害);
+        Owner.TakeDamage(damage, DamageType.出血伤害);
         层数改变(-1);
     }
 }

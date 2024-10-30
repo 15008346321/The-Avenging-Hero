@@ -11,7 +11,7 @@ using TMPro;
 
 public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
-    public int Cell,Damage,AtkCountMax,AtkCountCurr,SkillPoint,SkillPointMax;
+    public int Cell, Damage, AtkCountMax, AtkCountCurr, SkillPoint, SkillPointMax, 物理伤害减免;
     public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
     public bool isBoss, IsDead,IsEnemy,IsEnterUnitMove, IsSkillTriggered, IsSkillReady,IsAtkChanged;
@@ -21,7 +21,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public TextMeshProUGUI TMP,SpeedTMP;
     public Animator Anim;
-    public Image HpBar, Icon,ClickImage,BuffIcon;
+    public Image HpBar, ShieldBar, Icon, ClickImage, BuffIcon;
     public Button Btn;
     public GameObject ClickBlock;
     public List<Image> SkillPointIcon = new();
@@ -37,6 +37,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         gra = FindObjectOfType<GraphicRaycaster>();
         FinishAtkAction += 行动结束;
         HpBar = transform.Find("Canvas/HpBar").GetComponent<Image>();
+        ShieldBar = transform.Find("Canvas/ShieldBar").GetComponent<Image>();
         BuffIcon = transform.Find("Canvas/BuffIcon").GetComponent<Image>();
         BuffIcon.enabled = false;
         TMP = transform.Find("Canvas/TMP").GetComponent<TextMeshProUGUI>();
@@ -468,10 +469,11 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //        }
     //    }
     //}
-    public void UpdateHpBar()
+    public void UpdateHpAndShieldBar()
     {
         //c# int 1/int 3 = 0
         HpBar.fillAmount = Hp / MaxHp;
+        ShieldBar.fillAmount = Shield / MaxHp;
     }
     
     public void ShowSkillName(string SkillName)
@@ -559,23 +561,58 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
     public void TakeDamage(float Damage,DamageType damageType = DamageType.物理伤害)
     {
-        Hp -= Damage;
-        UpdateHpBar();
-        CheckDeath();
-        //float damageReduce = 1, damageRate = 1;
+
+        //伤害减免
+        更新伤害减免();
         switch (damageType)
         {
             case DamageType.物理伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage,"物理");
+                if (name.StartsWith( "蜥蜴人"))print("物理伤害减免: "+ 物理伤害减免);
+                Damage -= 物理伤害减免;
                 break;
             case DamageType.火元素伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage,"火元素");
+                break;
+            case DamageType.土元素伤害:
+                break;
+            case DamageType.燃烧伤害:
+                break;
+            case DamageType.出血伤害:
+                break;
+            case DamageType.中毒伤害:
+                break;
+        }
+
+        if (Shield > 0)
+        {
+            if (Shield >= Damage)
+            {
+                Shield -= Damage;
+                Damage = 0;
+            }
+            else
+            {
+                Damage -= Shield;
+                Shield = 0;
+            }
+        }
+        Hp -= Damage;
+        UpdateHpAndShieldBar();
+        CheckDeath();
+
+        //出类型伤害和特效
+        switch (damageType)
+        {
+            case DamageType.物理伤害:
+                StatePoolMgr.Ins.类型伤害(this, Damage, "物理");
+                break;
+            case DamageType.火元素伤害:
+                StatePoolMgr.Ins.类型伤害(this, Damage, "火元素");
                 break;
             case DamageType.土元素伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage, "土元素");
                 break;
             case DamageType.燃烧伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage,"燃烧");
+                StatePoolMgr.Ins.类型伤害(this, Damage, "燃烧");
                 break;
             case DamageType.出血伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage, "出血");
@@ -634,16 +671,24 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         //BattleMgr.Ins.ShowFont(this, Damage, "Hurt");
     }//被攻击时特效 减伤 养成
 
+    public virtual void 更新伤害减免() 
+    { 
+    }
     public void TakeHeal(float HealValue)
     {
         if (BuffsList.Exists(b => b.Name == BuffsEnum.燃烧)) HealValue = 0;
-        Hp += HealValue;
-        StatePoolMgr.Ins.类型伤害(this, HealValue,"治疗");
-        if (Hp >= MaxHp)
+        HealValue = Mathf.Round(HealValue);
+        if (Hp + HealValue >= MaxHp)
         {
+            HealValue = MaxHp - Hp;
             Hp = MaxHp;
         }
-        UpdateHpBar() ;
+        else
+        {
+            Hp += HealValue;
+        }
+        StatePoolMgr.Ins.类型伤害(this, HealValue, "治疗");
+        UpdateHpAndShieldBar() ;
         受到治疗时();
     }
     public void CheckDeath()
@@ -652,6 +697,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             IsDead = true;
             transform.SetParent(BattleMgr.Ins.DeadParent);
+            BattleMgr.Ins.单位死亡时(IsEnemy);
             BattleMgr.Ins.CheckBattleEnd();
             if (BattleMgr.Ins.isBattling == false) return;
             BattleMgr.Ins.SortBySpeed();
@@ -669,6 +715,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public virtual void 受到治疗时()
     {
 
+    }
+
+    public virtual void 单位死亡时(bool isEnemy) 
+    { 
     }
 
     public void RcComb()
@@ -804,4 +854,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
     }
 
+    public void 获取护盾(float value)
+    {
+        Shield += value;
+        UpdateHpAndShieldBar();
+    }
 }

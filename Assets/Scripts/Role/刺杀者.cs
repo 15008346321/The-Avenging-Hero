@@ -31,7 +31,14 @@ public class 刺杀者 : Unit
         }
         else
         {
+            //这里会设置IsSkillReady这个角色不需要
             获取技能点();
+            //永久保持false
+            if (SkillPoint == SkillPointMax)
+            {
+                IsSkillReady = false;
+                IsAtkChanged = true;
+            }
         }
     }
 

@@ -9,11 +9,11 @@ using UnityEngine.UI;
 public class BattleMgr : MonoBehaviour
 {
     public List<Unit> Team = new(), TeamMain = new(), Enemys = new(), EnemyMain = new(), AllUnit = new(), Targets = new();
-    public List<int> TopRow = new() { 1, 4, 7 }, MidRow = new() { 2, 5, 8 }, BotRow = new() { 3, 6, 9 };
+    public List<int> TopRow = new() { 1, 4, 7 }, MidRow = new() { 2, 5, 8 }, BotRow = new() { 3, 6, 9 }, Col1 = new() { 1, 2, 3 }, Col2 = new() { 4, 5, 6 }, Col3 = new() { 7, 8, 9 };
     public List<string> AnimQueue = new();
     public float TimeCout, CurrTime;
     public Unit MainTarget;
-    public GameObject HurtFont, ourObj, eneObj, Tips, CombDetailPrefab;
+    public GameObject ourObj, eneObj, Tips, CombDetailPrefab;
     public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos,DeadParent;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount,CombDetailCount;
     public string 当前追打状态, EnemysStr;
@@ -41,7 +41,6 @@ public class BattleMgr : MonoBehaviour
     public void Init()
     {
         BattleBtn.onClick.AddListener(OnBattleClick);
-        HurtFont = Resources.Load("Prefabs/HurtFont/Hurt") as GameObject;
     }
 
     public void InitTeam(bool IsEnemy = false)
@@ -96,6 +95,7 @@ public class BattleMgr : MonoBehaviour
 
                 u.TMP.transform.localScale = new Vector2(-1,1);
                 u.HpBar.transform.localScale = new Vector2(-1, 1);
+                u.ShieldBar.transform.localScale = new Vector2(-1, 1);
                 u.SpeedTMP.transform.parent.localScale = new Vector2(-1, 1);
                 u.IsEnemy = true;
                 Enemys.Add(u);
@@ -398,6 +398,17 @@ public class BattleMgr : MonoBehaviour
         CombDetailCount = 0;
     }
 
+    public void 单位死亡时(bool isEnemy)
+    {
+        foreach (var item in AllUnit)
+        {
+            if (!item.IsDead)
+            {
+                item.单位死亡时(isEnemy);
+            }
+        }
+    }
+
     public void CheckBattleEnd()
     {
         if (isBattling == false) return;//防止同时死亡时重复判断
@@ -469,7 +480,7 @@ public class BattleMgr : MonoBehaviour
     {
         GameObject side;
 
-        if (!IsEnemy) side = ourObj;
+        if (IsEnemy) side = ourObj;
         else side = eneObj;
 
         if(Cell > 9)
@@ -478,7 +489,9 @@ public class BattleMgr : MonoBehaviour
         }
 
         if(side.transform.GetChild(Cell-1).childCount > 0)
-        return side.transform.GetChild (Cell-1).GetChild(0).GetChild(0).GetComponent<Unit>();
+        {
+            return side.transform.GetChild(Cell - 1).GetChild(0).GetComponent<Unit>();
+        }
 
         return null;
     }
@@ -487,6 +500,7 @@ public class BattleMgr : MonoBehaviour
     {
         foreach (var item in Targets)
         {
+            print(item.name + " TakeDamage");
             item.TakeDamage(damage);
         }
     }
