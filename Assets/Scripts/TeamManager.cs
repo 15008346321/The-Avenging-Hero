@@ -52,8 +52,8 @@ public class TeamManager : MonoBehaviour
         //TODO改到配置表中
         TeamData.Add(new UnitData(CSVManager.Ins.Units["骑士"],1));
         TeamData.Add(new UnitData(CSVManager.Ins.Units["牧师"], 2));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["刺杀者"], 3));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["格斗家"], 4));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["战士"], 3));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["猪头人"], 4));
 
         TagNodes.Add(TagNodes1);
         TagNodes.Add(TagNodes2);

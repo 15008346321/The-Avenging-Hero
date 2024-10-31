@@ -13409,7 +13409,7 @@ GameObject:
   m_Icon: {fileID: 3936346786652291628, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &765448876
 Transform:
   m_ObjectHideFlags: 0
@@ -13419,7 +13419,7 @@ Transform:
   m_GameObject: {fileID: 765448875}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1325, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13979,11 +13979,13 @@ MonoBehaviour:
   TopRow: 010000000400000007000000
   MidRow: 020000000500000008000000
   BotRow: 030000000600000009000000
+  Col1: 010000000200000003000000
+  Col2: 040000000500000006000000
+  Col3: 070000000800000009000000
   AnimQueue: []
   TimeCout: 0
   CurrTime: 0
   MainTarget: {fileID: 0}
-  HurtFont: {fileID: 0}
   ourObj: {fileID: 2079651722}
   eneObj: {fileID: 1506859505}
   Tips: {fileID: 901874295}

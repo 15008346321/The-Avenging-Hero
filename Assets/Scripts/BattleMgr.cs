@@ -186,6 +186,7 @@ public class BattleMgr : MonoBehaviour
     {
         EventsMgr.Ins.IsMoveToBattle = false;
         isBattling = true;
+        BattleBtn.enabled = false;
         Tips.SetActive(false);
         SetPosSlotAlpha(0);
         //SetHpBarActive();
@@ -204,7 +205,6 @@ public class BattleMgr : MonoBehaviour
         isBattleStart = true;
         foreach (var item in AllUnit)
         {
-            print(item.name); 
             item.OnBattleStart();
         }
     }
@@ -265,19 +265,15 @@ public class BattleMgr : MonoBehaviour
                 //用ID遍历AllUnit找到对应的Unit调用普攻
                 //AnimQueue.Add(item.ID + ":NormalAtk");
                 item.AtkCountCurr -= 1;
+
+                print( item.name + "atk");
                 item.ExecuteAtk();
                 return;
             }
         }
 
-        StartCoroutine(TurnEnd());
-        //PlayFirsrtAnimInQueue会判断没有行动 则回合结束
+        OnTurnEnd();
         //StartCoroutine(PlayFirsrtAnimInQueue(wait));
-    }
-
-    public IEnumerator TurnEnd()
-    {
-        yield return OnTurnEnd();
     }
 
     //public IEnumerator PlayFirsrtAnimInQueue(float waitfor = 0)
@@ -409,9 +405,25 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public void CheckBattleEnd()
+    public IEnumerator CheckBattleEnd()
     {
-        if (isBattling == false) return;//防止同时死亡时重复判断
+        bool Wait = true;
+        while (Wait)
+        {
+            yield return null;
+            if (StatePoolMgr.Ins.transform.childCount == 10)
+            {
+                Wait = false;
+            }
+        }
+
+        if (isBattling == false)
+        {
+            yield break;//防止同时死亡时重复判断
+        }
+
+        SortBySpeed();
+
         //胜利
         if (Enemys.All(item => item.IsDead == true))
         {
@@ -434,14 +446,14 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public IEnumerator OnTurnEnd()
+    public void OnTurnEnd()
     {
         for (int i = 0; i < AllUnit.Count; i++)
         {
             if(AllUnit[i].IsDead == true)continue;
             AllUnit[i].OnTurnEnd();
         }
-        yield return null;
+        BattleBtn.enabled = true;
     }
 
     public void ResetBattle()
@@ -500,7 +512,6 @@ public class BattleMgr : MonoBehaviour
     {
         foreach (var item in Targets)
         {
-            print(item.name + " TakeDamage");
             item.TakeDamage(damage);
         }
     }

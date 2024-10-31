@@ -239,7 +239,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 transform.SetParent(Our.transform.GetChild(TargetCell - 1));
                 Cell = TargetCell;
                 Anim.enabled = true;
-                BattleMgr.Ins.FindNextActionUnit();
+                StartCoroutine(等待字体动画结束());
             }
         );
     }
@@ -338,7 +338,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 UnitMove(5);
             }
             //23有空 移动到3
-            if (Our.transform.GetChild(2).childCount == 0 && Our.transform.GetChild(1).childCount == 0)
+            else if (Our.transform.GetChild(2).childCount == 0 && Our.transform.GetChild(1).childCount == 0)
             {
                 UnitMove(3);
             }
@@ -439,12 +439,25 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     public void FindNextActionUnit()
     {
-        BattleMgr.Ins.FindNextActionUnit();
+        StartCoroutine(等待字体动画结束());
     }
     #endregion
     #region====单位通用方法
 
+    public IEnumerator 等待字体动画结束()
+    {
 
+        bool Wait = true;
+        while (Wait)
+        {
+            yield return null;
+            if (StatePoolMgr.Ins.transform.childCount == 10)
+            {
+                Wait = false;
+            }
+        }
+        BattleMgr.Ins.FindNextActionUnit();
+    }
     //public void CheckComb(string currDebuff)
     //{
     //    if (BattleMgr.Ins.MainTarget.isDead) return;
@@ -489,7 +502,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         if (盲目 != null)
         {
             StatePoolMgr.Ins.状态(this, "盲目-行动失败");
-            BattleMgr.Ins.FindNextActionUnit();
+            StartCoroutine(等待字体动画结束());
             return;
         }
 
@@ -567,7 +580,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         switch (damageType)
         {
             case DamageType.物理伤害:
-                if (name.StartsWith( "蜥蜴人"))print("物理伤害减免: "+ 物理伤害减免);
                 Damage -= 物理伤害减免;
                 break;
             case DamageType.火元素伤害:
@@ -696,12 +708,16 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         if (Hp <= 0)
         {
             IsDead = true;
-            transform.SetParent(BattleMgr.Ins.DeadParent);
+            StartCoroutine(延时设置死亡());
             BattleMgr.Ins.单位死亡时(IsEnemy);
-            BattleMgr.Ins.CheckBattleEnd();
-            if (BattleMgr.Ins.isBattling == false) return;
-            BattleMgr.Ins.SortBySpeed();
+            StartCoroutine(BattleMgr.Ins.CheckBattleEnd());
         }
+    }
+    public IEnumerator 延时设置死亡() 
+    {
+        yield return new WaitForSeconds(0.5f);
+        transform.SetParent(BattleMgr.Ins.DeadParent);
+        transform.localPosition = Vector3.zero;
     }
 
     public virtual void 受到攻击时()
@@ -790,7 +806,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public void 行动结束()
     {
         Anim.Play("idle");
-        BattleMgr.Ins.FindNextActionUnit();
+        StartCoroutine(等待字体动画结束());
     }
 
     public void AddBuff(BuffsEnum BuffName)

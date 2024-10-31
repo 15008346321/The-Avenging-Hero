@@ -18,7 +18,6 @@ public class 蜥蜴人 : Unit
             Unit t2 = BattleMgr.Ins.FindUnitOnCell(BattleMgr.Ins.Targets[0].Cell + 3, IsEnemy);
             if (t2!=null)
             {
-                print("Find t2");
                 BattleMgr.Ins.Targets.Add(t2);
             }
         }
