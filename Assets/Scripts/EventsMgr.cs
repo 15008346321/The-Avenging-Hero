@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -32,11 +33,12 @@ public class EventsMgr : MonoBehaviour
     float[] RoadRate = {0,50,0,10};//神像，战斗，公会，商店
     public int EventPoint, MaxEventPoint,shopCount = 0,campCount = 0, StatueIdx,StatueMbrIdx,PrayCount,BonusGold,Gold;
     public string monsters, bonus;
-    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP, PrayCountTMP,UIBonusGoldTMP,UIGoldTMP;
+    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP, PrayCountTMP,UIGoldTMP;
     public Transform RoadParentNode, EventParentNode, EventContentNode, EventResultNode,DailyNode,
-        ShopNode, StatueNode, StatueParent, StatueMbrParent;
+        ShopNode, StatueNode, StatueParent, StatueMbrParent,侧边栏父级;
     public static EventsMgr Ins;
     public bool IsMoveToBattle, IsMoveToStatue;
+    public List<TextMeshProUGUI> 侧边栏池;
 
     private void Awake()
     {
@@ -82,13 +84,50 @@ public class EventsMgr : MonoBehaviour
             var j = i;
             StatueBtns[i].onClick.AddListener(() => StatueIdx = j);
         }
-        //for (int i = 0; i < 4; i++)
-        //{
-        //    StatueMbrBtns[i] = StatueMbrParent.GetChild(i).GetComponent<Button>();
-        //    var j = i;
-        //    StatueMbrBtns[i].onClick.AddListener(() => StatueMbrIdx = j);
-        //}
+
+        //初始化奖励侧边栏
+        for (int i = 0; i < 侧边栏父级.childCount; i++)
+        {
+            TextMeshProUGUI tmp = 侧边栏父级.GetChild(i).GetComponent<TextMeshProUGUI>();
+            侧边栏池.Add(tmp);
+        }
     }
+
+    public void 获取空侧边栏并展示(string str,Action action = null)
+    {
+        for (int i = 0; i < 侧边栏池.Count; i++)
+        {
+            if (侧边栏池[i].text == "")
+            {
+                侧边栏动画(侧边栏池[i], str, action);
+                break;
+            }
+        }
+    }
+
+    private void 侧边栏动画(TextMeshProUGUI tmp,string str, Action action)
+    {
+        if (str.StartsWith("金币")) 
+        {
+            str = str.Replace("金币", "<sprite=\"coin\" index=0>");
+        }
+        tmp.text = str;
+
+        tmp.rectTransform.DOLocalMoveX(210, 0.5f).OnComplete(
+            () =>
+            {
+                tmp.rectTransform.DOLocalMoveX(0, 0.5f).SetDelay(1f).OnComplete
+                (
+                    () => {
+                        tmp.text = "";
+                        action?.Invoke();
+                        }
+                );
+            }
+        );
+        ExploreBtn.gameObject.SetActive(true);
+    }
+
 
     private void GenNewRoom()
     {
@@ -96,7 +135,7 @@ public class EventsMgr : MonoBehaviour
 
         RoadParentNode.gameObject.SetActive(true);
         //RoadParentNode.transform.localPosition = new Vector2(1200, 0);
-        var ran = Random.Range(0, 100);
+        var ran = UnityEngine.Random.Range(0, 100);
         int roomCount;
         //30概率只有一个房间
         if (ran < 30)
@@ -123,7 +162,7 @@ public class EventsMgr : MonoBehaviour
         {
             while (true)
             {
-                ran = Random.Range(0, 100);
+                ran = UnityEngine.Random.Range(0, 100);
                 if (ran < RoadRate[0])
                 {
                     if (done1) continue;
@@ -217,7 +256,7 @@ public class EventsMgr : MonoBehaviour
     public void SetRoadToBattle()
     {
         //设置敌人
-        var ranNum = Random.Range(0, LevelManager.Ins.CurrentLevel.Battles.Count);
+        var ranNum = UnityEngine.Random.Range(0, LevelManager.Ins.CurrentLevel.Battles.Count);
         BattleMgr.Ins.EnemysStr = LevelManager.Ins.CurrentLevel.Battles[ranNum][1];
         LevelManager.Ins.CurrentLevel.Battles.Remove(LevelManager.Ins.CurrentLevel.Battles[ranNum]);
         //生成
@@ -273,7 +312,7 @@ public class EventsMgr : MonoBehaviour
         //    AreaFinished = true;
         //    return;
         //}
-        int random = Random.Range(0, LevelManager.Ins.CurrentLevel.Events.Count - 1);
+        int random = UnityEngine.Random.Range(0, LevelManager.Ins.CurrentLevel.Events.Count - 1);
         //0id,1事件,21选择,31结果,41结算code,52选择,62结果,72结算code
         //Option方法读取currentEvent中数据
         currentEvent = LevelManager.Ins.CurrentLevel.Events[random];
@@ -397,23 +436,18 @@ public class EventsMgr : MonoBehaviour
         for (int i = 0; i < num; i++)
         {
             BonusGold += 2;
-            BonusGold += Random.Range(0, 2);
+            BonusGold += UnityEngine.Random.Range(0, 2);
         }
     }
 
     public void ShowBonus()
     {
-        SetBonusGold(TeamManager.Ins.EnemyData.Count);
-        UIBonusGoldTMP.text = "<sprite=\"coin\" index=0>+" + BonusGold;
-        UIBonusGoldTMP.transform.DOLocalMoveX(72, 0.5f).OnComplete(
-            () =>
-                {
-                    UIBonusGoldTMP.transform.DOLocalMoveX(-100, 0.5f).SetDelay(1f);
-                }
-        );
-        ExploreBtn.gameObject.SetActive(true);
-        Gold += BonusGold;
-        UIGoldTMP.text = Gold.ToString();
-        IsMoveToStatue = true;
+        获取空侧边栏并展示("金币+" + BonusGold, () => 
+        {
+            ExploreBtn.gameObject.SetActive(true);
+            Gold += BonusGold;
+            UIGoldTMP.text = Gold.ToString();
+            IsMoveToStatue = true;
+        });
     }
 }

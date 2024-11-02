@@ -26,6 +26,6 @@ public class 史莱姆 : Unit
 
         IsDead = true;
         transform.SetParent(BattleMgr.Ins.DeadParent);
-        StatePoolMgr.Ins.状态(this, "分裂+");
+        StatePoolMgr.Ins.状态(this, "分裂");
     }
 }

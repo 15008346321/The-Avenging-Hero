@@ -789,6 +789,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public virtual void OnBattleStart()
     {
     }
+    public virtual void 战斗结束时()
+    {
+    }
     public void OnTurnEnd()
     {
         for (int i = 0; i < BuffsList.Count; i++)

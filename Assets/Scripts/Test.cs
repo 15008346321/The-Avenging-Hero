@@ -20,14 +20,23 @@ public class Test : MonoBehaviour
     public List<GameObject> GL = new();
     public Dictionary<int, int> id = new Dictionary<int, int>();
 
-    public void Test13()
+    public void Atk999()
     {
-        unit.Anim.Play("idle");
+        foreach (var item in BattleMgr.Ins.Team)
+        {
+            item.Atk = 999;
+            item.Speed = 99;
+        }
+        EventsMgr.Ins.Gold += 100;
     }
-    public void Test12()
-    {
-        unit.Anim.Play("atk");
-    }
+    //public void Test13()
+    //{
+    //    unit.Anim.Play("idle");
+    //}
+    //public void Test12()
+    //{
+    //    unit.Anim.Play("atk");
+    //}
 
     //public void Test10()
     //{

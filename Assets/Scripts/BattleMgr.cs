@@ -108,6 +108,12 @@ public class BattleMgr : MonoBehaviour
     public Unit SummonCreator(GameObject obj,bool IsEnemy, float ScaleRate)
     {
         var Summon = Instantiate(obj);
+        Transform t = GetNoUnitSlot(IsEnemy);
+        if (t == null)
+        {
+            return null;
+        }
+
         Summon.transform.SetParent(GetNoUnitSlot(IsEnemy));
         Summon.transform.localPosition = Vector3.zero;
         Summon.transform.localScale *= ScaleRate;
@@ -212,10 +218,11 @@ public class BattleMgr : MonoBehaviour
     public void OnTurnStart()
     {
         isBattling = true;
-        foreach (var item in AllUnit)
+
+        for (int i = 0; i < AllUnit.Count; i++)
         {
-            item.ReloadAtk();
-            item.OnTurnStart();
+            AllUnit[i].ReloadAtk();
+            AllUnit[i].OnTurnStart();
         }
         FindNextActionUnit();
     }
@@ -427,11 +434,13 @@ public class BattleMgr : MonoBehaviour
         //胜利
         if (Enemys.All(item => item.IsDead == true))
         {
+            EventsMgr.Ins.SetBonusGold(TeamManager.Ins.EnemyData.Count);
             EventsMgr.Ins.ShowBonus();
             ResetBattle();
             InitTeam(false);
             isBattling = false;
             BattleBtn.gameObject.SetActive(false);
+            战斗结束时();
         }
         //失败
         else if(Team.All(item => item.IsDead == true))
@@ -443,8 +452,19 @@ public class BattleMgr : MonoBehaviour
             isBattling = false;
             ResetBattle();
             BattleBtn.gameObject.SetActive(false);
+            战斗结束时();
         }
     }
+
+    public void 战斗结束时() 
+    {
+        for (int i = 0; i < AllUnit.Count; i++)
+        {
+            if (AllUnit[i].IsDead == true) continue;
+            AllUnit[i].战斗结束时();
+        }
+    }
+
 
     public void OnTurnEnd()
     {
