@@ -24,7 +24,6 @@ public class TeamManager : MonoBehaviour
         BloodName,
         BloodPoint;
     public TextMeshProUGUI SkillInfoTMP;
-    public Image DetailIcon;
     public Image[] 
         MbrImgs = new Image[4], 
         DetailImgs = new Image[5], 
@@ -34,7 +33,7 @@ public class TeamManager : MonoBehaviour
     public int CurrMbrIdx,BloodInsNum = 14;
     public bool TagChanged = true;
     public Transform BloodParent;
-    public GameObject TeamNode,DetailNode,TagPrefab,BloodPrefab;
+    public GameObject TeamNode,DetailNode,BloodPrefab;
     public List<TextMeshProUGUI[]> TagNodes = new();
 
     //TODO 火属性额外伤害， 水属性生命上限治疗效果，风属性速度，雷属性魔抗，土属性物抗护盾 在血脉中实现

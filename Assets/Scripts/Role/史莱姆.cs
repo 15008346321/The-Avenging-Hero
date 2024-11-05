@@ -9,7 +9,7 @@ public class 史莱姆 : Unit
     public override void 受到攻击时()
     {
         base.受到攻击时();
-        if (Hp * 2 < MaxHp)
+        if (Hp * 2 < MaxHp && !技能1已触发)
         {
             分裂();
         }
@@ -17,15 +17,19 @@ public class 史莱姆 : Unit
 
     public void 分裂()
     {
-        if (IsSkillTriggered) return;
-
-        Unit u1 = BattleMgr.Ins.SummonCreator(gameObject, IsEnemy, 0.8f);
-        u1.IsSkillTriggered = true;
-        Unit u2 = BattleMgr.Ins.SummonCreator(gameObject, IsEnemy, 0.8f);
-        u2.IsSkillTriggered = true;
-
         IsDead = true;
+        技能1已触发 = true;
         transform.SetParent(BattleMgr.Ins.DeadParent);
         StatePoolMgr.Ins.状态(this, "分裂");
+
+        UnitData data = new UnitData(CSVManager.Ins.Units["史莱姆"], Cell);
+
+        Unit u1 = BattleMgr.Ins.InitRole(data, 该单位是否是玩家阵营);
+        u1.技能1已触发 = true;
+        u1.transform.localScale = Vector3.one*0.8f;
+
+        Unit u2 = BattleMgr.Ins.InitRole(data, 该单位是否是玩家阵营);
+        u2.技能1已触发 = true;
+        u2.transform.localScale = Vector3.one * 0.8f;
     }
 }

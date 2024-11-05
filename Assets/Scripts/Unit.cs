@@ -14,7 +14,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public int Cell, Damage, AtkCountMax, AtkCountCurr, SkillPoint, SkillPointMax, 物理伤害减免;
     public float Hp, MaxHp, Atk, Shield, Speed;
     public string Element;
-    public bool isBoss, IsDead,IsEnemy,IsEnterUnitMove, IsSkillTriggered, IsSkillReady,IsAtkChanged;
+    public bool isBoss, IsDead,该单位是否是玩家阵营,IsEnterUnitMove, 技能1已触发, 技能2已触发, IsSkillReady,IsAtkChanged,动画播放完毕;
     public List<Buff> BuffsList = new();
     public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
@@ -51,6 +51,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         ClickImage.enabled = false;
         ClickBlock = transform.Find("Canvas/ClickBlock").gameObject;
         ClickBlock.SetActive(false);
+
+        动画播放完毕 = true;
     }
 
     #region====初始化方法
@@ -217,26 +219,23 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     }
     #endregion
     #region ====战斗中移动
-    public void UnitMove(int TargetCell)
+    public void 单位移动(int TargetCell)
     {
         IsEnterUnitMove = true;
-        GameObject Our;
-        GameObject Ene;
-        if (!IsEnemy)
+        GameObject obj;
+        if (该单位是否是玩家阵营)
         {
-            Our = BattleMgr.Ins.ourObj;
-            Ene = BattleMgr.Ins.eneObj;
+            obj = BattleMgr.Ins.ourObj;
         }
         else
         {
-            Our = BattleMgr.Ins.eneObj;
-            Ene = BattleMgr.Ins.ourObj;
+            obj = BattleMgr.Ins.eneObj;
         }
         Anim.enabled = false;
-        transform.DOMove(Our.transform.GetChild(TargetCell - 1).position, 1f).OnComplete(
+        transform.DOMove(obj.transform.GetChild(TargetCell - 1).position, 1f).OnComplete(
             () => 
             {
-                transform.SetParent(Our.transform.GetChild(TargetCell - 1));
+                transform.SetParent(obj.transform.GetChild(TargetCell - 1));
                 Cell = TargetCell;
                 Anim.enabled = true;
                 StartCoroutine(等待字体动画结束());
@@ -247,182 +246,184 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     internal void MoveToEnemyFrontRow()
     {
         IsEnterUnitMove = false;
-        GameObject Our;
-        GameObject Ene;
-        if (!IsEnemy)
+        GameObject 该单位阵营;
+        GameObject 敌对阵营;
+        if (该单位是否是玩家阵营)
         {
-            Our = BattleMgr.Ins.ourObj;
-            Ene = BattleMgr.Ins.eneObj;
+            该单位阵营 = BattleMgr.Ins.ourObj;
+            敌对阵营 = BattleMgr.Ins.eneObj;
         }
         else
         {
-            Our = BattleMgr.Ins.eneObj;
-            Ene = BattleMgr.Ins.ourObj;
+            该单位阵营 = BattleMgr.Ins.eneObj;
+            敌对阵营 = BattleMgr.Ins.ourObj;
         }
         //GetChild(Cell) 1位置移动到2 2cell的index是1
         if (Cell == 1)
         {
             //2有空去2
-            if (Our.transform.GetChild(1).childCount == 0)
+            if (该单位阵营.transform.GetChild(1).childCount == 0)
             {
-                UnitMove(2);
+                单位移动(2);
             }
             //4有空去4
-            else if (Our.transform.GetChild(3).childCount == 0)
+            else if (该单位阵营.transform.GetChild(3).childCount == 0)
             {
-                UnitMove(4);
+                单位移动(4);
             }
         }
         else if (Cell == 3)
         {
+            print(name + "zai 3");
+            print("该单位阵营" + 该单位阵营.name);
             //2有空去2
-            if (Our.transform.GetChild(1).childCount == 0)
+            if (该单位阵营.transform.GetChild(1).childCount == 0)
             {
-                UnitMove(2);
+                单位移动(2);
             }
             //6有空去6
-            else if (Our.transform.GetChild(5).childCount == 0)
+            else if (该单位阵营.transform.GetChild(5).childCount == 0)
             {
-                UnitMove(6);
+                单位移动(6);
             }
         }
         else if (Cell == 7)
         {
             //8有空去8
-            if (Our.transform.GetChild(7).childCount == 0)
+            if (该单位阵营.transform.GetChild(7).childCount == 0)
             {
-                UnitMove(8);
+                单位移动(8);
             }
             //4有空去4
-            else if (Our.transform.GetChild(3).childCount == 0)
+            else if (该单位阵营.transform.GetChild(3).childCount == 0)
             {
-                UnitMove(4);
+                单位移动(4);
             }
         }
         else if (Cell == 9)
         {
             //8有空去8
-            if (Our.transform.GetChild(7).childCount == 0)
+            if (该单位阵营.transform.GetChild(7).childCount == 0)
             {
-                UnitMove(8);
+                单位移动(8);
             }
             //6有空去6
-            else if (Our.transform.GetChild(5).childCount == 0)
+            else if (该单位阵营.transform.GetChild(5).childCount == 0)
             {
-                UnitMove(6);
+                单位移动(6);
             }
         }
         else if (Cell == 4)
         {
             //5有空去5
-            if (Our.transform.GetChild(4).childCount == 0)
+            if (该单位阵营.transform.GetChild(4).childCount == 0)
             {
-                UnitMove(5);
+                单位移动(5);
             }
             //12有空 移动到1
-            else if (Our.transform.GetChild(0).childCount == 0 && Our.transform.GetChild(1).childCount == 0)
+            else if (该单位阵营.transform.GetChild(0).childCount == 0 && 该单位阵营.transform.GetChild(1).childCount == 0)
             {
-                UnitMove(1);
+                单位移动(1);
             }
             //78有空 移动到7
-            else if (Our.transform.GetChild(6).childCount == 0 && Our.transform.GetChild(7).childCount == 0)
+            else if (该单位阵营.transform.GetChild(6).childCount == 0 && 该单位阵营.transform.GetChild(7).childCount == 0)
             {
-                UnitMove(7);
+                单位移动(7);
             }
         }
         else if (Cell == 6)
         {
             //5有空去5
-            if (Our.transform.GetChild(4).childCount == 0)
+            if (该单位阵营.transform.GetChild(4).childCount == 0)
             {
-                UnitMove(5);
+                单位移动(5);
             }
             //23有空 移动到3
-            else if (Our.transform.GetChild(2).childCount == 0 && Our.transform.GetChild(1).childCount == 0)
+            else if (该单位阵营.transform.GetChild(2).childCount == 0 && 该单位阵营.transform.GetChild(1).childCount == 0)
             {
-                UnitMove(3);
+                单位移动(3);
             }
             //89有空 移动到9
-            else if (Our.transform.GetChild(8).childCount == 0 && Our.transform.GetChild(7).childCount == 0)
+            else if (该单位阵营.transform.GetChild(8).childCount == 0 && 该单位阵营.transform.GetChild(7).childCount == 0)
             {
-                UnitMove(9);
+                单位移动(9);
             }
         }
         else if (Cell == 2)
         {
             //1有空 上路有敌人去1
-            if (Our.transform.GetChild(0).childCount == 0 
-                && (Ene.transform.GetChild(0).childCount > 0 || Ene.transform.GetChild(3).childCount > 0 || Ene.transform.GetChild(6).childCount > 0))
+            if (该单位阵营.transform.GetChild(0).childCount == 0 
+                && (敌对阵营.transform.GetChild(0).childCount > 0 || 敌对阵营.transform.GetChild(3).childCount > 0 || 敌对阵营.transform.GetChild(6).childCount > 0))
             {
-                UnitMove(1);
+                单位移动(1);
             }
             //3有空下路有敌人 去3
-            else if (Our.transform.GetChild(2).childCount == 0 
-                && (Ene.transform.GetChild(2).childCount > 0 || Ene.transform.GetChild(5).childCount > 0 || Ene.transform.GetChild(8).childCount > 0))
+            else if (该单位阵营.transform.GetChild(2).childCount == 0 
+                && (敌对阵营.transform.GetChild(2).childCount > 0 || 敌对阵营.transform.GetChild(5).childCount > 0 || 敌对阵营.transform.GetChild(8).childCount > 0))
             {
-                UnitMove(3);
+                单位移动(3);
             }
             //上面都不满足 5有空去5
-            else if (Our.transform.GetChild(4).childCount == 0)
+            else if (该单位阵营.transform.GetChild(4).childCount == 0)
             {
-                UnitMove(5);
+                单位移动(5);
             }
         }
         else if (Cell == 8)
         {
             //7有空 上路有敌人去7
-            if (Our.transform.GetChild(6).childCount == 0
-                && (Ene.transform.GetChild(0).childCount > 0 || Ene.transform.GetChild(3).childCount > 0 || Ene.transform.GetChild(6).childCount > 0))
+            if (该单位阵营.transform.GetChild(6).childCount == 0
+                && (敌对阵营.transform.GetChild(0).childCount > 0 || 敌对阵营.transform.GetChild(3).childCount > 0 || 敌对阵营.transform.GetChild(6).childCount > 0))
             {
-                UnitMove(7);
+                单位移动(7);
             }
             //9有空下路有敌人 去9
-            else if (Our.transform.GetChild(8).childCount == 0
-                && (Ene.transform.GetChild(2).childCount > 0 || Ene.transform.GetChild(5).childCount > 0 || Ene.transform.GetChild(8).childCount > 0))
+            else if (该单位阵营.transform.GetChild(8).childCount == 0
+                && (敌对阵营.transform.GetChild(2).childCount > 0 || 敌对阵营.transform.GetChild(5).childCount > 0 || 敌对阵营.transform.GetChild(8).childCount > 0))
             {
-                UnitMove(9);
+                单位移动(9);
             }
             //上面都不满足 5有空去5
-            else if (Our.transform.GetChild(4).childCount == 0)
+            else if (该单位阵营.transform.GetChild(4).childCount == 0)
             {
-                UnitMove(5);
+                单位移动(5);
             }
         }
         else if (Cell == 5)
         {
             //4有空 上路有敌人去4
-            if (Our.transform.GetChild(3).childCount == 0 && (Ene.transform.GetChild(0).childCount > 0 || Ene.transform.GetChild(3).childCount > 0 || Ene.transform.GetChild(6).childCount > 0))
+            if (该单位阵营.transform.GetChild(3).childCount == 0 && (敌对阵营.transform.GetChild(0).childCount > 0 || 敌对阵营.transform.GetChild(3).childCount > 0 || 敌对阵营.transform.GetChild(6).childCount > 0))
             {
-                UnitMove(4);
+                单位移动(4);
             }
             //6有空 下路有敌人去6
-            else if (Our.transform.GetChild(5).childCount == 0 && (Ene.transform.GetChild(2).childCount > 0 || Ene.transform.GetChild(5).childCount > 0 || Ene.transform.GetChild(8).childCount > 0))
+            else if (该单位阵营.transform.GetChild(5).childCount == 0 && (敌对阵营.transform.GetChild(2).childCount > 0 || 敌对阵营.transform.GetChild(5).childCount > 0 || 敌对阵营.transform.GetChild(8).childCount > 0))
             {
-                UnitMove(6);
+                单位移动(6);
             }
             //4没空 上路有敌人 12有空 去2
-            else if (Our.transform.GetChild(3).childCount > 0 && Our.transform.GetChild(0).childCount == 0 && Our.transform.GetChild(1).childCount == 0
-                &&(Ene.transform.GetChild(0).childCount > 0 || Ene.transform.GetChild(3).childCount > 0 || Ene.transform.GetChild(6).childCount > 0))
+            else if (该单位阵营.transform.GetChild(3).childCount > 0 && 该单位阵营.transform.GetChild(0).childCount == 0 && 该单位阵营.transform.GetChild(1).childCount == 0
+                &&(敌对阵营.transform.GetChild(0).childCount > 0 || 敌对阵营.transform.GetChild(3).childCount > 0 || 敌对阵营.transform.GetChild(6).childCount > 0))
             {
-                UnitMove(2);
+                单位移动(2);
             }
             //4没空 上路有敌人 78有空 去8
-            else if (Our.transform.GetChild(3).childCount > 0 && Our.transform.GetChild(8).childCount == 0 && Our.transform.GetChild(7).childCount == 0
-                && (Ene.transform.GetChild(0).childCount > 0 || Ene.transform.GetChild(3).childCount > 0 || Ene.transform.GetChild(6).childCount > 0))
+            else if (该单位阵营.transform.GetChild(3).childCount > 0 && 该单位阵营.transform.GetChild(8).childCount == 0 && 该单位阵营.transform.GetChild(7).childCount == 0
+                && (敌对阵营.transform.GetChild(0).childCount > 0 || 敌对阵营.transform.GetChild(3).childCount > 0 || 敌对阵营.transform.GetChild(6).childCount > 0))
             {
-                UnitMove(8);
+                单位移动(8);
             }
             //6没空 下路有敌人 23有空 去2
-            else if (Our.transform.GetChild(5).childCount > 0 && Our.transform.GetChild(2).childCount == 0 && Our.transform.GetChild(1).childCount == 0
-                && (Ene.transform.GetChild(2).childCount > 0 || Ene.transform.GetChild(5).childCount > 0 || Ene.transform.GetChild(8).childCount > 0))
+            else if (该单位阵营.transform.GetChild(5).childCount > 0 && 该单位阵营.transform.GetChild(2).childCount == 0 && 该单位阵营.transform.GetChild(1).childCount == 0
+                && (敌对阵营.transform.GetChild(2).childCount > 0 || 敌对阵营.transform.GetChild(5).childCount > 0 || 敌对阵营.transform.GetChild(8).childCount > 0))
             {
-                UnitMove(2);
+                单位移动(2);
             }
             //6没空 下路有敌人 89有空 去8
-            else if (Our.transform.GetChild(5).childCount > 0 && Our.transform.GetChild(8).childCount == 0 && Our.transform.GetChild(7).childCount == 0
-                && (Ene.transform.GetChild(2).childCount > 0 || Ene.transform.GetChild(5).childCount > 0 || Ene.transform.GetChild(8).childCount > 0))
+            else if (该单位阵营.transform.GetChild(5).childCount > 0 && 该单位阵营.transform.GetChild(8).childCount == 0 && 该单位阵营.transform.GetChild(7).childCount == 0
+                && (敌对阵营.transform.GetChild(2).childCount > 0 || 敌对阵营.transform.GetChild(5).childCount > 0 || 敌对阵营.transform.GetChild(8).childCount > 0))
             {
-                UnitMove(8);
+                单位移动(8);
             }
         }
         if (!IsEnterUnitMove)
@@ -498,6 +499,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 #region====战斗方法
     public virtual void ExecuteAtk()
     {
+
         Buff 盲目 = BuffsList.Find(item => item.Name == BuffsEnum.盲目);
         if (盲目 != null)
         {
@@ -513,6 +515,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
         else
         {
+            动画播放完毕 = false;
             Anim.Play("atk");//后面两方法在动画帧后段调用
         }
     }
@@ -520,7 +523,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //特殊攻击目标需要重写 默认正前方 
     public virtual void 获取攻击目标()
     {
-        BattleMgr.Ins.获取正前方目标(IsEnemy,Cell);
+        BattleMgr.Ins.获取正前方目标(该单位是否是玩家阵营,Cell);
     }
 
     //如果攻击有特殊逻辑则重写 动画上调用
@@ -540,7 +543,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         //需要重写实现逻辑
         获取技能目标();
 
-
         //之后调用base执行下面代码 把技能点消了
         SkillPoint = 0;
         foreach (var item in SkillPointIcon)
@@ -550,13 +552,14 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         IsSkillReady = false;
 
         //动画中会执行 技能帧();
+        动画播放完毕 = false;
         Anim.Play("skill", 0, 0);
     }
 
     //需要重写 默认正前方目标 
     public virtual void 获取技能目标() 
     {
-        BattleMgr.Ins.获取正前方目标(IsEnemy, Cell);
+        BattleMgr.Ins.获取正前方目标(该单位是否是玩家阵营, Cell);
     }
     public virtual void 技能帧()
     {
@@ -709,7 +712,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         {
             IsDead = true;
             StartCoroutine(延时设置死亡());
-            BattleMgr.Ins.单位死亡时(IsEnemy);
+            BattleMgr.Ins.单位死亡时(该单位是否是玩家阵营);
             StartCoroutine(BattleMgr.Ins.CheckBattleEnd());
         }
     }
@@ -733,7 +736,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     }
 
-    public virtual void 单位死亡时(bool isEnemy) 
+    public virtual void 单位死亡时(bool 死亡单位是否是玩家阵营) 
     { 
     }
 
@@ -786,7 +789,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
             //item.RcEarth();
         }
     }
-    public virtual void OnBattleStart()
+    public virtual void 战斗开始时()
     {
     }
     public virtual void 战斗结束时()
@@ -809,6 +812,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public void 行动结束()
     {
         Anim.Play("idle");
+        动画播放完毕 = true;
         StartCoroutine(等待字体动画结束());
     }
 

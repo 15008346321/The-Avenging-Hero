@@ -22,7 +22,7 @@ public class Test : MonoBehaviour
 
     public void Atk999()
     {
-        foreach (var item in BattleMgr.Ins.Team)
+        foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
         {
             item.Atk = 999;
             item.Speed = 99;

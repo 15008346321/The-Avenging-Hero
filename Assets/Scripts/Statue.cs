@@ -217,7 +217,7 @@ public class Statue : MonoBehaviour
         //展示属性变化
         //隐藏
         //出探索按钮
-        foreach (var item in BattleMgr.Ins.Team)
+        foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
         {
             item.transform.SetParent(item.RunPosParent);
             item.transform.localPosition = Vector2.zero;
@@ -231,7 +231,7 @@ public class Statue : MonoBehaviour
 
     public void RequireCheck()
     {
-        foreach (var item in BattleMgr.Ins.Team)
+        foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
         {
             item.ClickBlock.SetActive(false);
             item.Btn.enabled = true;
@@ -248,7 +248,7 @@ public class Statue : MonoBehaviour
         }
 
         print("StatueNum.Length " + StatueNum.Length);
-        foreach (Unit u in BattleMgr.Ins.Team)
+        foreach (Unit u in BattleMgr.Ins.玩家阵营单位列表)
         {
             if (u.transform.parent.CompareTag("PrayPos")) continue;
             switch (StatueNum[idx])

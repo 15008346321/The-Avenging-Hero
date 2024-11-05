@@ -6,22 +6,23 @@ using UnityEngine;
 public class 战士 : Unit
 {
     // Start is called before the first frame update
-    List<int> BehindCells = new() { 7,8,9 };
-    public bool 找到击退目标 = false;
+    public bool 可以击退当前单个目标 = false;
     public override void 获取攻击目标()
     {
         base.获取攻击目标();
         if(BattleMgr.Ins.Targets.Count > 0)
         {
-            Unit t2 = BattleMgr.Ins.FindUnitOnCell(BattleMgr.Ins.Targets[0].Cell + 3, IsEnemy);
+            //看目标后一个有没有单位
+            Unit t2 = BattleMgr.Ins.查找敌对阵营指定位置上单位(BattleMgr.Ins.Targets[0].Cell + 3, 该单位是否是玩家阵营);
             if (t2 != null)
             {
                 BattleMgr.Ins.Targets.Add(t2);
-                找到击退目标 = false;
+                可以击退当前单个目标 = false;
             }
             else
             {
-                找到击退目标 = true;
+                //目标后面空的就可以击退
+                可以击退当前单个目标 = true;
             }
         }
     }
@@ -34,20 +35,20 @@ public class 战士 : Unit
 
     public void 击退()
     {
-        if (!找到击退目标) return;
-        if (!BehindCells.Contains(BattleMgr.Ins.Targets[0].Cell))
+        if (!可以击退当前单个目标) return;
+        if (!BattleMgr.Ins.Col3.Contains(BattleMgr.Ins.Targets[0].Cell))
         {
-            GameObject side;
-            if (BattleMgr.Ins.Targets[0].IsEnemy)
+            GameObject FIndIn;
+            if (BattleMgr.Ins.Targets[0].该单位是否是玩家阵营)
             {
-                side = BattleMgr.Ins.eneObj;
+                FIndIn = BattleMgr.Ins.ourObj;
             }
             else
             {
-                side = BattleMgr.Ins.ourObj;
+                FIndIn = BattleMgr.Ins.eneObj;
             }
             //下标0开始 所以只+2
-            Transform newParent = side.transform.GetChild(BattleMgr.Ins.Targets[0].Cell + 2);
+            Transform newParent = FIndIn.transform.GetChild(BattleMgr.Ins.Targets[0].Cell + 2);
             BattleMgr.Ins.Targets[0].Cell = BattleMgr.Ins.Targets[0].Cell + 3;
             BattleMgr.Ins.Targets[0].transform.parent = newParent;
             BattleMgr.Ins.Targets[0].transform.DOLocalMoveX(0, 0.5f);

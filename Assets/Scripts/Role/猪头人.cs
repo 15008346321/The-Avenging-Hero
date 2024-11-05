@@ -7,9 +7,9 @@ public class 猪头人 : Unit
 {
     // Start is called before the first frame update
 
-    public override void 单位死亡时(bool isEnemy)
+    public override void 单位死亡时(bool 死亡单位是否是玩家阵营)
     {
-        if (IsEnemy != isEnemy)
+        if (该单位是否是玩家阵营 != 死亡单位是否是玩家阵营)
         {
             OriData.MaxHp += 1;
             MaxHp += 1;

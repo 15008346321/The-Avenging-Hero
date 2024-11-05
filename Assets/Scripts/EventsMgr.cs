@@ -17,14 +17,11 @@ public class EventsMgr : MonoBehaviour
     string[] currentEvent;
     Image[] RoadImage = new Image[2];
     public Image FadeImg;
-    public Button ExploreBtn,StatuePrayBtn;
+    public Button ExploreBtn;
     public Button[]
-        RoadBtns   = new Button[2],
-        EventBtns  = new Button[2],
-        BattleBtns = new Button[2],
-        StatueBtns = new Button[8],
-        StatueMbrBtns = new Button[4],
-        RelicsBtns = new Button[3];
+        RoadBtns = new Button[2],
+        EventBtns = new Button[2],
+        StatueBtns = new Button[3];
     TextMeshProUGUI[]
         RoadsTitleTMPs     = new TextMeshProUGUI[3],
         EventChooseTMPs    = new TextMeshProUGUI[2],
@@ -35,7 +32,7 @@ public class EventsMgr : MonoBehaviour
     public string monsters, bonus;
     public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP, PrayCountTMP,UIGoldTMP;
     public Transform RoadParentNode, EventParentNode, EventContentNode, EventResultNode,DailyNode,
-        ShopNode, StatueNode, StatueParent, StatueMbrParent,侧边栏父级;
+        ShopNode, StatueNode, StatueParent,侧边栏父级;
     public static EventsMgr Ins;
     public bool IsMoveToBattle, IsMoveToStatue;
     public List<TextMeshProUGUI> 侧边栏池;
@@ -385,7 +382,7 @@ public class EventsMgr : MonoBehaviour
             //进入战斗 或者  探索
             if (IsMoveToBattle)
             {
-                BattleMgr.Ins.InitTeam(true);
+                BattleMgr.Ins.InitTeam(false);
                 RoadParentNode.gameObject.SetActive(false);
             }
             else if (IsMoveToStatue)
@@ -418,7 +415,7 @@ public class EventsMgr : MonoBehaviour
                 }
                 if (IsMoveToStatue)
                 {
-                    foreach (var item in BattleMgr.Ins.Team)
+                    foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
                     {
                         item.ClickImage.enabled = true;
                     }

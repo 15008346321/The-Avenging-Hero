@@ -13376,7 +13376,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &754404215
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14360,9 +14360,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a4c639d0dd15294bbcd54831192bd57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Team: []
+  "\u73A9\u5BB6\u9635\u8425\u5355\u4F4D\u5217\u8868": []
   TeamMain: []
-  Enemys: []
+  RightSide: []
   EnemyMain: []
   AllUnit: []
   Targets: []
@@ -14375,7 +14375,6 @@ MonoBehaviour:
   AnimQueue: []
   TimeCout: 0
   CurrTime: 0
-  MainTarget: {fileID: 0}
   ourObj: {fileID: 2079651722}
   eneObj: {fileID: 1506859505}
   Tips: {fileID: 901874295}
@@ -14396,7 +14395,8 @@ MonoBehaviour:
   "\u6B63\u5728\u6218\u6597": 0
   "\u6B63\u5728\u8FFD\u6253": 0
   isBattling: 0
-  isBattleStart: 0
+  "\u6218\u6597\u5F00\u59CB\u65F6\u7279\u6548\u5DF2\u89E6\u53D1": 0
+  "\u9700\u8981\u7B49\u5F85\u6218\u6597\u5F00\u59CB\u534F\u7A0B": 0
   BattleBtn: {fileID: 1436346658}
   PosSlots:
   - {fileID: 1439354304}
@@ -21092,7 +21092,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1155902972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30766,7 +30766,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   SkillInfoTMP: {fileID: 118991051}
-  DetailIcon: {fileID: 0}
   MbrImgs:
   - {fileID: 1760918261}
   - {fileID: 0}
@@ -30804,7 +30803,6 @@ MonoBehaviour:
   BloodParent: {fileID: 2002099678}
   TeamNode: {fileID: 1450928928}
   DetailNode: {fileID: 446119795}
-  TagPrefab: {fileID: 0}
   BloodPrefab: {fileID: 2059148669383123856, guid: 5aae666218e072c448e4a4fd1ba41a11, type: 3}
 --- !u!114 &1659047782
 MonoBehaviour:
@@ -30813,7 +30811,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1659047779}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca4a826e18360494eb1f98bdf21976b9, type: 3}
   m_Name: 
@@ -30974,7 +30972,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1684852321
 RectTransform:
   m_ObjectHideFlags: 0
@@ -35848,7 +35846,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2000938245
 RectTransform:
   m_ObjectHideFlags: 0
@@ -37816,31 +37814,13 @@ MonoBehaviour:
   - "\u571F\u5143\u7D20"
   FadeImg: {fileID: 898448494}
   ExploreBtn: {fileID: 105401399}
-  StatuePrayBtn: {fileID: 0}
   RoadBtns:
   - {fileID: 445306984}
   - {fileID: 25396083}
   EventBtns:
   - {fileID: 0}
   - {fileID: 0}
-  BattleBtns:
-  - {fileID: 0}
-  - {fileID: 0}
   StatueBtns:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  StatueMbrBtns:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  RelicsBtns:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -37870,7 +37850,6 @@ MonoBehaviour:
   ShopNode: {fileID: 585905720}
   StatueNode: {fileID: 177836230}
   StatueParent: {fileID: 1700755944}
-  StatueMbrParent: {fileID: 0}
   "\u4FA7\u8FB9\u680F\u7236\u7EA7": {fileID: 777440120}
   IsMoveToBattle: 0
   IsMoveToStatue: 0

@@ -8,16 +8,15 @@ using UnityEngine.UI;
 
 public class BattleMgr : MonoBehaviour
 {
-    public List<Unit> Team = new(), TeamMain = new(), Enemys = new(), EnemyMain = new(), AllUnit = new(), Targets = new();
+    public List<Unit> 玩家阵营单位列表 = new(), TeamMain = new(), 敌人阵营单位列表 = new(), EnemyMain = new(), AllUnit = new(), Targets = new();
     public List<int> TopRow = new() { 1, 4, 7 }, MidRow = new() { 2, 5, 8 }, BotRow = new() { 3, 6, 9 }, Col1 = new() { 1, 2, 3 }, Col2 = new() { 4, 5, 6 }, Col3 = new() { 7, 8, 9 };
     public List<string> AnimQueue = new();
     public float TimeCout, CurrTime;
-    public Unit MainTarget;
     public GameObject ourObj, eneObj, Tips, CombDetailPrefab;
     public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos,DeadParent;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount,CombDetailCount;
     public string 当前追打状态, EnemysStr;
-    public bool isOurTurn,正在战斗,正在追打,isBattling,isBattleStart;
+    public bool isOurTurn, 正在战斗, 正在追打, isBattling, 战斗开始时特效已触发, 需要等待战斗开始协程;
     public Button BattleBtn;
     public Image[] PosSlots = new Image[9], CombDetailImgs = new Image[6];
     public TextMeshProUGUI[] CombDetailTMP = new TextMeshProUGUI[6];
@@ -43,11 +42,11 @@ public class BattleMgr : MonoBehaviour
         BattleBtn.onClick.AddListener(OnBattleClick);
     }
 
-    public void InitTeam(bool IsEnemy = false)
+    public void InitTeam(bool 是否是玩家阵营 = true)
     {
-
+        //获取小队数据或敌人数据
         List<UnitData> Datas;
-        if (!IsEnemy)
+        if (是否是玩家阵营)
         {
             Datas = TeamManager.Ins.TeamData;
         }
@@ -60,49 +59,83 @@ public class BattleMgr : MonoBehaviour
             {
 
                 string Name = item.Split('P')[0];
-                int Pos = int.Parse(item.Split('P')[1]);
+                int Cell = int.Parse(item.Split('P')[1]);
 
-                TeamManager.Ins.EnemyData.Add(new UnitData(CSVManager.Ins.Units[Name], Pos));
+                TeamManager.Ins.EnemyData.Add(new UnitData(CSVManager.Ins.Units[Name], Cell));
             }
             Datas = TeamManager.Ins.EnemyData;
         }
-
+        //根据data实例化
         for (int i = 0; i < Datas.Count; i++)
         {
-            string uname = Datas[i].Name;
-
-            GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
-            Unit u = Instantiate(g).transform.GetComponent<Unit>();
-            u.name +=  u.GetInstanceID();
-            u.OriData = Datas[i];//修改属性 存档时修改
-            u.Cell = Datas[i].Cell;
-            u.Init(Datas[i]);//把data属性赋予unit
-            //ourObj.transform.GetChild(u.Cell - 1)
-            if (!IsEnemy)
-            {
-                u.StartParent = OurRunningPos.GetChild(i);
-                u.transform.SetParent(OurRunningPos.GetChild(i));
-                u.RunPosParent = u.transform.parent;
-                u.transform.localScale = new Vector2(1,1);
-                u.IsEnemy = false;
-                u.TMP.tag = "Our";
-                Team.Add(u);
-            }
-            else
-            {
-                u.transform.SetParent(eneObj.transform.GetChild(u.Cell - 1));
-                u.transform.localScale = new Vector2(-1,1);
-
-                u.TMP.transform.localScale = new Vector2(-1,1);
-                u.HpBar.transform.localScale = new Vector2(-1, 1);
-                u.ShieldBar.transform.localScale = new Vector2(-1, 1);
-                u.SpeedTMP.transform.parent.localScale = new Vector2(-1, 1);
-                u.IsEnemy = true;
-                Enemys.Add(u);
-            }
-            u.transform.localPosition = Vector2.zero;
-            AllUnit.Add(u);
+            InitRole(Datas[i], 是否是玩家阵营);
         }
+        //如果是小队放到移动位置上
+        if (是否是玩家阵营)
+        {
+            for (int i = 0; i < 玩家阵营单位列表.Count; i++)
+            {
+                玩家阵营单位列表[i].StartParent = OurRunningPos.GetChild(i);
+                玩家阵营单位列表[i].transform.SetParent(玩家阵营单位列表[i].StartParent);
+                玩家阵营单位列表[i].RunPosParent = 玩家阵营单位列表[i].transform.parent;
+                玩家阵营单位列表[i].transform.localPosition = Vector2.zero;
+            }
+        }
+
+    }
+
+    public Unit InitRole(UnitData data, bool _该单位是否是玩家阵营)
+    {
+        string uname = data.Name;
+
+        GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
+        Unit u = Instantiate(g).transform.GetComponent<Unit>();
+        u.name += u.GetInstanceID();
+        u.OriData = data;//修改属性 存档时修改
+        u.该单位是否是玩家阵营 = _该单位是否是玩家阵营;
+
+        u.Cell = data.Cell;
+        GameObject obj;
+        if (_该单位是否是玩家阵营) obj = ourObj;
+        else obj = eneObj;
+
+        //找自己阵营有没空位
+        if (查找敌对阵营指定位置上单位(u.Cell, !_该单位是否是玩家阵营) != null) 
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                if(obj.transform.GetChild(i).childCount == 0)
+                {
+                    u.Cell = i + 1;
+                    u.transform.SetParent(obj.transform.GetChild(i));
+                    break;
+                }
+            }
+        }
+        else
+        {
+            u.transform.SetParent(obj.transform.GetChild(u.Cell-1));
+        }
+
+        u.Init(data);//把data属性赋予unit
+        //ourObj.transform.GetChild(u.Cell - 1)
+        if (_该单位是否是玩家阵营)
+        {
+            u.TMP.tag = "Our";
+            玩家阵营单位列表.Add(u);
+        }
+        else
+        {
+            u.transform.localScale = new Vector2(-1, 1);
+            u.TMP.transform.localScale = new Vector2(-1, 1);
+            u.HpBar.transform.localScale = new Vector2(-1, 1);
+            u.ShieldBar.transform.localScale = new Vector2(-1, 1);
+            u.SpeedTMP.transform.parent.localScale = new Vector2(-1, 1);
+            敌人阵营单位列表.Add(u);
+        }
+        u.transform.localPosition = Vector2.zero;
+        AllUnit.Add(u);
+        return u;
     }
 
     public Unit SummonCreator(GameObject obj,bool IsEnemy, float ScaleRate)
@@ -121,11 +154,11 @@ public class BattleMgr : MonoBehaviour
         u.Cell = u.transform.parent.GetSiblingIndex() + 1;
         if (IsEnemy)
         {
-            Enemys.Add(u);
+            敌人阵营单位列表.Add(u);
         }
         else
         {
-            Team.Add(u);
+            玩家阵营单位列表.Add(u);
         }
         AllUnit.Add(u);
         
@@ -136,7 +169,7 @@ public class BattleMgr : MonoBehaviour
 
     public void TeamIdle()
     {
-        foreach (var item in Team)
+        foreach (var item in 玩家阵营单位列表)
         {
             item.Anim.Play("idle");
         }
@@ -144,7 +177,7 @@ public class BattleMgr : MonoBehaviour
 
     public void TeamRun()
     {
-        foreach (var item in Team)
+        foreach (var item in 玩家阵营单位列表)
         {
             item.Anim.Play("run");
         }
@@ -153,7 +186,7 @@ public class BattleMgr : MonoBehaviour
     public void TeamMoveToCell()
     {
         List<Vector2> v2 = new();
-        foreach (var item in Team)
+        foreach (var item in 玩家阵营单位列表)
         {
             item.Anim.enabled = false;
             item.transform.DOMove(ourObj.transform.GetChild(item.Cell - 1).position, 1f).OnComplete
@@ -186,7 +219,6 @@ public class BattleMgr : MonoBehaviour
         TeamMoveToCell();
     }
 
-
     //开始战斗
     public void OnBattleClick()
     {
@@ -197,22 +229,27 @@ public class BattleMgr : MonoBehaviour
         SetPosSlotAlpha(0);
         //SetHpBarActive();
 
-        if (isBattleStart == false)
+        if (战斗开始时特效已触发 == false)
         {
-            //InitUnitAttr();
-            OnBattleStart();
+            StartCoroutine(OnBattleStart_Coro(() => OnTurnStart()));
         }
-        OnTurnStart();
+        else
+        {
+            OnTurnStart();
+        }
         //BattleBtn.enabled = false;
     }
 
-    public void OnBattleStart()
+    public IEnumerator OnBattleStart_Coro(System.Action onComplete)
     {
-        isBattleStart = true;
-        foreach (var item in AllUnit)
+        战斗开始时特效已触发 = true;
+        for (int i = 0; i < AllUnit.Count; i++)
         {
-            item.OnBattleStart();
+            print(AllUnit[i].name + " 战斗开始时");
+            AllUnit[i].战斗开始时();
+            yield return new WaitUntil(()=>AllUnit[i].动画播放完毕);
         }
+        onComplete.Invoke();
     }
 
     public void OnTurnStart()
@@ -229,11 +266,11 @@ public class BattleMgr : MonoBehaviour
 
     public void SortBySpeed()
     {
-        Team.Sort((x, y) => x.Speed.CompareTo(y.Speed));
-        Enemys.Sort((x, y) => x.Speed.CompareTo(y.Speed));
+        玩家阵营单位列表.Sort((x, y) => x.Speed.CompareTo(y.Speed));
+        敌人阵营单位列表.Sort((x, y) => x.Speed.CompareTo(y.Speed));
         AllUnit.Clear();
-        AllUnit.AddRange(Team);
-        AllUnit.AddRange(Enemys);
+        AllUnit.AddRange(玩家阵营单位列表);
+        AllUnit.AddRange(敌人阵营单位列表);
         AllUnit.Sort((u1, u2) => u2.Speed.CompareTo(u1.Speed));
         int DeadCount = 0;
         for (int i = 0; i < AllUnit.Count; i++)
@@ -330,24 +367,24 @@ public class BattleMgr : MonoBehaviour
     public void ShowSkillName(Unit u,string SkillName)
     {
         // 如果正在执行fade协程，则停止它
-        if (!u.IsEnemy)
-        {
-            if (fadeCoroutine1 != null)
-            {
-                StopCoroutine(fadeCoroutine1);
-            }
-            // 开始新的fade协程  
-            fadeCoroutine1 = StartCoroutine(FadeName(u, SkillName));
-        }
-        else
-        {
-            if (fadeCoroutine2 != null)
-            {
-                StopCoroutine(fadeCoroutine2);
-            }
-            // 开始新的fade协程  
-            fadeCoroutine2 = StartCoroutine(FadeName(u, SkillName));
-        }
+        //if (!u.OnLeftSide)
+        //{
+        //    if (fadeCoroutine1 != null)
+        //    {
+        //        StopCoroutine(fadeCoroutine1);
+        //    }
+        //    // 开始新的fade协程  
+        //    fadeCoroutine1 = StartCoroutine(FadeName(u, SkillName));
+        //}
+        //else
+        //{
+        //    if (fadeCoroutine2 != null)
+        //    {
+        //        StopCoroutine(fadeCoroutine2);
+        //    }
+        //    // 开始新的fade协程  
+        //    fadeCoroutine2 = StartCoroutine(FadeName(u, SkillName));
+        //}
         
     }
 
@@ -367,47 +404,49 @@ public class BattleMgr : MonoBehaviour
 
     private IEnumerator FadeName(Unit u,string SkillName)
     {
-        CombDetailCount += 1;
-        Transform t;
-        if (!u.IsEnemy) t = OurCombDetail;
-        else t = EneCombDetail;
-        // 设置alpha为1  
-        GameObject detail = Instantiate(CombDetailPrefab);
-        detail.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = SkillName + CombDetailCount;
-        detail.transform.SetParent(t);
-        detail.transform.localPosition = Vector2.zero;
-        detail.gameObject.SetActive(true);
+        //CombDetailCount += 1;
+        //Transform t;
+        //if (!u.OnLeftSide) t = OurCombDetail;
+        //else t = EneCombDetail;
+        //// 设置alpha为1  
+        //GameObject detail = Instantiate(CombDetailPrefab);
+        //detail.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = SkillName + CombDetailCount;
+        //detail.transform.SetParent(t);
+        //detail.transform.localPosition = Vector2.zero;
+        //detail.gameObject.SetActive(true);
 
-        //保持只有三个
-        if (t.childCount > 3)
-        {
-            Destroy(t.GetChild(0).gameObject);
-        }
-        // 等待3秒  
-        yield return new WaitForSeconds(2f);
+        ////保持只有三个
+        //if (t.childCount > 3)
+        //{
+        //    Destroy(t.GetChild(0).gameObject);
+        //}
+        //// 等待3秒  
+        //yield return new WaitForSeconds(2f);
 
-        // 渐变到alpha为0
-        for (int i = 0; i < t.childCount -1; i++)
-        {
-            t.GetChild(i).GetComponent<Image>().DOFade(0, 0.5f);
-            t.GetChild(i).GetChild(0).GetComponent<TextMeshProUGUI>().DOFade(0, 0.5f);
-            yield return new WaitForSeconds(0.5f);
-        }
+        //// 渐变到alpha为0
+        //for (int i = 0; i < t.childCount -1; i++)
+        //{
+        //    t.GetChild(i).GetComponent<Image>().DOFade(0, 0.5f);
+        //    t.GetChild(i).GetChild(0).GetComponent<TextMeshProUGUI>().DOFade(0, 0.5f);
+        //    yield return new WaitForSeconds(0.5f);
+        //}
 
-        for (int i = t.childCount -1 ; i >=0; i--)
-        {
-            Destroy(t.GetChild(i).gameObject);
-        }
-        CombDetailCount = 0;
+        //for (int i = t.childCount -1 ; i >=0; i--)
+        //{
+        //    Destroy(t.GetChild(i).gameObject);
+        //}
+        //CombDetailCount = 0;
+
+        yield return null;
     }
 
-    public void 单位死亡时(bool isEnemy)
+    public void 单位死亡时(bool 死亡单位是否是玩家阵营)
     {
         foreach (var item in AllUnit)
         {
             if (!item.IsDead)
             {
-                item.单位死亡时(isEnemy);
+                item.单位死亡时(死亡单位是否是玩家阵营);
             }
         }
     }
@@ -432,23 +471,23 @@ public class BattleMgr : MonoBehaviour
         SortBySpeed();
 
         //胜利
-        if (Enemys.All(item => item.IsDead == true))
+        if (敌人阵营单位列表.All(item => item.IsDead == true))
         {
             EventsMgr.Ins.SetBonusGold(TeamManager.Ins.EnemyData.Count);
             EventsMgr.Ins.ShowBonus();
             ResetBattle();
-            InitTeam(false);
+            InitTeam();
             isBattling = false;
             BattleBtn.gameObject.SetActive(false);
             战斗结束时();
         }
         //失败
-        else if(Team.All(item => item.IsDead == true))
+        else if(玩家阵营单位列表.All(item => item.IsDead == true))
         {
-            EventsMgr.Ins.EventPoint -= Enemys.Count;
+            EventsMgr.Ins.EventPoint -= 敌人阵营单位列表.Count;
             EventsMgr.Ins.EPTMP.text = EventsMgr.Ins.EventPoint.ToString();
             EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
-            InitTeam(false);
+            InitTeam();
             isBattling = false;
             ResetBattle();
             BattleBtn.gameObject.SetActive(false);
@@ -478,12 +517,12 @@ public class BattleMgr : MonoBehaviour
 
     public void ResetBattle()
     {
-        isBattleStart = false;
+        战斗开始时特效已触发 = false;
         TeamManager.Ins.EnemyData.Clear();
         AllUnit.Clear();
-        Team.Clear();
+        玩家阵营单位列表.Clear();
 
-        Enemys.Clear();
+        敌人阵营单位列表.Clear();
         AnimQueue.Clear();
         for (int i = 0; i < ourObj.transform.childCount; i++)
         {
@@ -508,21 +547,21 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public Unit FindUnitOnCell(int Cell,bool IsEnemy)
+    public Unit 查找敌对阵营指定位置上单位(int Cell,bool 调用者是否玩家阵营)
     {
-        GameObject side;
+        GameObject findIn;
 
-        if (IsEnemy) side = ourObj;
-        else side = eneObj;
+        if (调用者是否玩家阵营) findIn = eneObj;
+        else findIn = ourObj;
 
         if(Cell > 9)
         {
             return null;
         }
 
-        if(side.transform.GetChild(Cell-1).childCount > 0)
+        if(findIn.transform.GetChild(Cell-1).childCount > 0)
         {
-            return side.transform.GetChild(Cell - 1).GetChild(0).GetComponent<Unit>();
+            return findIn.transform.GetChild(Cell - 1).GetChild(0).GetComponent<Unit>();
         }
 
         return null;
@@ -568,13 +607,13 @@ public class BattleMgr : MonoBehaviour
         return null;
     }
 
-    public void 获取正前方目标(bool IsEnemy,int Cell) 
+    public void 获取正前方目标(bool 调用者是否是玩家阵营,int Cell) 
     {
         Targets.Clear();
 
         GameObject obj;
-        if (IsEnemy) obj = ourObj;
-        else obj = eneObj;
+        if (调用者是否是玩家阵营) obj = eneObj;
+        else obj = ourObj;
 
 
         // 根据Cell的值确定要搜索的行  
@@ -597,13 +636,13 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public void 获取最多单位一行的目标(int cell, bool isEnemy)
+    public void 获取敌方单位最多的一行的所有目标(int cell, bool 是否是玩家阵营)
     {
         Targets.Clear();
         //判断每一行多少
         GameObject obj;
-        if (isEnemy) obj = ourObj;
-        else obj = eneObj;
+        if (是否是玩家阵营) obj = eneObj;
+        else obj = ourObj;
         Dictionary<int, int> record = new();
 
         for (int i = 0; i < 3; i++)
@@ -744,12 +783,12 @@ public class BattleMgr : MonoBehaviour
 
     }
 
-    internal void 获取阵营血量最低目标(bool IsEnemy)
+    internal void 获取敌方阵营血量最低目标(bool 是否是玩家阵营)
     {
         Targets.Clear();
         List<Unit> Units;
-        if (IsEnemy) Units = Enemys;
-        else Units = Team;
+        if (是否是玩家阵营) Units = 敌人阵营单位列表;
+        else Units = 玩家阵营单位列表;
 
         Targets.Add(Units.Where(u=>u.IsDead == false).OrderBy(u => u.Hp).FirstOrDefault());
     }

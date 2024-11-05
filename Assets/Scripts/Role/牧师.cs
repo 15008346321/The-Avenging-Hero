@@ -15,7 +15,7 @@ public class 牧师 : Unit
     }
     public override void 获取技能目标()
     {
-        BattleMgr.Ins.获取阵营血量最低目标(IsEnemy);
+        BattleMgr.Ins.获取敌方阵营血量最低目标(!该单位是否是玩家阵营);
     }
     public override void 技能帧()
     {

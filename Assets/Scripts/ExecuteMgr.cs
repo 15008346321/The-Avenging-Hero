@@ -170,7 +170,7 @@ public class ExecuteMgr : MonoBehaviour
     {
         int num = tar[0];
         List<Unit> T;
-        T = tar[1] == 'T' ? BattleMgr.Ins.Team : BattleMgr.Ins.Enemys;
+        T = tar[1] == 'T' ? BattleMgr.Ins.玩家阵营单位列表 : BattleMgr.Ins.敌人阵营单位列表;
         if (num >= T.Count) foreach (var item in T) targets.Add(item);
         else
         {

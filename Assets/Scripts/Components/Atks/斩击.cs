@@ -14,7 +14,7 @@ public class 斩击 : ComponentBaseAtk
         if (u != null)
         {
             BattleMgr.Ins.Targets.Add(u);
-            BattleMgr.Ins.MainTarget = BattleMgr.Ins.Targets[0];
+            //BattleMgr.Ins.MainTarget = BattleMgr.Ins.Targets[0];
         }
     }
 

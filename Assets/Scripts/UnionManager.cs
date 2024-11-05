@@ -8,7 +8,7 @@ public class UnionManager : MonoBehaviour
     public void OnClickTravel()
     {
         Menu.Ins.EnterNewLevel();
-        BattleMgr.Ins.InitTeam(false);
+        BattleMgr.Ins.InitTeam();
         EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
     }
 }

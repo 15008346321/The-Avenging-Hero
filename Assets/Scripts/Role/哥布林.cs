@@ -10,13 +10,13 @@ public class 哥布林 : Unit
     public override void OnTurnStart()
     {
         int value;
-        if (!IsEnemy)
+        if (该单位是否是玩家阵营)
         {
-            value = BattleMgr.Ins.Team.Count(item => !item.IsDead);
+            value = BattleMgr.Ins.玩家阵营单位列表.Count(item => !item.IsDead);
         }
         else
         {
-            value = BattleMgr.Ins.Enemys.Count(item=>!item.IsDead);
+            value = BattleMgr.Ins.敌人阵营单位列表.Count(item=>!item.IsDead);
         }
         Atk += value;
 
