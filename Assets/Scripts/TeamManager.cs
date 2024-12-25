@@ -241,7 +241,6 @@ public class UnitData
     {
         string[] data = 血脉数据.Split(";").Where(s => !string.IsNullOrEmpty(s)).ToArray();
 
-        Debug.Log("血脉数据长度" + data.Length);
         foreach (var item in data)
         {
             string[] per = item.Split(":");
