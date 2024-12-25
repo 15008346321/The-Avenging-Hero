@@ -15,11 +15,11 @@ public class 牧师 : Unit
     }
     public override void 获取技能目标()
     {
-        BattleMgr.Ins.获取敌方阵营血量最低目标(!该单位是否是玩家阵营);
+        BattleMgr.Ins.获取敌方阵营血量最低目标(阵营);
     }
     public override void 技能帧()
     {
-        float healvalue = 3 + Mathf.Round(Bloods.Find(item => item.Name == "水元素").Value * 0.5f);
+        float healvalue = 3 + Mathf.Round(Bloods.Find(item => item.Name == 魔力类型Enum.水元素).Value * 0.5f);
 
         BattleMgr.Ins.Targets[0].TakeHeal(healvalue);
     }

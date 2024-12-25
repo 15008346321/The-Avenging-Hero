@@ -14,10 +14,14 @@ public class 骑士 : Unit
 
     public override void 技能帧()
     {
+
+        print(技能1已触发);
         if (!技能1已触发) 
         {
             foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
             {
+
+                print("群体护盾值" + Mathf.Round(MaxHp * 0.2f));
                 item.获取护盾(Mathf.Round(MaxHp * 0.2f));
             }
             技能1已触发 = true;
@@ -30,7 +34,7 @@ public class 骑士 : Unit
 
     }
 
-    public override void OnTurnStart()
+    public override void 回合开始时()
     {
         技能2已触发 = false;
         ExecuteSkill();

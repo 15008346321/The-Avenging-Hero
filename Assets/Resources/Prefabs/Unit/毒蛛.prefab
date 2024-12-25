@@ -202,7 +202,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9182642256774721149, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
       propertyPath: m_BlocksRaycasts
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1454030888439142983, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
@@ -237,6 +237,7 @@ MonoBehaviour:
   AtkCountCurr: 0
   SkillPoint: 0
   SkillPointMax: 0
+  "\u7269\u7406\u4F24\u5BB3\u51CF\u514D": 0
   Hp: 0
   MaxHp: 0
   Atk: 0
@@ -245,11 +246,14 @@ MonoBehaviour:
   Element: 
   isBoss: 0
   IsDead: 0
-  IsEnemy: 0
-  IsEnterUnitMove: 0
-  IsSkillTriggered: 0
+  "\u8BE5\u5355\u4F4D\u662F\u5426\u662F\u73A9\u5BB6\u9635\u8425": 0
+  "\u5355\u4F4D\u662F\u5426\u8FDB\u884C\u4E86\u79FB\u52A8": 0
+  "\u6280\u80FD1\u5DF2\u89E6\u53D1": 0
+  "\u6280\u80FD2\u5DF2\u89E6\u53D1": 0
   IsSkillReady: 0
   IsAtkChanged: 0
+  "\u52A8\u753B\u64AD\u653E\u5B8C\u6BD5": 0
+  "\u4F24\u5BB3\u5B57\u4F53\u5DF2\u6D88\u5931": 0
   BuffsList: []
   Bloods: []
   Tags:
@@ -261,6 +265,7 @@ MonoBehaviour:
   SpeedTMP: {fileID: 0}
   Anim: {fileID: 0}
   HpBar: {fileID: 0}
+  ShieldBar: {fileID: 0}
   Icon: {fileID: 0}
   ClickImage: {fileID: 0}
   BuffIcon: {fileID: 0}

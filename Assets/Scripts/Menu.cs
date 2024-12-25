@@ -70,7 +70,7 @@ public class Menu : MonoBehaviour
     public void EnterNewLevel()
     {
         AreaName.text = "后山";
-        LevelManager.Ins.SetLevel("后山");
+        LevelManager.Ins.SetLevel("test");
         AreaName.DOFade(1, 1f).OnComplete(()=>AreaName.DOFade(0, 1f));
         AreaLine1.DOFade(1, 1f).OnComplete(()=> AreaLine1.DOFade(0, 1f));
         AreaLine2.DOFade(1, 1f).OnComplete(()=> AreaLine2.DOFade(0, 1f));

@@ -74,7 +74,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9182642256774721149, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
       propertyPath: m_BlocksRaycasts
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1454030888439142983, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
@@ -86,11 +86,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 4091407834509674788}
   m_SourcePrefab: {fileID: 100100000, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
---- !u!95 &5633610090111098118 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 4118310327452751514, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
-  m_PrefabInstance: {fileID: 8577589186029423516}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8424198186013298737 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 279632705322490797, guid: 3b688def2ecef8941b09501a2da63f92, type: 3}
@@ -112,6 +107,9 @@ MonoBehaviour:
   Damage: 0
   AtkCountMax: 0
   AtkCountCurr: 0
+  SkillPoint: 0
+  SkillPointMax: 0
+  "\u7269\u7406\u4F24\u5BB3\u51CF\u514D": 0
   Hp: 0
   MaxHp: 0
   Atk: 0
@@ -119,10 +117,16 @@ MonoBehaviour:
   Speed: 0
   Element: 
   isBoss: 0
-  isDead: 0
-  IsEnemy: 0
-  IsEnterUnitMove: 0
-  Buffs: []
+  IsDead: 0
+  "\u8BE5\u5355\u4F4D\u662F\u5426\u662F\u73A9\u5BB6\u9635\u8425": 0
+  "\u5355\u4F4D\u662F\u5426\u8FDB\u884C\u4E86\u79FB\u52A8": 0
+  "\u6280\u80FD1\u5DF2\u89E6\u53D1": 0
+  "\u6280\u80FD2\u5DF2\u89E6\u53D1": 0
+  IsSkillReady: 0
+  IsAtkChanged: 0
+  "\u52A8\u753B\u64AD\u653E\u5B8C\u6BD5": 0
+  "\u4F24\u5BB3\u5B57\u4F53\u5DF2\u6D88\u5931": 0
+  BuffsList: []
   Bloods: []
   Tags:
   - 
@@ -131,9 +135,15 @@ MonoBehaviour:
   - 
   TMP: {fileID: 0}
   SpeedTMP: {fileID: 0}
-  Animator: {fileID: 5633610090111098118}
+  Anim: {fileID: 0}
   HpBar: {fileID: 0}
+  ShieldBar: {fileID: 0}
   Icon: {fileID: 0}
+  ClickImage: {fileID: 0}
+  BuffIcon: {fileID: 0}
+  Btn: {fileID: 0}
+  ClickBlock: {fileID: 0}
+  SkillPointIcon: []
   StartParent: {fileID: 0}
   StatePos: {fileID: 0}
   RunPosParent: {fileID: 0}
@@ -146,8 +156,9 @@ MonoBehaviour:
     Atk: 0
     Cell: 0
     Speed: 0
+    SkillPointMax: 0
     Name: 
-    SkillDscrp: 
     Tags: []
+    SkillDscrp: []
     Bloods: []
     sprite: {fileID: 0}

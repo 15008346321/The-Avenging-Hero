@@ -7,13 +7,13 @@ public class 猪头人 : Unit
 {
     // Start is called before the first frame update
 
-    public override void 单位死亡时(bool 死亡单位是否是玩家阵营)
+    public override void 有单位阵亡时(阵营Enum _阵营)
     {
-        if (该单位是否是玩家阵营 != 死亡单位是否是玩家阵营)
+        if (阵营 != _阵营)
         {
             OriData.MaxHp += 1;
             MaxHp += 1;
-            Hp += 1;
+            生命值 += 1;
             TakeHeal(MaxHp * 0.05f);
         }
     }

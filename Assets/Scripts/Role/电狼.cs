@@ -11,7 +11,7 @@ public class 电狼 : Unit
     {
         if(Random.Range(0,2) == 1)
         {
-            BattleMgr.Ins.Targets[0].AddBuff(BuffsEnum.麻痹);
+            BattleMgr.Ins.Targets[0].添加Buff(BuffsEnum.麻痹);
         }
     }
 }

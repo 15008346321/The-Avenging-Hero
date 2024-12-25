@@ -9,6 +9,7 @@ public class StatePoolMgr : MonoBehaviour
     public float time;
     public List<State> Pool;
     public static StatePoolMgr Ins;
+    public Unit 上一个调用者;
 
     private void Awake()
     {
@@ -21,6 +22,8 @@ public class StatePoolMgr : MonoBehaviour
         {
             GameObject g = Instantiate(Prefab);
             State s = g.GetComponent<State>();
+            s.transform.SetParent(transform);
+            s.gameObject.SetActive(false);
             Pool.Add(s);
         }
     }
@@ -33,17 +36,14 @@ public class StatePoolMgr : MonoBehaviour
         }
     }
 
-    void SetXOffset(State state)
+    bool 检查是否需要延迟播放(State state)
     {
-        if (state.transform.GetSiblingIndex() != 0)
+        if(state.调用者 == 上一个调用者)
         {
-            SameTimeStateCount += 1;
-            state.transform.localPosition = new Vector2(55 * SameTimeStateCount, 0);
+            return true;
         }
-        else
-        {
-            state.transform.localPosition = Vector2.zero;
-        }
+        上一个调用者 = state.调用者;
+        return false;
     }
 
     public State Get()
@@ -61,27 +61,50 @@ public class StatePoolMgr : MonoBehaviour
     public void 类型伤害(Unit u, float damage, string type)
     {
         State s = Get();
+        s.调用者 = u;
         s.tmp.text = damage.ToString();
         s.image.sprite = CSVManager.Ins.TypeIcon[type];
-        s.transform.SetParent(u.StatePos);
-        SetXOffset(s);
+        s.transform.position =  u.StatePos.position;
+        float delay = 0;
+        if(检查是否需要延迟播放(s))
+        {
+            delay = 0.3f;
+        };
         s.gameObject.SetActive(true);
-        s.animator.Play("类型伤害");
+        StartCoroutine(延迟播放(s, "类型伤害", delay));
     }
 
     public void 状态(Unit u, string text) 
     {
         State s = Get();
-
+        s.调用者 = u;
         s.tmp.text = text;
         s.transform.SetParent(u.StatePos);
         s.transform.localPosition = Vector2.zero;
+        float delay = 0;
+        if (检查是否需要延迟播放(s))
+        {
+            delay = 0.3f;
+        };
         s.gameObject.SetActive(true);
-        s.animator.Play("状态");
+        StartCoroutine(延迟播放(s, "状态", delay));
     }
+    public IEnumerator 延迟播放(State s,string 类型 ,float delay) 
+    { 
+        yield return new WaitForSeconds(delay);
+        s.animator.Play(类型);
+    }
+
 }
 
 public enum DamageType
+{
+    攻击伤害,
+    技能伤害,
+    异常伤害,
+}
+
+public enum ElementType
 {
     物理伤害,
     火元素伤害,

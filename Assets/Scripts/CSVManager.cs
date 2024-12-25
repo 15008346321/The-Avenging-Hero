@@ -1,16 +1,15 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
-using System.Text;
-using System;
+using System.Linq;
+using UnityEngine;
 
 public class CSVManager : MonoBehaviour
 {
     public static CSVManager Ins;
     public List<string[]> StartText, Events1;
     public Dictionary<string, string[]> Units, Atks,Combs,Uniques,Gears;
-    public Dictionary<string, Sprite> Character,Items,TypeIcon = new();
+    public Dictionary<string, Sprite> 角色图片 = new(),Items,TypeIcon = new();
+    public string[] 角色名称数组;
 
     private void Awake()
     {
@@ -24,6 +23,8 @@ public class CSVManager : MonoBehaviour
     {
         //StartText = GetStartText();
         Units = GetUnit();
+        角色名称数组 = Units.Keys.ToArray();
+
         Atks = GetAtks();
         Combs = GetCombs();
         Gears = GetGears();
@@ -33,7 +34,7 @@ public class CSVManager : MonoBehaviour
         //Relics = GetRelics();
         //Goods = GetGoods();
         //Cities = GetCities();
-        //Character = GetCharacterSprites();
+        角色图片 = GetCharacterSprites();
         //0id 1名称 2属性 3最大生命值 4攻击 5防御 6法术 7魔抗
         //8火 9水 10风 11雷 12土 13冰 14光 15暗 16普攻 17追打 18被动
         //0id 1价格 2名称 3类型 4效果 5code 6普攻总数,7追打总数
@@ -67,9 +68,9 @@ public class CSVManager : MonoBehaviour
 
         foreach (var item in sprites)
         {
-            Character.Add(item.name, item);
+            角色图片.Add(item.name, item);
         }
-        return Character;
+        return 角色图片;
     }
     public List<string[]> ReadCSVToList(string pathType, string fileName)
     {

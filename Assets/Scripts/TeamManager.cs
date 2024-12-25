@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -10,7 +11,8 @@ using UnityEngine.UI;
 public class TeamManager : MonoBehaviour
 {
     public static TeamManager Ins;
-    public List<UnitData> TeamData = new(), EnemyData = new();
+    public List<UnitData> TeamData = new(),拥有角色数据 = new(), EnemyData = new();
+    public List<角色栏拖拽> 角色栏列表;
     public Button[] MbrBtn = new Button[4];
     public TextMeshProUGUI[]
         uGUIs = new TextMeshProUGUI[5],
@@ -24,17 +26,15 @@ public class TeamManager : MonoBehaviour
         BloodName,
         BloodPoint;
     public TextMeshProUGUI SkillInfoTMP;
-    public Image[] 
-        MbrImgs = new Image[4], 
-        DetailImgs = new Image[5], 
+    public Image[]
+        MbrImgs = new Image[4],
+        DetailImgs = new Image[5],
         //GearSlotImgs = new Image[3],
         Arrows = new Image[4],
         BloodImgs = new Image[14];
     public int CurrMbrIdx,BloodInsNum = 14;
-    public bool TagChanged = true;
-    public Transform BloodParent;
+    public Transform BloodParent,角色槽位;
     public GameObject TeamNode,DetailNode,BloodPrefab;
-    public List<TextMeshProUGUI[]> TagNodes = new();
 
     //TODO 火属性额外伤害， 水属性生命上限治疗效果，风属性速度，雷属性魔抗，土属性物抗护盾 在血脉中实现
     private void Awake()
@@ -49,15 +49,17 @@ public class TeamManager : MonoBehaviour
     private void Init()
     {
         //TODO改到配置表中
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["骑士"],1));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["商人"], 2));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["战士"], 3));
-        TeamData.Add(new UnitData(CSVManager.Ins.Units["巨魔"], 4));
-
-        TagNodes.Add(TagNodes1);
-        TagNodes.Add(TagNodes2);
-        TagNodes.Add(TagNodes3);
-        TagNodes.Add(TagNodes4);
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["火焰剑士"]));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["火焰法师"], 2));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["猫妖"], 3));
+        TeamData.Add(new UnitData(CSVManager.Ins.Units["嗜血战士"], 4));
+        for (int i = 0; i < TeamData.Count; i++)
+        {
+            拥有角色数据.Add(TeamData[i]);
+        }
+        拥有角色数据.Add(new UnitData(CSVManager.Ins.Units["骑士"]));
+        //TeamData.Add(new UnitData(CSVManager.Ins.Units["猫妖"], 3));
+        //TeamData.Add(new UnitData(CSVManager.Ins.Units["嗜血战士"], 4));
 
         for (int i = 0; i < BloodInsNum; i++)
         {
@@ -67,6 +69,22 @@ public class TeamManager : MonoBehaviour
             BloodNameTMP[i] = uGUIs[0];
             BloodPointTMP[i] = uGUIs[1];
             BloodImgs[i] = g.transform.GetChild(0).GetComponent<Image>();
+        }
+    }
+
+
+    public void 更新角色栏数据() 
+    {
+        for (int i = 0; i < 角色栏列表.Count; i++)
+        {
+            角色栏列表[i].角色栏图片.enabled = false;
+        }
+
+        for (int i = 0; i < 拥有角色数据.Count; i++)
+        {
+            角色栏列表[i].unitData = 拥有角色数据[i];
+            角色栏列表[i].角色栏图片.enabled = true;
+            角色栏列表[i].角色栏图片.sprite = 拥有角色数据[i].角色图片;
         }
     }
 
@@ -81,32 +99,15 @@ public class TeamManager : MonoBehaviour
         }
         Arrows[CurrMbrIdx].enabled = true;
 
-        //设置标签
-        for (int i = 0; i < TeamData.Count; i++)
-        {
-            for (int j = 0; j< 4; j++)
-            {
-                if(j < TeamData[i].Tags.Length )
-                {
-                    TagNodes[i][j].text = TeamData[i].Tags[j];
-                    TagNodes[i][j].transform.parent.gameObject.SetActive(true);
-                }
-                else 
-                {
-                    TagNodes[i][j].transform.parent.gameObject.SetActive(false);
-                }
-            }
-        }
-
         //属性
         int counter = 0;
         foreach (var item in TeamData[CurrMbrIdx].Bloods)
         {
             if (item.Value == 0) continue;
             BloodNameTMP[counter].transform.parent.parent.gameObject.SetActive(true);
-            BloodNameTMP[counter].text = item.Name;
+            BloodNameTMP[counter].text = item.Name.ToString();
             BloodPointTMP[counter].text = item.Value.ToString();
-            BloodImgs[counter].sprite = CSVManager.Ins.TypeIcon[item.Name];
+            BloodImgs[counter].sprite = CSVManager.Ins.TypeIcon[item.Name.ToString()];
             counter += 1;
         }
         for (int i = counter; i < BloodInsNum; i++)
@@ -138,17 +139,86 @@ public class TeamManager : MonoBehaviour
         SkillInfoTMP.text = sb.ToString();
 
     }
+
 }
 [Serializable]
 public class UnitData
 {
-    public int MaxHp, Atk, Cell, Speed,SkillPointMax;
-    public string Name;
-    public string[] Tags = new string[4], SkillDscrp;
+    public int MaxHp, Atk, Cell, Speed, SkillPointMax, 在神像位置 = -1;
+    public string Name, 技能描述_TMP, 血脉_TMP, original = "<sprite=\"血脉\" name=\"{0}\">{1} {2} ";
+    public string[] SkillDscrp;
     public List<Blood> Bloods = new();
-    public Sprite sprite;
+    public Sprite 角色图片;
+    public 角色评级Enum 角色评分
+    { 
+        get
+        {
+            float 血脉总和 = 2* Bloods.Sum(u => u.Value);
+            float 属性总分 = 血脉总和 + MaxHp + 2 * Speed + 3 * Atk;
+            if (属性总分 <= 50)
+            {
+                return 角色评级Enum.F;
+            }
+            else if(属性总分 <= 100)
+            {
+                return 角色评级Enum.E;
+            }
+            else if (属性总分 <= 200)
+            {
+                return 角色评级Enum.D;
+            }
+            else if (属性总分 <= 300)
+            {
+                return 角色评级Enum.C;
+            }
+            else if (属性总分 <= 500)
+            {
+                return 角色评级Enum.B;
+            }
+            else if (属性总分 <= 700)
+            {
+                return 角色评级Enum.A;
+            }
+            else if (属性总分 <= 1000)
+            {
+                return 角色评级Enum.S;
+            }
+            else
+            {
+                return 角色评级Enum.SSS;
+            }
+        }
+    }
 
-    public UnitData(string[] data, int cell)
+    public int 角色价格
+    {
+        get
+        {
+            switch (角色评分)
+            {
+                case 角色评级Enum.F:
+                    return 5;
+                case 角色评级Enum.E:
+                    return 10;
+                case 角色评级Enum.D:
+                    return 20;
+                case 角色评级Enum.C:
+                    return 30;
+                case 角色评级Enum.B:
+                    return 50;
+                case 角色评级Enum.A:
+                    return 70;
+                case 角色评级Enum.S:
+                    return 100;
+                case 角色评级Enum.SSS:
+                    return 150;
+                default:
+                    return 0;
+            }
+        }
+    }
+
+    public UnitData(string[] data, int cell = 1)
     {
         Name = data[1];
         Cell = cell;
@@ -156,31 +226,40 @@ public class UnitData
         MaxHp   = int.Parse(data[2]);
         Atk     = int.Parse(data[3]);
         Speed   = int.Parse(data[4]);
+        
         SkillDscrp = data[5].Split("\n");
-        Tags    = data[6].Split("&");
-        if(data[7]!="") Bloods.Add(new Blood("火元素",float.Parse(data[7])));
-        if(data[8]!="") Bloods.Add(new Blood("水元素", float.Parse(data[8])));
-        if(data[9]!="") Bloods.Add(new Blood("风元素", float.Parse(data[9])));
-        if(data[10]!="") Bloods.Add(new Blood("雷元素", float.Parse(data[10])));
-        if(data[11]!="") Bloods.Add(new Blood("土元素", float.Parse(data[11])));
-        float yitai = 100;
-        foreach (var item in Bloods)
-        {
-            yitai -= item.Value;
-        }
-        Bloods.Add(new Blood("以太", yitai));
-        int.TryParse(data[12], out SkillPointMax);
+
+        角色图片 = CSVManager.Ins.角色图片[Name];
+
+
+        解析血脉(data[6]);
+        
+        int.TryParse(data[7], out SkillPointMax);
     }
+
+    void 解析血脉(string 血脉数据) 
+    {
+        string[] data = 血脉数据.Split(";").Where(s => !string.IsNullOrEmpty(s)).ToArray();
+
+        Debug.Log("血脉数据长度" + data.Length);
+        foreach (var item in data)
+        {
+            string[] per = item.Split(":");
+            Bloods.Add(new Blood((魔力类型Enum)Enum.Parse(typeof(魔力类型Enum),per[0]), float.Parse(per[1])));
+            血脉_TMP += string.Format(original, per[0], per[0], per[1]);
+        }
+    }
+
 }
 [Serializable]
 public class Blood
 {
-    public string Name;
+    public 魔力类型Enum Name;
     public float Value;
     public int Level;
-    public Blood(string name, float value)
+    public Blood(魔力类型Enum _魔力类型, float value)
     {
-        Name = name;
+        Name = _魔力类型;
         Value = value;
         SetLevel();
     }
@@ -193,3 +272,4 @@ public class Blood
         else if (EventsMgr.Ins.Level3Blood.Contains(Name)) Level = 3;
     }
 }
+

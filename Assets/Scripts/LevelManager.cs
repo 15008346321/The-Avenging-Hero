@@ -57,7 +57,6 @@ public class LevelManager : MonoBehaviour
     }
 
 
-
     public void SetLevel(string name)
     {
         if (!Levels.TryGetValue(name, out Level targetLevel))
@@ -151,6 +150,7 @@ public class LevelManager : MonoBehaviour
 public class Level
 {
     public string Name { get; set; }
+    public string[] Boss;
     public List<string[]> Events { get; set; }
     public List<string[]> Battles { get; set; }
 
@@ -160,5 +160,7 @@ public class Level
         //TODO目前只有一关
         //Events = CSVManager.Ins.GetEventsByArea(name);
         Battles = CSVManager.Ins.GetBattlesByArea(name);
+        Boss = Battles[Battles.Count - 1];
+        Battles.RemoveAt(Battles.Count - 1);
     }
 }

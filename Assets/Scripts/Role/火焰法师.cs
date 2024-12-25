@@ -9,9 +9,9 @@ public class 法师 : Unit
 
     public override void 攻击特效()
     {
-        float damage = Mathf.Round(Bloods.Find(item => item.Name == "火元素").Value * 0.5f);
+        float damage = (float)Bloods.Find(item => item.Name == 魔力类型Enum.火元素)?.Value * 0.5f;
 
-        BattleMgr.Ins.Targets[0].TakeDamage(damage,DamageType.火元素伤害);
-        BattleMgr.Ins.Targets[0].BuffsList.Add(new 燃烧(BattleMgr.Ins.Targets[0]));
+        BattleMgr.Ins.Targets[0].TakeDamage(damage,ElementType.火元素伤害);
+        BattleMgr.Ins.Targets[0].添加Buff(BuffsEnum.燃烧);
     }
 }

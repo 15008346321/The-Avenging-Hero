@@ -123,7 +123,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u6CD5\u5E08\u7A3B\u8349\u4EBA"
+      name: "\u706B\u7130\u5251\u58EB"
       rect:
         serializedVersion: 2
         x: 42
@@ -144,7 +144,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u6218\u58EB\u7A3B\u8349\u4EBA"
+      name: "\u6218\u58EB"
       rect:
         serializedVersion: 2
         x: 164
@@ -165,7 +165,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_2
+      name: "\u706B\u7130\u6CD5\u5E08"
       rect:
         serializedVersion: 2
         x: 816
@@ -186,7 +186,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_3
+      name: "\u5F13\u7BAD\u624B"
       rect:
         serializedVersion: 2
         x: 917
@@ -207,7 +207,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u914D\u52C7"
+      name: "\u7267\u5E08"
       rect:
         serializedVersion: 2
         x: 47
@@ -228,11 +228,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_5
+      name: "\u523A\u6740\u8005"
       rect:
         serializedVersion: 2
         x: 160
-        y: 1202
+        y: 1204
         width: 126
         height: 83
       alignment: 0
@@ -249,7 +249,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u5C04\u624B\u7A3B\u8349\u4EBA"
+      name: "\u683C\u6597\u5BB6"
       rect:
         serializedVersion: 2
         x: 297
@@ -270,7 +270,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_7
+      name: "\u53F2\u83B1\u59C6"
       rect:
         serializedVersion: 2
         x: 421
@@ -291,7 +291,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_8
+      name: "\u9A91\u58EB"
       rect:
         serializedVersion: 2
         x: 541
@@ -312,7 +312,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_9
+      name: "\u5546\u4EBA"
       rect:
         serializedVersion: 2
         x: 666
@@ -333,7 +333,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_10
+      name: "\u55DC\u8840\u6218\u58EB"
       rect:
         serializedVersion: 2
         x: 797
@@ -354,7 +354,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_11
+      name: "\u725B\u5934\u4EBA"
       rect:
         serializedVersion: 2
         x: 930
@@ -375,7 +375,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Character_12
+      name: "\u54E5\u5E03\u6797"
       rect:
         serializedVersion: 2
         x: 936
@@ -406,19 +406,19 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Character_10: -1197085027
-      Character_11: -125680934
-      Character_12: -674347295
-      Character_2: 58327256
-      Character_3: -1133751379
-      Character_5: -2008361242
-      Character_7: -775737760
-      Character_8: 1916830132
-      Character_9: 1715058162
-      "\u5C04\u624B\u7A3B\u8349\u4EBA": 1424102505
-      "\u6218\u58EB\u7A3B\u8349\u4EBA": 424026159
-      "\u6CD5\u5E08\u7A3B\u8349\u4EBA": 670796414
-      "\u914D\u52C7": -1113580004
+      "\u523A\u6740\u8005": -2008361242
+      "\u53F2\u83B1\u59C6": -775737760
+      "\u54E5\u5E03\u6797": -674347295
+      "\u5546\u4EBA": 1715058162
+      "\u55DC\u8840\u6218\u58EB": -1197085027
+      "\u5F13\u7BAD\u624B": -1133751379
+      "\u6218\u58EB": 424026159
+      "\u683C\u6597\u5BB6": 1424102505
+      "\u706B\u7130\u5251\u58EB": 670796414
+      "\u706B\u7130\u6CD5\u5E08": 58327256
+      "\u725B\u5934\u4EBA": -125680934
+      "\u7267\u5E08": -1113580004
+      "\u9A91\u58EB": 1916830132
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

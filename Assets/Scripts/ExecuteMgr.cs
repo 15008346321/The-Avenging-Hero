@@ -238,7 +238,7 @@ public class ExecuteMgr : MonoBehaviour
             switch (attributeName)
             {
                 case "Hp":
-                    u.Hp += operation == '+' ? numericValue : -numericValue;
+                    u.生命值 += operation == '+' ? numericValue : -numericValue;
                     break;
                 case "MaxHp":
                     u.MaxHp += operation == '+' ? numericValue : -numericValue;

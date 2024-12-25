@@ -15,6 +15,6 @@ public class 牛头人 : Unit
 
     public override void 技能帧()
     {
-        BattleMgr.Ins.SetDebuff(BuffsEnum.盲目);
+        BattleMgr.Ins.对目标群体加buff(BuffsEnum.盲目);
     }
 }

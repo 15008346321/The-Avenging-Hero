@@ -52,7 +52,7 @@ public class 刺杀者 : Unit
 
         if(IsAtkChanged)
         {
-            BattleMgr.Ins.获取敌方阵营血量最低目标(该单位是否是玩家阵营);
+            BattleMgr.Ins.获取敌方阵营血量最低目标(阵营);
         }
         else
         {

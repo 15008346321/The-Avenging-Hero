@@ -10,6 +10,7 @@ TagManager:
   - Slot
   - RunPos
   - PrayPos
+  - "\u5E03\u9635\u4F4D\u7F6E"
   layers:
   - Default
   - TransparentFX

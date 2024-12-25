@@ -27,7 +27,14 @@ public class Test : MonoBehaviour
             item.Atk = 999;
             item.Speed = 99;
         }
-        EventsMgr.Ins.Gold += 100;
+        EventsMgr.Ins.玩家拥有的金币 += 100;
+    }
+
+    public void ShowMyTest()
+    {
+        string a = "{0}{1}";
+
+        print(string.Format(a,"312","dsa"));
     }
     //public void Test13()
     //{

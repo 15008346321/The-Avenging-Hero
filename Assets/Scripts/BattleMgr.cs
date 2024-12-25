@@ -15,12 +15,12 @@ public class BattleMgr : MonoBehaviour
     public GameObject ourObj, eneObj, Tips, CombDetailPrefab;
     public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos,DeadParent;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount,CombDetailCount;
-    public string 当前追打状态, EnemysStr;
-    public bool isOurTurn, 正在战斗, 正在追打, isBattling, 战斗开始时特效已触发, 需要等待战斗开始协程;
+    public string 当前追打状态;
+    public string[] EnemysStr;
+    public bool isOurTurn, 正在战斗, 正在追打, 战斗中, 战斗开始时, 需要等待战斗开始协程,当前正在布阵,战斗胜利;
     public Button BattleBtn;
     public Image[] PosSlots = new Image[9], CombDetailImgs = new Image[6];
     public TextMeshProUGUI[] CombDetailTMP = new TextMeshProUGUI[6];
-    private Coroutine fadeCoroutine1 = null, fadeCoroutine2 = null;
 
     public static BattleMgr Ins;
     private void Awake()
@@ -40,26 +40,34 @@ public class BattleMgr : MonoBehaviour
     public void Init()
     {
         BattleBtn.onClick.AddListener(OnBattleClick);
+        战斗开始时 = true;
     }
 
-    public void InitTeam(bool 是否是玩家阵营 = true)
+    public void 实例化敌人小队()
+    {
+        实例化小队(阵营Enum.敌方);
+    }
+
+    public void 实例化小队(阵营Enum _阵营 = 阵营Enum.我方)
     {
         //获取小队数据或敌人数据
         List<UnitData> Datas;
-        if (是否是玩家阵营)
+        if (_阵营 == 阵营Enum.我方)
         {
             Datas = TeamManager.Ins.TeamData;
         }
         else
         {
             //根据读到的敌人 先生成data再生成Unit
-            var enemys = EnemysStr.Split('&');
+
+            var enemys = EnemysStr.Skip(2).ToArray();
 
             foreach (var item in enemys)
             {
+                if (item == "") continue;
 
-                string Name = item.Split('P')[0];
-                int Cell = int.Parse(item.Split('P')[1]);
+                string Name = item.Split(':')[0];
+                int Cell = int.Parse(item.Split(':')[1]);
 
                 TeamManager.Ins.EnemyData.Add(new UnitData(CSVManager.Ins.Units[Name], Cell));
             }
@@ -68,39 +76,36 @@ public class BattleMgr : MonoBehaviour
         //根据data实例化
         for (int i = 0; i < Datas.Count; i++)
         {
-            InitRole(Datas[i], 是否是玩家阵营);
+            InitRole(Datas[i], _阵营);
         }
-        //如果是小队放到移动位置上
-        if (是否是玩家阵营)
-        {
-            for (int i = 0; i < 玩家阵营单位列表.Count; i++)
-            {
-                玩家阵营单位列表[i].StartParent = OurRunningPos.GetChild(i);
-                玩家阵营单位列表[i].transform.SetParent(玩家阵营单位列表[i].StartParent);
-                玩家阵营单位列表[i].RunPosParent = 玩家阵营单位列表[i].transform.parent;
-                玩家阵营单位列表[i].transform.localPosition = Vector2.zero;
-            }
-        }
-
     }
 
-    public Unit InitRole(UnitData data, bool _该单位是否是玩家阵营)
+    public Unit InitRole(UnitData data, 阵营Enum _阵营 = 阵营Enum.我方, bool 加入背包 = false)
     {
         string uname = data.Name;
-
+        if (data.SkillDscrp[0] == "") uname = "Unit";
         GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
+        
         Unit u = Instantiate(g).transform.GetComponent<Unit>();
         u.name += u.GetInstanceID();
         u.OriData = data;//修改属性 存档时修改
-        u.该单位是否是玩家阵营 = _该单位是否是玩家阵营;
+        u.阵营 = _阵营;
 
         u.Cell = data.Cell;
+        u.Init(data);//把data属性赋予unit
+
+        //购买或其他途径获得之后放进背包
+        if (加入背包) 
+        { 
+            //TODO加入背包的功能
+        }
+
         GameObject obj;
-        if (_该单位是否是玩家阵营) obj = ourObj;
+        if (_阵营 == 阵营Enum.我方) obj = ourObj;
         else obj = eneObj;
 
         //找自己阵营有没空位
-        if (查找敌对阵营指定位置上单位(u.Cell, !_该单位是否是玩家阵营) != null) 
+        if (查找指定阵营位置上单位(u.Cell, u.阵营) != null) 
         {
             for (int i = 0; i < 9; i++)
             {
@@ -117,19 +122,18 @@ public class BattleMgr : MonoBehaviour
             u.transform.SetParent(obj.transform.GetChild(u.Cell-1));
         }
 
-        u.Init(data);//把data属性赋予unit
         //ourObj.transform.GetChild(u.Cell - 1)
-        if (_该单位是否是玩家阵营)
+        if (u.阵营 == 阵营Enum.我方)
         {
-            u.TMP.tag = "Our";
+            u.Icon.tag = "Our";
             玩家阵营单位列表.Add(u);
         }
         else
         {
             u.transform.localScale = new Vector2(-1, 1);
-            u.TMP.transform.localScale = new Vector2(-1, 1);
-            u.HpBar.transform.localScale = new Vector2(-1, 1);
-            u.ShieldBar.transform.localScale = new Vector2(-1, 1);
+            u.生命值TMP.transform.localScale = new Vector2(-1, 1);
+            u.护盾TMP.transform.localScale = new Vector2(-1, 1);
+            u.BuffListImgNode.localScale = new Vector2(-1, 1);
             u.SpeedTMP.transform.parent.localScale = new Vector2(-1, 1);
             敌人阵营单位列表.Add(u);
         }
@@ -138,69 +142,11 @@ public class BattleMgr : MonoBehaviour
         return u;
     }
 
-    public Unit SummonCreator(GameObject obj,bool IsEnemy, float ScaleRate)
-    {
-        var Summon = Instantiate(obj);
-        Transform t = GetNoUnitSlot(IsEnemy);
-        if (t == null)
-        {
-            return null;
-        }
-
-        Summon.transform.SetParent(GetNoUnitSlot(IsEnemy));
-        Summon.transform.localPosition = Vector3.zero;
-        Summon.transform.localScale *= ScaleRate;
-        Unit u = Summon.GetComponent<Unit>();
-        u.Cell = u.transform.parent.GetSiblingIndex() + 1;
-        if (IsEnemy)
-        {
-            敌人阵营单位列表.Add(u);
-        }
-        else
-        {
-            玩家阵营单位列表.Add(u);
-        }
-        AllUnit.Add(u);
-        
-        SortBySpeed();
-        return u;
-    }
-
-
-    public void TeamIdle()
-    {
-        foreach (var item in 玩家阵营单位列表)
-        {
-            item.Anim.Play("idle");
-        }
-    }
-
     public void TeamRun()
     {
         foreach (var item in 玩家阵营单位列表)
         {
             item.Anim.Play("run");
-        }
-    }
-
-    public void TeamMoveToCell()
-    {
-        List<Vector2> v2 = new();
-        foreach (var item in 玩家阵营单位列表)
-        {
-            item.Anim.enabled = false;
-            item.transform.DOMove(ourObj.transform.GetChild(item.Cell - 1).position, 1f).OnComplete
-                (
-                    () =>
-                    {
-                        item.Anim.enabled = true;
-                        item.Anim.Play("idle");
-                        item.transform.SetParent(ourObj.transform.GetChild(item.Cell - 1));
-                        Tips.SetActive(true);
-                        SortBySpeed();
-                        BattleBtn.gameObject.SetActive(true);
-                    }
-                );
         }
     }
 
@@ -216,52 +162,64 @@ public class BattleMgr : MonoBehaviour
     {
         ourObj.SetActive(true);
         eneObj.SetActive(true);
-        TeamMoveToCell();
+        //TeamMoveToCell();
+        实例化敌人小队();
+        当前正在布阵 = true;
+        UIMgr.Ins.显示角色栏();
+        BattleBtn.gameObject.SetActive(true);
+        UIMgr.Ins.UIBot.SetActive(false);
     }
 
     //开始战斗
     public void OnBattleClick()
     {
-        EventsMgr.Ins.IsMoveToBattle = false;
-        isBattling = true;
+        BattleBtn.enabled = false;
+        StartCoroutine(OnBattleClick_Coro());
+    }
+
+    public IEnumerator OnBattleClick_Coro()
+    {
+        EventsMgr.Ins.是否去往战斗 = false;
+        战斗中 = true;
         BattleBtn.enabled = false;
         Tips.SetActive(false);
+        UIMgr.Ins.收起角色栏();
+        UIMgr.Ins.隐藏小队();
+        当前正在布阵 = false;
         SetPosSlotAlpha(0);
         //SetHpBarActive();
 
-        if (战斗开始时特效已触发 == false)
+        if (战斗开始时 == true)
         {
-            StartCoroutine(OnBattleStart_Coro(() => OnTurnStart()));
+            yield return StartCoroutine(OnBattleStart_Coro());
         }
-        else
-        {
-            OnTurnStart();
-        }
-        //BattleBtn.enabled = false;
+        yield return StartCoroutine(OnTurnStart_Coro());
     }
 
-    public IEnumerator OnBattleStart_Coro(System.Action onComplete)
+    public IEnumerator OnBattleStart_Coro()
     {
-        战斗开始时特效已触发 = true;
+        实例化小队();
+
         for (int i = 0; i < AllUnit.Count; i++)
         {
-            print(AllUnit[i].name + " 战斗开始时");
             AllUnit[i].战斗开始时();
-            yield return new WaitUntil(()=>AllUnit[i].动画播放完毕);
+            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
         }
-        onComplete.Invoke();
+        战斗开始时 = false;
     }
 
-    public void OnTurnStart()
+    public IEnumerator OnTurnStart_Coro()
     {
-        isBattling = true;
+        战斗中 = true;
 
         for (int i = 0; i < AllUnit.Count; i++)
         {
             AllUnit[i].ReloadAtk();
-            AllUnit[i].OnTurnStart();
+            AllUnit[i].回合开始时();
+            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
         }
-        FindNextActionUnit();
+
+        StartCoroutine(FindNextActionUnit());
     }
 
     public void SortBySpeed()
@@ -280,173 +238,62 @@ public class BattleMgr : MonoBehaviour
                 DeadCount ++;
                 continue;
             }
-            AllUnit[i].HpBar.gameObject.SetActive(true);
-            AllUnit[i].SpeedTMP.transform.parent.gameObject.SetActive(true);
-            AllUnit[i].SpeedTMP.text = (i+1-DeadCount).ToString();
+            //AllUnit[i].SpeedTMP.transform.parent.gameObject.SetActive(true);
+            //AllUnit[i].SpeedTMP.text = (i+1-DeadCount).ToString();
         }
     }
 
-    public void FindNextActionUnit(float wait = 1f)
+    public IEnumerator FindNextActionUnit()
     {
-        SortBySpeed();
-
-        foreach (var item in AllUnit)
+        //如果有单位攻击次数或技能并且单位存活
+        while (AllUnit.Find(u => ((u.AtkCountCurr > 0) ||  u.IsSkillReady) && !u.IsDead)) 
         {
-            if (item.IsSkillReady && !item.IsDead)
+            if (战斗中 == false)
             {
-                //用ID遍历AllUnit找到对应的Unit调用普攻
-                //AnimQueue.Add(item.ID + ":NormalAtk");
+                yield break;
+            };
 
-                print(item.name + "skill is ready");
-                item.ExecuteSkill();
-                return;
-            }
-        }
-        foreach (var item in AllUnit)
-        {
-            if(item.AtkCountCurr > 0 && !item.IsDead)
+            SortBySpeed();
+
+            for (int i = 0; i < AllUnit.Count; i++)
             {
-                //用ID遍历AllUnit找到对应的Unit调用普攻
-                //AnimQueue.Add(item.ID + ":NormalAtk");
-                item.AtkCountCurr -= 1;
+                if (AllUnit[i].IsSkillReady && !AllUnit[i].IsDead)
+                {
+                    //用ID遍历AllUnit找到对应的Unit调用普攻
+                    //AnimQueue.Add(item.ID + ":NormalAtk");
 
-                print( item.name + "atk");
-                item.ExecuteAtk();
-                return;
+                    AllUnit[i].ExecuteSkill();
+                    yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
+                    break;
+                }
             }
+
+            for (int i = 0; i < AllUnit.Count; i++)
+            {
+                if (AllUnit[i].AtkCountCurr > 0 && !AllUnit[i].IsDead)
+                {
+                    //用ID遍历AllUnit找到对应的Unit调用普攻
+                    //AnimQueue.Add(item.ID + ":NormalAtk");
+                    AllUnit[i].AtkCountCurr -= 1;
+
+                    AllUnit[i].ExecuteAtk();
+                    yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
+                    break;
+                }
+            }
+
         }
 
-        OnTurnEnd();
-        //StartCoroutine(PlayFirsrtAnimInQueue(wait));
+        StartCoroutine( OnTurnEnd_Coro());
     }
 
-    //public IEnumerator PlayFirsrtAnimInQueue(float waitfor = 0)
-    //{
-    //    if (waitfor != 0)
-    //    {
-    //        yield return new WaitForSeconds(waitfor);
-    //    }
-    //    if (AnimQueue.Count == 0) 
-    //    {
-    //        BattleBtn.enabled = true;
-    //        yield return new WaitForSeconds(1);
-    //        OnTurnEnd();
-    //        yield break;
-    //    }
-    //    TimeCout = 0;
-
-    //    //判断是攻击追打被动
-
-    //    string[] com = AnimQueue[0].Split(":");
-    //    //死了的就不管
-    //    if (IDUnitPiar[int.Parse(com[0])].isDead)
-    //    {
-    //        AnimQueue.RemoveAt(0);
-    //        FindNextActionUnit();
-    //    }
-    //    else if (com[1] == "NormalAtk")
-    //    {
-    //        AnimQueue.RemoveAt(0);
-    //        IDUnitPiar[int.Parse(com[0])].ExecuteAtk();
-    //    }
-    //    else if (com[1] == "Comb")
-    //    {
-    //        AnimQueue.RemoveAt(0);
-    //        IDUnitPiar[int.Parse(com[0])].ExecuteComb();
-    //    }
-    //    //动画结束时会继续在最后一帧调用此方法
-    //}
-
-    public Unit GetTeamMinHealthUnit()
-    {
-        Ins.TeamMain.Sort((x, y) => x.Hp.CompareTo(y.Hp));
-        Ins.TeamMain.Sort();
-        return Ins.TeamMain[0];
-    }
-
-    public void ShowSkillName(Unit u,string SkillName)
-    {
-        // 如果正在执行fade协程，则停止它
-        //if (!u.OnLeftSide)
-        //{
-        //    if (fadeCoroutine1 != null)
-        //    {
-        //        StopCoroutine(fadeCoroutine1);
-        //    }
-        //    // 开始新的fade协程  
-        //    fadeCoroutine1 = StartCoroutine(FadeName(u, SkillName));
-        //}
-        //else
-        //{
-        //    if (fadeCoroutine2 != null)
-        //    {
-        //        StopCoroutine(fadeCoroutine2);
-        //    }
-        //    // 开始新的fade协程  
-        //    fadeCoroutine2 = StartCoroutine(FadeName(u, SkillName));
-        //}
-        
-    }
-
-    public bool TrySuccess(float successRate)
-    {
-        // 生成一个0到1之间的随机数（不包括1）  
-        float randomValue = Random.Range(0f, 1f);
-
-        // 如果随机数小于或等于成功率，则返回true，表示成功  
-        if (randomValue <= successRate)
-        {
-            return true;
-        }
-        // 否则返回false，表示失败  
-        return false;
-    }
-
-    private IEnumerator FadeName(Unit u,string SkillName)
-    {
-        //CombDetailCount += 1;
-        //Transform t;
-        //if (!u.OnLeftSide) t = OurCombDetail;
-        //else t = EneCombDetail;
-        //// 设置alpha为1  
-        //GameObject detail = Instantiate(CombDetailPrefab);
-        //detail.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = SkillName + CombDetailCount;
-        //detail.transform.SetParent(t);
-        //detail.transform.localPosition = Vector2.zero;
-        //detail.gameObject.SetActive(true);
-
-        ////保持只有三个
-        //if (t.childCount > 3)
-        //{
-        //    Destroy(t.GetChild(0).gameObject);
-        //}
-        //// 等待3秒  
-        //yield return new WaitForSeconds(2f);
-
-        //// 渐变到alpha为0
-        //for (int i = 0; i < t.childCount -1; i++)
-        //{
-        //    t.GetChild(i).GetComponent<Image>().DOFade(0, 0.5f);
-        //    t.GetChild(i).GetChild(0).GetComponent<TextMeshProUGUI>().DOFade(0, 0.5f);
-        //    yield return new WaitForSeconds(0.5f);
-        //}
-
-        //for (int i = t.childCount -1 ; i >=0; i--)
-        //{
-        //    Destroy(t.GetChild(i).gameObject);
-        //}
-        //CombDetailCount = 0;
-
-        yield return null;
-    }
-
-    public void 单位死亡时(bool 死亡单位是否是玩家阵营)
+    public void 有单位阵亡时(阵营Enum _阵营)
     {
         foreach (var item in AllUnit)
         {
             if (!item.IsDead)
             {
-                item.单位死亡时(死亡单位是否是玩家阵营);
+                item.有单位阵亡时(_阵营);
             }
         }
     }
@@ -463,7 +310,7 @@ public class BattleMgr : MonoBehaviour
             }
         }
 
-        if (isBattling == false)
+        if (战斗中 == false)
         {
             yield break;//防止同时死亡时重复判断
         }
@@ -473,24 +320,21 @@ public class BattleMgr : MonoBehaviour
         //胜利
         if (敌人阵营单位列表.All(item => item.IsDead == true))
         {
-            EventsMgr.Ins.SetBonusGold(TeamManager.Ins.EnemyData.Count);
-            EventsMgr.Ins.ShowBonus();
-            ResetBattle();
-            InitTeam();
-            isBattling = false;
-            BattleBtn.gameObject.SetActive(false);
-            战斗结束时();
+            战斗中 = false;
+            战斗胜利 = true;
         }
         //失败
         else if(玩家阵营单位列表.All(item => item.IsDead == true))
         {
             EventsMgr.Ins.EventPoint -= 敌人阵营单位列表.Count;
             EventsMgr.Ins.EPTMP.text = EventsMgr.Ins.EventPoint.ToString();
-            EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
-            InitTeam();
-            isBattling = false;
-            ResetBattle();
-            BattleBtn.gameObject.SetActive(false);
+            战斗中 = false;
+            战斗胜利 = false;
+
+        }
+
+        if(战斗中 == false)
+        {
             战斗结束时();
         }
     }
@@ -502,22 +346,38 @@ public class BattleMgr : MonoBehaviour
             if (AllUnit[i].IsDead == true) continue;
             AllUnit[i].战斗结束时();
         }
+        ResetBattle();
+
+        BattleBtn.gameObject.SetActive(false);
+        BattleBtn.enabled = true;
+
+        if (战斗胜利)
+        {
+            UIMgr.Ins.显示小队();
+            EventsMgr.Ins.显示战利品();
+            神像管理器.Ins.显示神像();
+        }
+        else
+        {
+            //战斗失败
+        }
+
     }
 
-
-    public void OnTurnEnd()
+    public IEnumerator OnTurnEnd_Coro()
     {
         for (int i = 0; i < AllUnit.Count; i++)
         {
             if(AllUnit[i].IsDead == true)continue;
-            AllUnit[i].OnTurnEnd();
+            AllUnit[i].回合结束时();
+            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
         }
         BattleBtn.enabled = true;
     }
 
     public void ResetBattle()
     {
-        战斗开始时特效已触发 = false;
+        战斗开始时 = true;
         TeamManager.Ins.EnemyData.Clear();
         AllUnit.Clear();
         玩家阵营单位列表.Clear();
@@ -539,19 +399,19 @@ public class BattleMgr : MonoBehaviour
             }
         }
     }
-    public void SetHpBarActive()
+
+    public Unit GetTeamMinHealthUnit()
     {
-        foreach (var item in AllUnit)
-        {
-            item.HpBar.gameObject.SetActive(true);
-        }
+        Ins.TeamMain.Sort((x, y) => x.生命值.CompareTo(y.生命值));
+        Ins.TeamMain.Sort();
+        return Ins.TeamMain[0];
     }
 
-    public Unit 查找敌对阵营指定位置上单位(int Cell,bool 调用者是否玩家阵营)
+    public Unit 查找指定阵营位置上单位(int Cell,阵营Enum _阵营)
     {
         GameObject findIn;
 
-        if (调用者是否玩家阵营) findIn = eneObj;
+        if (_阵营 == 阵营Enum.敌方) findIn = eneObj;
         else findIn = ourObj;
 
         if(Cell > 9)
@@ -583,18 +443,18 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public void SetDebuff(BuffsEnum debuff)
+    public void 对目标群体加buff(BuffsEnum debuff)
     {
         foreach (var item in Targets)
         {
-            item.AddBuff(debuff);
+            item.添加Buff(debuff);
         }
     }
 
-    public Transform GetNoUnitSlot(bool isEnemy)
+    public Transform GetNoUnitSlot(阵营Enum _阵营)
     {
         GameObject obj;
-        if(isEnemy) obj = eneObj;
+        if(_阵营 == 阵营Enum.敌方) obj = eneObj;
         else obj = ourObj;
 
         for (int i = 0; i < obj.transform.childCount; i++)
@@ -607,12 +467,12 @@ public class BattleMgr : MonoBehaviour
         return null;
     }
 
-    public void 获取正前方目标(bool 调用者是否是玩家阵营,int Cell) 
+    public void 获取正前方目标(阵营Enum _阵营, int Cell) 
     {
         Targets.Clear();
 
         GameObject obj;
-        if (调用者是否是玩家阵营) obj = eneObj;
+        if (_阵营 == 阵营Enum.我方) obj = eneObj;
         else obj = ourObj;
 
 
@@ -636,12 +496,12 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public void 获取敌方单位最多的一行的所有目标(int cell, bool 是否是玩家阵营)
+    public void 获取敌方单位最多的一行的所有目标(int cell, 阵营Enum _阵营)
     {
         Targets.Clear();
         //判断每一行多少
         GameObject obj;
-        if (是否是玩家阵营) obj = eneObj;
+        if (_阵营 == 阵营Enum.我方) obj = eneObj;
         else obj = ourObj;
         Dictionary<int, int> record = new();
 
@@ -665,7 +525,6 @@ public class BattleMgr : MonoBehaviour
         //判断最多并且最近的一行
         int max = record.Max(pair=>pair.Value);
 
-        print("max: " + max);
         int PlayerRow = (cell - 1) / 3;
         int row = 0;
         for (int i = 0; i < record.Count; i++)
@@ -691,7 +550,6 @@ public class BattleMgr : MonoBehaviour
             }
         }
 
-        print("row" + row);
         //把这一行加进目标
         for (int i = 0; i < 3; i++)
         {
@@ -702,79 +560,97 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public RowColumn 获取有单位的最前排(bool isEnemy)
+    public 行列Enum 获取有单位的最前排(阵营Enum _阵营)
     {
         GameObject obj;
-        if (isEnemy) obj = ourObj;
+        if (_阵营 == 阵营Enum.我方) obj = ourObj;
         else obj = eneObj;
 
         for (int i = 0; i < 3; i++)
         {
             if (obj.transform.GetChild(i).childCount > 0)
             {
-                return RowColumn.Clm1;
+                return 行列Enum.列1;
             }
         }
         for (int i = 4; i < 6; i++)
         {
             if (obj.transform.GetChild(i).childCount > 0)
             {
-                return RowColumn.Clm2;
+                return 行列Enum.列2;
             }
         }
         for (int i = 7; i < 9; i++)
         {
             if (obj.transform.GetChild(i).childCount > 0)
             {
-                return RowColumn.Clm3;
+                return 行列Enum.列3;
             }
         }
-        return RowColumn.Clm1;
+        return 行列Enum.列1;
     }
 
-    public void 获取指定行列所有目标(RowColumn rc,bool IsEnemy)
+    public void 获取敌方指定行列所有目标(行列Enum rc, 阵营Enum _阵营)
     {
         Targets.Clear();
         GameObject obj;
-        if (IsEnemy) obj = ourObj;
-        else obj = eneObj;
+        if (_阵营 == 阵营Enum.我方) obj = eneObj;
+        else obj = ourObj;
 
         switch (rc)
         {
-            case RowColumn.Row1:
+            case 行列Enum.行1:
                 for (int i = 0; i < 3; i++)
                 {
-                    Targets.Add(obj.transform.GetChild(i * 3).GetChild(0).GetComponent<Unit>());
+                    if (obj.transform.GetChild(i * 3).childCount > 0)
+                    {
+                        Targets.Add(obj.transform.GetChild(i * 3).GetChild(0).GetComponent<Unit>());
+                    }
                 }
                 break;
-            case RowColumn.Row2:
+            case 行列Enum.行2:
                 for (int i = 0; i < 3; i++)
                 {
-                    Targets.Add(obj.transform.GetChild(i * 3 + 1).GetChild(0).GetComponent<Unit>());
+                    if (obj.transform.GetChild(i * 3+1).childCount > 0)
+                    {
+                        Targets.Add(obj.transform.GetChild(i * 3+1).GetChild(0).GetComponent<Unit>());
+                    }
                 }
                 break;
-            case RowColumn.Row3:
+            case 行列Enum.行3:
                 for (int i = 0; i < 3; i++)
                 {
-                    Targets.Add(obj.transform.GetChild(i * 3 + 2).GetChild(0).GetComponent<Unit>());
+                    if (obj.transform.GetChild(i * 3+2).childCount > 0)
+                    {
+                        Targets.Add(obj.transform.GetChild(i * 3+2).GetChild(0).GetComponent<Unit>());
+                    }
                 }
                 break;
-            case RowColumn.Clm1:
+            case 行列Enum.列1:
                 for (int i = 0; i < 3; i++)
                 {
-                    Targets.Add(obj.transform.GetChild(i).GetChild(0).GetComponent<Unit>());
+                    if(obj.transform.GetChild(i).childCount > 0)
+                    {
+                        Targets.Add(obj.transform.GetChild(i).GetChild(0).GetComponent<Unit>());
+                    }
                 }
                 break;
-            case RowColumn.Clm2:
+            case 行列Enum.列2:
                 for (int i = 0; i < 3; i++)
                 {
-                    Targets.Add(obj.transform.GetChild(i+3).GetChild(0).GetComponent<Unit>());
+                    if (obj.transform.GetChild(i+3).childCount > 0)
+                    {
+                        Targets.Add(obj.transform.GetChild(i+3).GetChild(0).GetComponent<Unit>());
+                    }
                 }
                 break;
-            case RowColumn.Clm3:
+            case 行列Enum.列3:
                 for (int i = 0; i < 3; i++)
                 {
-                    Targets.Add(obj.transform.GetChild(i+6).GetChild(0).GetComponent<Unit>());
+                    if (obj.transform.GetChild(i+6).childCount > 0)
+                    {
+                        Targets.Add(obj.transform.GetChild(i+6).GetChild(0).GetComponent<Unit>());
+                    }
                 }
                 break;
             default:
@@ -783,23 +659,26 @@ public class BattleMgr : MonoBehaviour
 
     }
 
-    internal void 获取敌方阵营血量最低目标(bool 是否是玩家阵营)
+    internal void 获取敌方阵营血量最低目标(阵营Enum _阵营)
     {
         Targets.Clear();
         List<Unit> Units;
-        if (是否是玩家阵营) Units = 敌人阵营单位列表;
+        if (_阵营 == 阵营Enum.我方) Units = 敌人阵营单位列表;
         else Units = 玩家阵营单位列表;
 
-        Targets.Add(Units.Where(u=>u.IsDead == false).OrderBy(u => u.Hp).FirstOrDefault());
+        Targets.Add(Units.Where(u=>u.IsDead == false).OrderBy(u => u.生命值).FirstOrDefault());
     }
-}
 
-public enum RowColumn
-{
-    Row1,
-    Row2,
-    Row3,
-    Clm1,
-    Clm2,
-    Clm3,
+    public void 获取敌方前排单位(阵营Enum _阵营) 
+    {
+        获取敌方指定行列所有目标(行列Enum.列1, _阵营);
+        if(Targets.Count == 0)
+        {
+            获取敌方指定行列所有目标(行列Enum.列2, _阵营);
+        }
+        if (Targets.Count == 0)
+        {
+            获取敌方指定行列所有目标(行列Enum.列3, _阵营);
+        }
+    }
 }

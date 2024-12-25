@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class State : MonoBehaviour
 {
-    public Unit U;
+    public Unit 调用者;
     public TextMeshProUGUI tmp;
     public Animator animator;
     public Image image;

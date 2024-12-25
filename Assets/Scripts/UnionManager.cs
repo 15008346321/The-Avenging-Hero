@@ -8,7 +8,7 @@ public class UnionManager : MonoBehaviour
     public void OnClickTravel()
     {
         Menu.Ins.EnterNewLevel();
-        BattleMgr.Ins.InitTeam();
-        EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
+        UIMgr.Ins.显示小队();
+        EventsMgr.Ins.生成一个战斗路线();
     }
 }

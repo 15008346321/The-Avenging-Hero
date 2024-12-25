@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -9,33 +10,34 @@ using UnityEngine.UI;
 public class EventsMgr : MonoBehaviour
 {
     Dictionary<string, string[]> Events=new(), Battles=new(), Relics=new();
-    public List<string> Level0Blood = new() { "以太" };
-    public List<string> Level1Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
-    public List<string> Level2Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
-    public List<string> Level3Blood = new() { "火元素", "水元素", "风元素", "雷元素", "土元素" };
+    public List<魔力类型Enum> Level0Blood = new() { 魔力类型Enum.以太 };
+    public List<魔力类型Enum> Level1Blood = new() { 魔力类型Enum.火元素, 魔力类型Enum.水元素, 魔力类型Enum.风元素, 魔力类型Enum.雷元素, 魔力类型Enum.土元素 };
+    public List<魔力类型Enum> Level2Blood = new() { 魔力类型Enum.火元素, 魔力类型Enum.水元素, 魔力类型Enum.风元素, 魔力类型Enum.雷元素, 魔力类型Enum.土元素 };
+    public List<魔力类型Enum> Level3Blood = new() { 魔力类型Enum.火元素, 魔力类型Enum.水元素, 魔力类型Enum.风元素, 魔力类型Enum.雷元素, 魔力类型Enum.土元素 };
     List<string[]> RelicsList = new();
     string[] currentEvent;
-    Image[] RoadImage = new Image[2];
+    public Image[] 路线Imgs = new Image[2];
     public Image FadeImg;
-    public Button ExploreBtn;
     public Button[]
         RoadBtns = new Button[2],
         EventBtns = new Button[2],
         StatueBtns = new Button[3];
-    TextMeshProUGUI[]
-        RoadsTitleTMPs     = new TextMeshProUGUI[3],
+    public TextMeshProUGUI[]
+        路线TMPs     = new TextMeshProUGUI[3],
         EventChooseTMPs    = new TextMeshProUGUI[2],
         BounusRelicsName   = new TextMeshProUGUI[3],
         BounusRelicsEffect = new TextMeshProUGUI[3];
-    float[] RoadRate = {0,50,0,10};//神像，战斗，公会，商店
-    public int EventPoint, MaxEventPoint,shopCount = 0,campCount = 0, StatueIdx,StatueMbrIdx,PrayCount,BonusGold,Gold;
+    readonly float[] 事件出现率 = {50,60,10};//战斗，酒馆，商店
+    public int EventPoint, MaxEventPoint, StatueIdx, StatueMbrIdx, BonusGold, 玩家拥有的金币, 危险级别, 战利品金币数;
     public string monsters, bonus;
-    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP, PrayCountTMP,UIGoldTMP;
+    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP,UIGoldTMP;
     public Transform RoadParentNode, EventParentNode, EventContentNode, EventResultNode,DailyNode,
         ShopNode, StatueNode, StatueParent,侧边栏父级;
+    public GameObject 神像;
     public static EventsMgr Ins;
-    public bool IsMoveToBattle, IsMoveToStatue;
+    public bool 是否去往战斗, 是否去往神像,是否去往酒馆;
     public List<TextMeshProUGUI> 侧边栏池;
+    public List<Button> 战利品;
 
     private void Awake()
     {
@@ -56,8 +58,8 @@ public class EventsMgr : MonoBehaviour
         //初始化路线按钮
         for (var i = 0; i < 2; i++)
         {
-            RoadsTitleTMPs[i] = RoadBtns[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-            RoadImage[i] = RoadBtns[i].transform.GetChild(1).GetComponent<Image>();
+            路线TMPs[i] = RoadBtns[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+            路线Imgs[i] = RoadBtns[i].transform.GetChild(1).GetComponent<Image>();
             var j = i;
             RoadBtns[i].onClick.AddListener(() => RoadChoose(j));
         }
@@ -113,20 +115,18 @@ public class EventsMgr : MonoBehaviour
         tmp.rectTransform.DOLocalMoveX(210, 0.5f).OnComplete(
             () =>
             {
-                tmp.rectTransform.DOLocalMoveX(0, 0.5f).SetDelay(1f).OnComplete
+                action?.Invoke();
+                tmp.rectTransform.DOLocalMoveX(0, 0.5f).SetDelay(0.5f).OnComplete
                 (
                     () => {
                         tmp.text = "";
-                        action?.Invoke();
                         }
                 );
             }
         );
-        ExploreBtn.gameObject.SetActive(true);
     }
 
-
-    private void GenNewRoom()
+    public void 生成新路线()
     {
        // ScrollBg.Ins.MoveBg = true;
 
@@ -148,73 +148,73 @@ public class EventsMgr : MonoBehaviour
             RoadBtns[1].gameObject.SetActive(true);
         }
 
-        //避免误触
-        RoadBtns[0].enabled = false;
-        RoadBtns[1].enabled = false;
-
         //避免二选一是同样的选项
-        bool done1 = false, done2 = false, done3 = false, done4 = false;
-
+        bool 战斗事件已出现 = false, 酒馆已出现 = false, 商店已出现 = false;
+        var count = 0;
         for (var i = 0; i < roomCount; i++)
         {
+            print("第"+ i + "个=============================================");
             while (true)
             {
-                ran = UnityEngine.Random.Range(0, 100);
-                if (ran < RoadRate[0])
+                count += 1;
+                if(count == 1000) 
                 {
-                    if (done1) continue;
-                    RoadsTitleTMPs[i].text = "神像";
-                    RoadImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/001");
-                    done1 = true;
+                    Debug.LogError("已循环1000次 break");
+                    break; 
+                }
+
+                ran = UnityEngine.Random.Range(0, (int)事件出现率.Sum());
+                print(ran);
+                if (ran < 事件出现率[0])
+                {
+                    print("战斗事件已出现");
+                    if (战斗事件已出现) continue;
+                    路线TMPs[i].text = "战斗";
+                    路线Imgs[i].sprite = Resources.Load<Sprite>("Texture/Icon/002_battle");
+                    战斗事件已出现 = true;
                     break;
                 }
-                else if (ran < RoadRate[0] + RoadRate[1])
+                else if (ran < (事件出现率[0] + 事件出现率[1]))
                 {
-                    if (done2) continue;
-                    RoadsTitleTMPs[i].text = "战斗";
-                    RoadImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/002_battle");
-                    done2 = true;
+                    print("酒馆已出现");
+                    if (酒馆已出现) continue;
+                    路线TMPs[i].text = "酒馆";
+                    路线Imgs[i].sprite = Resources.Load<Sprite>("Texture/Icon/004_camp");
+                    酒馆已出现 = true;
                     break;
                 }
-                else if (ran < (RoadRate[0] + RoadRate[1] + RoadRate[2]))
+                else if (ran < 事件出现率[0] + 事件出现率[1] + 事件出现率[2])
                 {
-                    if (done3) continue;
-                    if (campCount == 2) continue;
-                    RoadsTitleTMPs[i].text = "公会";
-                    RoadImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/004_camp");
-                    campCount += 1;
-                    done3 = true;
-                    break;
-                }
-                else if (ran < RoadRate[0] + RoadRate[1] + RoadRate[2] + RoadRate[3])
-                {
-                    if (done4) continue;
-                    if (shopCount == 2) continue;
-                    RoadsTitleTMPs[i].text = "商店";
-                    RoadImage[i].sprite = Resources.Load<Sprite>("Texture/Icon/003_shop");
-                    shopCount += 1;
-                    done4 = true;
+                    print("商店已出现");
+                    if (商店已出现) continue;
+                    路线TMPs[i].text = "商店";
+                    路线Imgs[i].sprite = Resources.Load<Sprite>("Texture/Icon/003_shop");
+                    商店已出现 = true;
                     break;
                 }
             }
         }
     }
 
+    public void 生成一个战斗路线()
+    {
+        RoadParentNode.gameObject.SetActive(true);
+        RoadBtns[1].gameObject.SetActive(false);
+        RoadBtns[0].transform.localPosition = new Vector2(0, -50);
+        路线TMPs[0].text = "战斗";
+        路线Imgs[0].sprite = Resources.Load<Sprite>("Texture/Icon/002_battle");
+    }
+
     public void RoadChoose(int i)
     {
         RoadParentNode.gameObject.SetActive(false);
-        switch (RoadsTitleTMPs[i].text)
+        switch (路线TMPs[i].text)
         {
-            case "神像":
-                StatueNode.gameObject.SetActive(true);
-                PrayCount +=1;
-                PrayCountTMP.text = "(祈祷次数:" + PrayCount + ")";
-                break;
             case "战斗":
-                SetRoadToBattle();
+                去往战斗();
                 break;
-            case "公会":
-                SetRoadToGuild();
+            case "酒馆":
+                去往酒馆();
                 break;
             case "商店":
                 SetRoadToShop();
@@ -224,42 +224,34 @@ public class EventsMgr : MonoBehaviour
         }
     }
 
-    private void SetRoadToGuild()
+    private void 去往酒馆()
     {
-        throw new System.NotImplementedException();
+        BattleMgr.Ins.TeamRun();
+        是否去往酒馆 = true;
+        Fade();
     }
 
-    public void FeelMagic(int j)
-    {
-        //if (j == 0) BattleMgr.Ins.player.Fire    += 1;
-        //if (j == 1) BattleMgr.Ins.player.Water   += 1;
-        //if (j == 2) BattleMgr.Ins.player.Wind    += 1;
-        //if (j == 3) BattleMgr.Ins.player.Thunder += 1;
-        //if (j == 4) BattleMgr.Ins.player.Earth   += 1;
-    }
-
-    public void RelicsChoose(int idx)
-    {
-        //ExecuteMgr.Ins.ExecuteCode(RelicsList[idx][5]);
-        //TODO添加遗物ui并做一些动效
-        //AddRelicsIcon();
-        ExploreBtn.gameObject.SetActive(true);
-    }
-    //public void AddRelicsIcon()
-    //{
-
-    //}
-
-    public void SetRoadToBattle()
+    public void 去往战斗()
     {
         //设置敌人
-        var ranNum = UnityEngine.Random.Range(0, LevelManager.Ins.CurrentLevel.Battles.Count);
-        BattleMgr.Ins.EnemysStr = LevelManager.Ins.CurrentLevel.Battles[ranNum][1];
-        LevelManager.Ins.CurrentLevel.Battles.Remove(LevelManager.Ins.CurrentLevel.Battles[ranNum]);
+        //战斗全打了就出boss
+        if(LevelManager.Ins.CurrentLevel.Battles.Count == 0)
+        {
+            BattleMgr.Ins.EnemysStr = LevelManager.Ins.CurrentLevel.Boss;
+        }
+        //没打完就随机出小怪
+        else
+        {
+            var ranNum = UnityEngine.Random.Range(0, LevelManager.Ins.CurrentLevel.Battles.Count);
+            BattleMgr.Ins.EnemysStr = LevelManager.Ins.CurrentLevel.Battles[ranNum];
+            LevelManager.Ins.CurrentLevel.Battles.Remove(LevelManager.Ins.CurrentLevel.Battles[ranNum]);
+        }
+
+        危险级别 = int.Parse( BattleMgr.Ins.EnemysStr[1]);
+
         //生成
-        BattleMgr.Ins.TeamRun();
-        IsMoveToBattle = true;
-        FadeIn();
+        是否去往战斗 = true;
+        Fade();
     }
 
     public void SetRoadToEvent()
@@ -272,32 +264,6 @@ public class EventsMgr : MonoBehaviour
     {
         ShopNode.gameObject.SetActive(true);
     }
-
-    public void SetRandomRelics()
-    {
-
-        //print("msg"+ CSVManager.Ins.Relics.Count);
-        //RelicsList.Clear();
-        //var ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        //while (BagManager.Ins.GotRelics.Contains(ran1)) ran1 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        //print("msg1");
-        //RelicsList.Add(CSVManager.Ins.Relics[ran1]);
-        //var ran2 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        //while (BagManager.Ins.GotRelics.Contains(ran2) || ran1 == ran2) ran2 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        //print("msg2");
-        //RelicsList.Add(CSVManager.Ins.Relics[ran2]);
-        //var ran3 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        //while (BagManager.Ins.GotRelics.Contains(ran3) || ran3 == ran1 || ran3 == ran2) ran3 = Random.Range(0, CSVManager.Ins.Relics.Count);
-        //print("msg3");
-        //RelicsList.Add(CSVManager.Ins.Relics[ran3]);
-
-        //for (int i = 0; i < RelicsList.Count; i++)
-        //{
-        //    BounusRelicsName[i].text = RelicsList[i][1];
-        //    BounusRelicsEffect[i].text = RelicsList[i][3];
-        //}
-    }
-
 
     public void SetRandomEvents()
     {
@@ -350,7 +316,6 @@ public class EventsMgr : MonoBehaviour
         //ExecuteMgr.Ins.ExecuteCode(code);
         EventContentNode.gameObject.SetActive(false);
         RoadParentNode.gameObject.SetActive(true);
-        ExploreBtn.gameObject.SetActive(true);
     }
 
     public void OnClickExplore()
@@ -363,88 +328,106 @@ public class EventsMgr : MonoBehaviour
         {
             EventPoint -= 1;
             EPTMP.text = "" + EventPoint;
-            BattleMgr.Ins.TeamRun();
-            FadeIn();
+            //UIMgr.Ins.背景滚动();
+            Fade();
         }
     }
 
-    public void FadeIn()
+    public void Fade()
     {
         FadeImg.raycastTarget = true;
         //人往前走 变黑
         BattleMgr.Ins.OurRunningPos.DOLocalMoveX(600, 2);
         //用一秒变黑
 
-        FadeImg.DOFade(1f, 1f).OnComplete(() =>
-        {
-            //生成事件 人走出来 变亮
-
-            //进入战斗 或者  探索
-            if (IsMoveToBattle)
-            {
-                BattleMgr.Ins.InitTeam(false);
-                RoadParentNode.gameObject.SetActive(false);
-            }
-            else if (IsMoveToStatue)
-            {
-                StatueNode.gameObject.SetActive(true);
-                ExploreBtn.gameObject.SetActive(false);
-                Statue.Ins.SetRandomStatue();
-            }
-            else
-            {
-                ExploreBtn.gameObject.SetActive(false);
-                GenNewRoom();
-                BattleMgr.Ins.OurRunningPos.DOKill();
-                RoadParentNode.gameObject.SetActive(true);
-            }
-
-            BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-1000, 0f);
-            BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-579, 1f);
-
-            //变亮
-            FadeImg.DOFade(0f, 1f).OnComplete(() =>
-            {
-                BattleMgr.Ins.TeamIdle();
-                FadeImg.raycastTarget = false;
-                RoadBtns[0].enabled = true;
-                RoadBtns[1].enabled = true;
-                if (IsMoveToBattle)
+        FadeImg.DOFade(1f, 1f).OnComplete(
+            () =>
                 {
-                    BattleMgr.Ins.EnterBattle();
-                }
-                if (IsMoveToStatue)
-                {
-                    foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
+                    //生成事件 人走出来 变亮
+
+                    //进入战斗 或者  探索
+                    if (是否去往战斗)
                     {
-                        item.ClickImage.enabled = true;
+                        RoadParentNode.gameObject.SetActive(false);
+                        BattleMgr.Ins.EnterBattle();
                     }
-                    Statue.Ins.RequireCheck();
+                    else if (是否去往酒馆)
+                    {
+                        UIMgr.Ins.隐藏小队();
+                        Inn.Ins.展示可招募单位();
+                    }
+                    else
+                    {
+                        生成新路线();
+                        BattleMgr.Ins.OurRunningPos.DOKill();
+                        RoadParentNode.gameObject.SetActive(true);
+                    }
+
+                    //BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-1000, 0f);
+                    //BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-579, 1f);
+
+                    if (!是否去往酒馆)
+                    {
+                        UIMgr.Ins.显示小队();
+                    }
+
+                    //if (!是否去往战斗)
+                    //{
+                    //    UIMgr.Ins.显示小队();
+                    //}
+
+                    //变亮
+                    FadeImg.DOFade(0f, 1f).OnComplete(
+                        () =>
+                            {
+                                FadeImg.raycastTarget = false;
+                            }
+                    );
                 }
-            }
-            );
-        }
         );
     }
 
-    public void SetBonusGold(int num)
+    public void 显示战利品()
     {
-        BonusGold = 0;
-        for (int i = 0; i < num; i++)
+        设置战利品();
+        for (int i = 0; i < 战利品.Count; i++)
         {
-            BonusGold += 2;
-            BonusGold += UnityEngine.Random.Range(0, 2);
+            战利品[i].gameObject.SetActive(true);
         }
     }
 
-    public void ShowBonus()
+    public void 设置战利品()
     {
-        获取空侧边栏并展示("金币+" + BonusGold, () => 
+        switch (危险级别)
         {
-            ExploreBtn.gameObject.SetActive(true);
-            Gold += BonusGold;
-            UIGoldTMP.text = Gold.ToString();
-            IsMoveToStatue = true;
+            case 1:
+                战利品金币数 = 6;
+                break;
+            case 2:
+                战利品金币数 = 10;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void 获取战利品金币()
+    {
+        ShowGetBonus(战利品金币数);
+        战利品[0].gameObject.SetActive(false);
+    }
+
+    public void ShowGetBonus(int value)
+    {
+        获取空侧边栏并展示("金币+" + value, () => 
+        {
+            获取金币(value);
         });
+    }
+
+    public void 获取金币(int value) 
+    {
+        玩家拥有的金币 += value;
+        UIGoldTMP.text = 玩家拥有的金币.ToString();
     }
 }

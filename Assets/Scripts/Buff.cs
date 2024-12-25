@@ -8,7 +8,7 @@ public class Buff
     public BuffsEnum Name;
     public string Dscrp;
     public Unit BuffFrom, Owner;
-    public int CurrStack, MaxStack,OnAddStack = 1;
+    public int CurrStack, MaxStack,OnAddStack = 1,BuffListIdx;
     public bool IsDebuff,IsStackable;
     public virtual void OnTurnEnd()
     {
@@ -24,25 +24,12 @@ public class Buff
         if (CurrStack <= 0)
         {
             Owner.BuffsList.Remove(this);
-            //看当期图片是不是这个buff
-            if(Owner.BuffIcon.sprite.name == Name.ToString())
+            Owner.BuffListImgs[BuffListIdx].enabled = false;
+            Owner.BuffListImgs[BuffListIdx].sprite = null;
+            Owner.BuffListImgs[BuffListIdx].transform.SetAsLastSibling();
+            for (int i = 0; i < Owner.BuffsList.Count; i++)
             {
-                bool FindDebuff = false;
-                foreach (var b in Owner.BuffsList)
-                {
-                    if (b.IsDebuff)
-                    {
-                        //换成其他buff的图片
-                        Owner.BuffIcon.sprite = CSVManager.Ins.TypeIcon[b.Name.ToString()];
-                        FindDebuff = true;
-                        break;
-                    }
-                }
-                if (!FindDebuff)
-                {
-                    //没找到就关了
-                    Owner.BuffIcon.enabled = false;
-                }
+                Owner.BuffsList[i].BuffListIdx -= 1;
             }
         }
     }
@@ -50,8 +37,13 @@ public class Buff
     public void DebuffOnAdd()
     {
         IsDebuff = true;
-        Owner.BuffIcon.sprite = CSVManager.Ins.TypeIcon[Name.ToString()];
-        Owner.BuffIcon.enabled = true;
+
+        var buff = Owner.BuffListImgs.Find(img => img.sprite != null && img.sprite.name == Name.ToString());
+        if (buff != null) return;
+
+        BuffListIdx = Owner.BuffListImgs.Find(img=>img.enabled == false).transform.GetSiblingIndex();
+        Owner.BuffListImgs[BuffListIdx].sprite = CSVManager.Ins.TypeIcon[Name.ToString()];
+        Owner.BuffListImgs[BuffListIdx].enabled = true;
     }
 
     public virtual void 添加特效时() 
@@ -61,16 +53,6 @@ public class Buff
     public virtual void 层数改变时特效(int value)
     {
     }
-}
-
-public enum BuffsEnum
-{
-    燃烧,
-    盲目,
-    出血,
-    麻痹,
-    减速,
-    中毒,
 }
 
 public class 燃烧 : Buff
@@ -87,7 +69,7 @@ public class 燃烧 : Buff
     public override void OnTurnEnd()
     {
         float damage = Mathf.Round(Owner.MaxHp * 0.05f);
-        Owner.TakeDamage(damage, DamageType.燃烧伤害);
+        Owner.TakeDamage(damage, ElementType.燃烧伤害,DamageType.异常伤害);
         层数改变(-1);
     }
 }
@@ -124,7 +106,7 @@ public class 出血 : Buff
     public override void OnTurnEnd()
     {
         float damage = Mathf.Round(Owner.MaxHp * 0.05f);
-        Owner.TakeDamage(damage, DamageType.出血伤害);
+        Owner.TakeDamage(damage, ElementType.出血伤害, DamageType.异常伤害);
         层数改变(-1);
     }
 }
@@ -187,7 +169,7 @@ public class 中毒 : Buff
     public override void OnTurnEnd()
     {
         float damage = Mathf.Round(Owner.MaxHp * 0.05f * CurrStack);
-        Owner.TakeDamage(damage, DamageType.中毒伤害);
+        Owner.TakeDamage(damage, ElementType.中毒伤害, DamageType.异常伤害);
         层数改变(-1);
     }
 }

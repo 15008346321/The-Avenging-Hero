@@ -11,11 +11,11 @@ public class 毒蛛 : Unit
     {
         if (Random.Range(0, 2) == 1)
         {
-            BattleMgr.Ins.Targets[0].AddBuff(BuffsEnum.减速);
+            BattleMgr.Ins.Targets[0].添加Buff(BuffsEnum.减速);
         }
         if (Random.Range(0, 2) == 1)
         {
-            BattleMgr.Ins.Targets[0].AddBuff(BuffsEnum.中毒);
+            BattleMgr.Ins.Targets[0].添加Buff(BuffsEnum.中毒);
         }
     }
 }

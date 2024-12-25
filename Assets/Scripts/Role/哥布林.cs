@@ -7,10 +7,10 @@ public class 哥布林 : Unit
 {
     // Start is called before the first frame update
 
-    public override void OnTurnStart()
+    public override void 回合开始时()
     {
         int value;
-        if (该单位是否是玩家阵营)
+        if (阵营 == 阵营Enum.我方)
         {
             value = BattleMgr.Ins.玩家阵营单位列表.Count(item => !item.IsDead);
         }

@@ -9,23 +9,22 @@ using System;
 using TMPro;
 
 
-public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
+public class Unit : MonoBehaviour
 {
     public int Cell, Damage, AtkCountMax, AtkCountCurr, SkillPoint, SkillPointMax, 物理伤害减免;
-    public float Hp, MaxHp, Atk, Shield, Speed;
+    public float 生命值, MaxHp, Atk, 护盾, Speed;
     public string Element;
-    public bool isBoss, IsDead,该单位是否是玩家阵营,IsEnterUnitMove, 技能1已触发, 技能2已触发, IsSkillReady,IsAtkChanged,动画播放完毕;
+    public bool isBoss, IsDead,该单位是否是玩家阵营,单位是否进行了移动, 技能1已触发, 技能2已触发, IsSkillReady,IsAtkChanged,动画播放完毕,伤害字体已消失;
     public List<Buff> BuffsList = new();
     public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
-
-    public TextMeshProUGUI TMP,SpeedTMP;
+    public 阵营Enum 阵营;
+    public TextMeshProUGUI SpeedTMP,生命值TMP,护盾TMP;
     public Animator Anim;
-    public Image HpBar, ShieldBar, Icon, ClickImage, BuffIcon;
+    public Image Icon;
     public Button Btn;
-    public GameObject ClickBlock;
-    public List<Image> SkillPointIcon = new();
-    public Transform StartParent,StatePos,RunPosParent,DragParent;
+    public List<Image> SkillPointIcon = new(), BuffListImgs = new();
+    public Transform StartParent,StatePos,RunPosParent,DragParent,BuffListImgNode,SkillPointImgNode;
     public RectTransform TMPNameNode;
     public EventSystem _EventSystem;
     public GraphicRaycaster gra;
@@ -36,21 +35,15 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         _EventSystem = FindObjectOfType<EventSystem>();
         gra = FindObjectOfType<GraphicRaycaster>();
         FinishAtkAction += 行动结束;
-        HpBar = transform.Find("Canvas/HpBar").GetComponent<Image>();
-        ShieldBar = transform.Find("Canvas/ShieldBar").GetComponent<Image>();
-        BuffIcon = transform.Find("Canvas/BuffIcon").GetComponent<Image>();
-        BuffIcon.enabled = false;
-        TMP = transform.Find("Canvas/TMP").GetComponent<TextMeshProUGUI>();
+        生命值TMP = transform.Find("Canvas/生命值/生命值TMP").GetComponent<TextMeshProUGUI>();
+        护盾TMP = transform.Find("Canvas/护盾/护盾TMP").GetComponent<TextMeshProUGUI>();
+        Icon = transform.Find("Canvas/Icon").GetComponent<Image>();
+        BuffListImgNode = transform.Find("Canvas/BuffList");
+        SkillPointImgNode = transform.Find("Canvas/SkillPointIcon");
         SpeedTMP = transform.Find("Canvas/Speed/TMP").GetComponent<TextMeshProUGUI>();
         Anim = transform.GetComponent<Animator>();
-        DragParent = GameObject.Find("Canvas/UI/DragParent").transform;
+        //DragParent = GameObject.Find("Canvas/UI/DragParent").transform;
         StatePos = transform.Find("Canvas/FontPos");
-        Btn = transform.Find("Canvas/Click").GetComponent<Button>();
-        Btn.onClick.AddListener(OnClick);
-        ClickImage = transform.Find("Canvas/Click").GetComponent<Image>();
-        ClickImage.enabled = false;
-        ClickBlock = transform.Find("Canvas/ClickBlock").gameObject;
-        ClickBlock.SetActive(false);
 
         动画播放完毕 = true;
     }
@@ -58,172 +51,58 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     #region====初始化方法
     public void Init(UnitData data)
     {
-        TMP.text = data.Name;
-        Hp = MaxHp = data.MaxHp;
+        //TMP.text = data.Name;
+        Icon.sprite = data.角色图片;
+        生命值 = MaxHp = data.MaxHp;
+        生命值TMP.text = 生命值.ToString();
         Atk = data.Atk;
         Speed = data.Speed;
         AtkCountMax = 1;
         Bloods = data.Bloods;
         SkillPointMax = data.SkillPointMax;
         InitSkillPointIcon();
+        InitBuffListImgs();
     }
 
     public void InitSkillPointIcon()
     {
         if (SkillPointMax == 0)
         {
-            transform.Find("Canvas/SkillPointIcon").gameObject.SetActive(false);
+            SkillPointImgNode.gameObject.SetActive(false);
             return;
         }
 
-        for (int i = 0; i < transform.Find("Canvas/SkillPointIcon").childCount; i++)
+        for (int i = 0; i < SkillPointImgNode.childCount; i++)
         {
             if (i >= SkillPointMax)
             {
-                transform.Find("Canvas/SkillPointIcon").GetChild(i).gameObject.SetActive(false);
+                SkillPointImgNode.GetChild(i).gameObject.SetActive(false);
             }
             else
             {
-                SkillPointIcon.Add(transform.Find("Canvas/SkillPointIcon").GetChild(i).GetComponent<Image>());
+                SkillPointIcon.Add(SkillPointImgNode.GetChild(i).GetComponent<Image>());
                 SkillPointIcon[i].DOFade(0.5f, 0);
             }
         }
-        transform.Find("Canvas/SkillPointIcon").GetComponent<HorizontalLayoutGroup>().spacing = (transform.Find("Canvas/SkillPointIcon").childCount - SkillPointMax) * -12.5f;
+        SkillPointImgNode.GetComponent<HorizontalLayoutGroup>().spacing = (SkillPointImgNode.childCount - SkillPointMax) * -12.5f;
     }
-   
-    #endregion
-    #region ====拖动方法
-    public void OnBeginDrag(PointerEventData eventData)
+
+    public void InitBuffListImgs()
     {
-        if (EventsMgr.Ins.IsMoveToBattle)
+        for (int i = 0; i < BuffListImgNode.childCount; i++)
         {
-            StartParent = transform.parent;
-            transform.SetParent(DragParent);
-            BattleMgr.Ins.SetPosSlotAlpha(0.4f);
+            BuffListImgs.Add(BuffListImgNode.GetChild(i).GetComponent<Image>());
+            BuffListImgs[i].enabled = false;
         }
-    }
-
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (EventsMgr.Ins.IsMoveToBattle)
-        {
-            Anim.enabled = false;
-            TMP.raycastTarget = false;
-            //100是Canvas.planeDistance
-            Vector3 globalMousePos = Camera.main.ScreenToWorldPoint(new Vector3(eventData.position.x, eventData.position.y, 100));
-            // 设置对象的位置  
-            transform.position = globalMousePos;
-            //神像时
-            if (EventsMgr.Ins.IsMoveToStatue)
-            {
-            }
-            //战斗时
-            else
-            {
-                BattleMgr.Ins.SetPosSlotAlpha(0.4f);
-                if (eventData.pointerEnter.CompareTag("Pos"))
-                {
-                    eventData.pointerEnter.GetComponent<Image>().color = new Color(1, 1, 1, 1);
-                }
-            }
-
-            //用tmp判断 路劲结构:slot/Unit/canvas/tmp
-            if (eventData.pointerEnter.transform.parent.parent.CompareTag("Our"))
-            {
-                //设置slot的alpha
-                eventData.pointerEnter.transform.parent.parent.parent.GetComponent<Image>().color = new Color(1, 1, 1, 1);
-            }
-        }
-    }
-
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (EventsMgr.Ins.IsMoveToBattle)
-        {
-            BattleMgr.Ins.SetPosSlotAlpha(0f);
-
-            print(eventData.pointerEnter.tag);
-            if (eventData.pointerEnter.CompareTag("Pos"))
-            {
-                transform.SetParent(eventData.pointerEnter.transform);
-                OriData.Cell = Cell = int.Parse(transform.parent.name);
-                transform.localPosition = Vector2.zero;
-            }
-            else if (eventData.pointerEnter.CompareTag("Our"))
-            {
-                transform.parent = eventData.pointerEnter.transform.parent.parent.parent;
-                eventData.pointerEnter.transform.parent.parent.parent = StartParent;
-                transform.localPosition = Vector2.zero;
-                eventData.pointerEnter.transform.parent.parent.transform.localPosition = Vector2.zero;
-
-                Cell = transform.parent.GetSiblingIndex()+1;
-                eventData.pointerEnter.transform.parent.parent.GetComponent<Unit>().Cell = eventData.pointerEnter.transform.parent.parent.parent.GetSiblingIndex()+1;
-            }
-            else
-            {
-                transform.SetParent(StartParent);
-                transform.localPosition = Vector2.zero;
-            }
-            TMP.raycastTarget = true;
-            Anim.enabled = true;
-        }
-    }
-
-    public void OnClick()
-    {
-        if (EventsMgr.Ins.IsMoveToStatue)
-        {
-            if (transform.parent.CompareTag("RunPos"))
-            {
-                for (int i = 0; i < Statue.Ins.PrayPos.Count; i++)
-                {
-                    print(i + " " + Statue.Ins.PrayPos[i].name );
-                    if (Statue.Ins.PrayPos[i].childCount == 0)
-                    {
-                        transform.SetParent(Statue.Ins.PrayPos[i]);
-                        transform.localPosition = Vector2.zero;
-                        Statue.Ins.PrayUnitDatas[i] = OriData;
-                        break;
-                    }
-                }
-            }
-            else if (transform.parent.CompareTag("PrayPos"))
-            {
-                Statue.Ins.PrayUnitDatas.Remove(transform.parent.GetSiblingIndex());
-                transform.SetParent(StartParent);
-                transform.localPosition = Vector2.zero;
-            }
-            Statue.Ins.RequireCheck();
-        }
-    }
-
-    private void ChangePos(Unit unit1, Unit unit2)
-    {
-        (unit2.Cell, unit1.Cell) = (unit1.Cell, unit2.Cell);
-        (unit2.OriData.Cell, unit1.OriData.Cell) = (unit1.OriData.Cell, unit2.OriData.Cell);
-    }
-
-    private List<RaycastResult> GraphicRaycaster(Vector2 pos)
-    {
-        var mPointerEventData = new PointerEventData(_EventSystem);
-
-        mPointerEventData.position = pos;
-
-        List<RaycastResult> results = new();
-
-        gra.Raycast(mPointerEventData, results);
-
-        return results;
     }
     #endregion
+
     #region ====战斗中移动
     public void 单位移动(int TargetCell)
     {
-        IsEnterUnitMove = true;
+        单位是否进行了移动 = true;
         GameObject obj;
-        if (该单位是否是玩家阵营)
+        if (阵营 == 阵营Enum.我方)
         {
             obj = BattleMgr.Ins.ourObj;
         }
@@ -238,17 +117,17 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 transform.SetParent(obj.transform.GetChild(TargetCell - 1));
                 Cell = TargetCell;
                 Anim.enabled = true;
-                StartCoroutine(等待字体动画结束());
+                动画播放完毕 = true;
             }
         );
     }
 
-    internal void MoveToEnemyFrontRow()
+    private void 移动到目标同一列()
     {
-        IsEnterUnitMove = false;
+        单位是否进行了移动 = false;
         GameObject 该单位阵营;
         GameObject 敌对阵营;
-        if (该单位是否是玩家阵营)
+        if (阵营 == 阵营Enum.我方)
         {
             该单位阵营 = BattleMgr.Ins.ourObj;
             敌对阵营 = BattleMgr.Ins.eneObj;
@@ -274,8 +153,6 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
         else if (Cell == 3)
         {
-            print(name + "zai 3");
-            print("该单位阵营" + 该单位阵营.name);
             //2有空去2
             if (该单位阵营.transform.GetChild(1).childCount == 0)
             {
@@ -426,9 +303,9 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
                 单位移动(8);
             }
         }
-        if (!IsEnterUnitMove)
+        if (!单位是否进行了移动)
         {
-            FindNextActionUnit();
+            动画播放完毕 = true;
         }
 
     }
@@ -438,27 +315,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     {
         AtkCountCurr = AtkCountMax;
     }
-    public void FindNextActionUnit()
-    {
-        StartCoroutine(等待字体动画结束());
-    }
-    #endregion
-    #region====单位通用方法
 
-    public IEnumerator 等待字体动画结束()
-    {
-
-        bool Wait = true;
-        while (Wait)
-        {
-            yield return null;
-            if (StatePoolMgr.Ins.transform.childCount == 10)
-            {
-                Wait = false;
-            }
-        }
-        BattleMgr.Ins.FindNextActionUnit();
-    }
     //public void CheckComb(string currDebuff)
     //{
     //    if (BattleMgr.Ins.MainTarget.isDead) return;
@@ -483,39 +340,41 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //        }
     //    }
     //}
-    public void UpdateHpAndShieldBar()
+    public void 更新生命值()
     {
         //c# int 1/int 3 = 0
-        HpBar.fillAmount = Hp / MaxHp;
-        ShieldBar.fillAmount = Shield / MaxHp;
-    }
-    
-    public void ShowSkillName(string SkillName)
-    {
-        BattleMgr.Ins.ShowSkillName(this,SkillName);
+        生命值TMP.text = 生命值.ToString();
+
+        if (护盾 > 0)
+        {
+            护盾TMP.transform.parent.gameObject.SetActive(true);
+        }
+        else
+        {
+            护盾TMP.transform.parent.gameObject.SetActive(false);
+        }
+        护盾TMP.text = 护盾.ToString();
     }
     
     #endregion
 #region====战斗方法
     public virtual void ExecuteAtk()
     {
-
         Buff 盲目 = BuffsList.Find(item => item.Name == BuffsEnum.盲目);
         if (盲目 != null)
         {
             StatePoolMgr.Ins.状态(this, "盲目-行动失败");
-            StartCoroutine(等待字体动画结束());
             return;
         }
 
+        动画播放完毕 = false;
         获取攻击目标();
         if (BattleMgr.Ins.Targets.Count == 0)//没有目标就走位 然后进行下一个
         {
-            MoveToEnemyFrontRow();
+            移动到目标同一列();
         }
         else
         {
-            动画播放完毕 = false;
             Anim.Play("atk");//后面两方法在动画帧后段调用
         }
     }
@@ -523,7 +382,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //特殊攻击目标需要重写 默认正前方 
     public virtual void 获取攻击目标()
     {
-        BattleMgr.Ins.获取正前方目标(该单位是否是玩家阵营,Cell);
+        BattleMgr.Ins.获取正前方目标(阵营, Cell);
     }
 
     //如果攻击有特殊逻辑则重写 动画上调用
@@ -559,160 +418,115 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     //需要重写 默认正前方目标 
     public virtual void 获取技能目标() 
     {
-        BattleMgr.Ins.获取正前方目标(该单位是否是玩家阵营, Cell);
+        BattleMgr.Ins.获取正前方目标(阵营, Cell);
     }
     public virtual void 技能帧()
     {
     }
-    ////输出的追打伤害
-    //public void CaculDamageOnComb()
-    //{
-    //    Comb.CombTargets();
-    //}
-    ////在动画帧攻击之后调用 加追打时特效(Debuff 追打养成等)
-    //public void AddAtkEffectOnComb()
-    //{
-    //    Comb.OnComb();
-    //}
     //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
-    public void TakeDamage(float Damage,DamageType damageType = DamageType.物理伤害)
+    public void TakeDamage(float Damage,ElementType elementType = ElementType.物理伤害, DamageType damageType = DamageType.攻击伤害)
     {
-
+        Damage = Mathf.RoundToInt(Damage);
         //伤害减免
         更新伤害减免();
-        switch (damageType)
+        switch (elementType)
         {
-            case DamageType.物理伤害:
+            case ElementType.物理伤害:
                 Damage -= 物理伤害减免;
                 break;
-            case DamageType.火元素伤害:
+            case ElementType.火元素伤害:
                 break;
-            case DamageType.土元素伤害:
+            case ElementType.土元素伤害:
                 break;
-            case DamageType.燃烧伤害:
+            case ElementType.燃烧伤害:
                 break;
-            case DamageType.出血伤害:
+            case ElementType.出血伤害:
                 break;
-            case DamageType.中毒伤害:
+            case ElementType.中毒伤害:
                 break;
         }
 
-        if (Shield > 0)
+        if (护盾 > 0)
         {
-            if (Shield >= Damage)
+            if (护盾 >= Damage)
             {
-                Shield -= Damage;
+                护盾 -= Damage;
                 Damage = 0;
             }
             else
             {
-                Damage -= Shield;
-                Shield = 0;
+                Damage -= 护盾;
+                护盾 = 0;
             }
         }
-        Hp -= Damage;
-        UpdateHpAndShieldBar();
+        生命值 -= Damage;
+        更新生命值();
         CheckDeath();
 
         //出类型伤害和特效
-        switch (damageType)
+        switch (elementType)
         {
-            case DamageType.物理伤害:
+            case ElementType.物理伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage, "物理");
                 break;
-            case DamageType.火元素伤害:
+            case ElementType.火元素伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage, "火元素");
                 break;
-            case DamageType.土元素伤害:
+            case ElementType.土元素伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage, "土元素");
                 break;
-            case DamageType.燃烧伤害:
+            case ElementType.燃烧伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage, "燃烧");
                 break;
-            case DamageType.出血伤害:
+            case ElementType.出血伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage, "出血");
                 break;
-            case DamageType.中毒伤害:
+            case ElementType.中毒伤害:
                 StatePoolMgr.Ins.类型伤害(this, Damage, "中毒");
                 break;
         }
-        受到攻击时();
-        //switch (damageType)
-        //{
-        //    case "物理伤害":
-        //        StatePoolMgr.Ins.物理伤害(this, Damage);
-        //        break;
-        //    case "火元素伤害":
-        //        StatePoolMgr.Ins.火元素伤害(this, Damage);
-        //        break;
-        //    case "燃烧伤害":
-        //        StatePoolMgr.Ins.燃烧伤害(this, Damage);
-        //        break;
-        //case "Water":
-        //    damageReduce = DamageFrom.Water / (DamageFrom.Water + Water);
-        //    if (Element == "火") damageRate = 1.5f;
-        //    Damage = Mathf.RoundToInt(DamageFrom.Water * damageReduce * damageRate);
-        //    break;
-        //case "Wind":
-        //    damageReduce = DamageFrom.Wind / (DamageFrom.Wind + Wind);
-        //    if (Element == "土") damageRate = 1.5f;
-        //    Damage = Mathf.RoundToInt(DamageFrom.Wind * damageReduce * damageRate);
-        //    break;
-        //case "Thunder":
-        //    damageReduce = DamageFrom.Thunder / (DamageFrom.Thunder + Thunder);
-        //    if (Element == "水") damageRate = 1.5f;
-        //    Damage = Mathf.RoundToInt(DamageFrom.Thunder * damageReduce * damageRate);
-        //    break;
-        //case "Earth":
-        //    damageReduce = DamageFrom.Earth / (DamageFrom.Earth + Earth);
-        //    if (Element == "雷") damageRate = 1.5f;
-        //    Damage = Mathf.RoundToInt(DamageFrom.Earth * damageReduce * damageRate);
-        //    break;
-        //default:
-        //    damageReduce = DamageFrom.Atk / (DamageFrom.Atk + Atk);
-        //    Damage = Mathf.RoundToInt(DamageFrom.Atk * damageReduce);
-        //    break;
-        //}
-        //Damage = Mathf.RoundToInt(Damage * rate);
-        //if(AtkType == "Atk") RcAtk();
-        //if(AtkType == "Comb") RcComb();
-        //if (AttrType == "Atk") RcAtk();
-        //if (AttrType == "Fire") RcFire();
-        //if (AttrType == "Water") RcComb();
-        //if (AttrType == "Wind") RcAtk();
-        //if (AttrType == "Thunder") RcComb();
-        //if (AttrType == "Earth") RcComb();
 
-        //BattleMgr.Ins.ShowFont(this, Damage, "Hurt");
+        switch (damageType)
+        {
+            case DamageType.攻击伤害:
+                受到攻击时();
+                break;
+            case DamageType.技能伤害:
+                break;
+            case DamageType.异常伤害:
+                break;
+        }
     }//被攻击时特效 减伤 养成
 
     public virtual void 更新伤害减免() 
     { 
     }
+
     public void TakeHeal(float HealValue)
     {
         if (BuffsList.Exists(b => b.Name == BuffsEnum.燃烧)) HealValue = 0;
         HealValue = Mathf.Round(HealValue);
-        if (Hp + HealValue >= MaxHp)
+        if (生命值 + HealValue >= MaxHp)
         {
-            HealValue = MaxHp - Hp;
-            Hp = MaxHp;
+            HealValue = MaxHp - 生命值;
+            生命值 = MaxHp;
         }
         else
         {
-            Hp += HealValue;
+            生命值 += HealValue;
         }
         StatePoolMgr.Ins.类型伤害(this, HealValue, "治疗");
-        UpdateHpAndShieldBar() ;
+        更新生命值() ;
         受到治疗时();
     }
+
     public void CheckDeath()
     {
-        if (Hp <= 0)
+        if (生命值 <= 0|| IsDead == true)
         {
             IsDead = true;
             StartCoroutine(延时设置死亡());
-            BattleMgr.Ins.单位死亡时(该单位是否是玩家阵营);
+            BattleMgr.Ins.有单位阵亡时(阵营);
             StartCoroutine(BattleMgr.Ins.CheckBattleEnd());
         }
     }
@@ -736,7 +550,7 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     }
 
-    public virtual void 单位死亡时(bool 死亡单位是否是玩家阵营) 
+    public virtual void 有单位阵亡时(阵营Enum _阵营) 
     { 
     }
 
@@ -795,7 +609,10 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     public virtual void 战斗结束时()
     {
     }
-    public void OnTurnEnd()
+    public virtual void 回合开始时()
+    {
+    }
+    public virtual void 回合结束时()
     {
         for (int i = 0; i < BuffsList.Count; i++)
         {
@@ -803,20 +620,15 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
     }
 
-    public virtual void OnTurnStart()
-    {
-
-    }
     #endregion
 
     public void 行动结束()
     {
         Anim.Play("idle");
         动画播放完毕 = true;
-        StartCoroutine(等待字体动画结束());
     }
 
-    public void AddBuff(BuffsEnum BuffName)
+    public void 添加Buff(BuffsEnum BuffName)
     {
         Buff OldBuff = BuffsList.Find(b => b.Name == BuffName);
         if (OldBuff != null && OldBuff.IsStackable)
@@ -856,8 +668,33 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
     }
 
+    public void 临时添加血脉(魔力类型Enum type, int value)
+    {
+        if (Bloods.Exists(b => b.Name == type))
+        {
+            Bloods.Find(b => b.Name == type).Value += value;
+        }
+        else
+        {
+            Bloods.Add(new Blood(type, value));
+        }
+    }
+
+    public void 永久添加血脉(魔力类型Enum type, int value) 
+    {
+        if(OriData. Bloods.Exists(b => b.Name == type))
+        {
+            OriData.Bloods.Find(b => b.Name == type).Value += value;
+        }
+        else
+        {
+            OriData.Bloods.Add(new Blood(type, value));
+        }
+    }
+
     public void 获取技能点() 
     {
+
         if (IsDead)
         {
             return;
@@ -879,7 +716,8 @@ public class Unit : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
 
     public void 获取护盾(float value)
     {
-        Shield += value;
-        UpdateHpAndShieldBar();
+        护盾 += value;
+        更新生命值();
     }
 }
+

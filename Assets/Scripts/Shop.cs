@@ -114,7 +114,6 @@ public class Shop : MonoBehaviour
     public void LeaveOut()
     {
         gameObject.SetActive(false);
-        EventsMgr.Ins.ExploreBtn.gameObject.SetActive(true);
     }
 }
     

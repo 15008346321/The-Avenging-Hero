@@ -9,7 +9,7 @@ public class 史莱姆 : Unit
     public override void 受到攻击时()
     {
         base.受到攻击时();
-        if (Hp * 2 < MaxHp && !技能1已触发)
+        if (生命值 * 2 < MaxHp && !技能1已触发)
         {
             分裂();
         }
@@ -19,17 +19,19 @@ public class 史莱姆 : Unit
     {
         IsDead = true;
         技能1已触发 = true;
-        transform.SetParent(BattleMgr.Ins.DeadParent);
+        CheckDeath();
         StatePoolMgr.Ins.状态(this, "分裂");
 
-        UnitData data = new UnitData(CSVManager.Ins.Units["史莱姆"], Cell);
+        UnitData data = new(CSVManager.Ins.Units["史莱姆"], Cell);
 
-        Unit u1 = BattleMgr.Ins.InitRole(data, 该单位是否是玩家阵营);
+        float 阵营scale = 阵营 == 阵营Enum.我方 ? 1 : -1;
+
+        Unit u1 = BattleMgr.Ins.InitRole(data, 阵营);
         u1.技能1已触发 = true;
-        u1.transform.localScale = Vector3.one*0.8f;
+        u1.transform.localScale = 0.8f * new Vector2(1 * 阵营scale, 1);
 
-        Unit u2 = BattleMgr.Ins.InitRole(data, 该单位是否是玩家阵营);
+        Unit u2 = BattleMgr.Ins.InitRole(data, 阵营);
         u2.技能1已触发 = true;
-        u2.transform.localScale = Vector3.one * 0.8f;
+        u2.transform.localScale = 0.8f * new Vector2(1 * 阵营scale, 1);
     }
 }

@@ -13,7 +13,7 @@ public class 战士 : Unit
         if(BattleMgr.Ins.Targets.Count > 0)
         {
             //看目标后一个有没有单位
-            Unit t2 = BattleMgr.Ins.查找敌对阵营指定位置上单位(BattleMgr.Ins.Targets[0].Cell + 3, 该单位是否是玩家阵营);
+            Unit t2 = BattleMgr.Ins.查找指定阵营位置上单位(BattleMgr.Ins.Targets[0].Cell + 3, BattleMgr.Ins.Targets[0].阵营);
             if (t2 != null)
             {
                 BattleMgr.Ins.Targets.Add(t2);
@@ -36,10 +36,11 @@ public class 战士 : Unit
     public void 击退()
     {
         if (!可以击退当前单个目标) return;
+        //目标在第三列肯定后面没人就不用判断了
         if (!BattleMgr.Ins.Col3.Contains(BattleMgr.Ins.Targets[0].Cell))
         {
             GameObject FIndIn;
-            if (BattleMgr.Ins.Targets[0].该单位是否是玩家阵营)
+            if (BattleMgr.Ins.Targets[0].阵营 == 阵营Enum.敌方)
             {
                 FIndIn = BattleMgr.Ins.ourObj;
             }

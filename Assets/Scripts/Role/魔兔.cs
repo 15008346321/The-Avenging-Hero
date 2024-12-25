@@ -11,8 +11,8 @@ public class 魔兔 : Unit
     {
         if(Random.Range(0,2) == 1)
         {
-            BattleMgr.Ins.Targets[0].AddBuff(BuffsEnum.出血);
-            AddBuff(BuffsEnum.出血);
+            BattleMgr.Ins.Targets[0].添加Buff(BuffsEnum.出血);
+            添加Buff(BuffsEnum.出血);
             foreach (var item in BattleMgr.Ins.AllUnit)
             {
                 if (item.BuffsList.Exists(b => b.Name == BuffsEnum.出血)) Atk += 1;

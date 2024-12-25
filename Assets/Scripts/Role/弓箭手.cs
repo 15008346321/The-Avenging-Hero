@@ -12,7 +12,7 @@ public class 弓箭手 : Unit
 
     public override void 获取技能目标()
     {
-        BattleMgr.Ins.获取敌方单位最多的一行的所有目标(Cell, 该单位是否是玩家阵营);
+        BattleMgr.Ins.获取敌方单位最多的一行的所有目标(Cell, 阵营);
     }
 
     public override void 技能帧()
