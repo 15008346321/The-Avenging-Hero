@@ -13,29 +13,51 @@ public class Test : MonoBehaviour
     public Transform u, t;
     public GameObject gaer;
     public Unit unit;
-    public ComponentBase skill, AtkSkill1, AtkSkill2;
     public string filePath;
     public bool b;
     public List<string[]> data = new();
     public List<GameObject> GL = new();
     public Dictionary<int, int> id = new Dictionary<int, int>();
 
-    public void Atk999()
+    public 遗物基类 遗物;
+
+    private void Update()
     {
-        foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
-        {
-            item.Atk = 999;
-            item.Speed = 99;
-        }
-        EventsMgr.Ins.玩家拥有的金币 += 100;
+        //print(Screen.width +" "+ Screen.height);
+    }
+    public void SetResolutionMax()
+    {
+        Screen.SetResolution(2560,1440,false);
+
+        print("2560,1440");
     }
 
-    public void ShowMyTest()
+    public void SetResolutionMid()
     {
-        string a = "{0}{1}";
+        Screen.SetResolution(1920, 1080, false);
 
-        print(string.Format(a,"312","dsa"));
+        print("1920, 1080");
     }
+    public void 创建传家宝()
+    {
+        BagMgr.Ins.获得遗物("村长的传家宝");
+    }
+    //public void Atk999()
+    //{
+    //    foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
+    //    {
+    //        item.Atk = 999;
+    //        item.Speed = 99;
+    //    }
+    //    BagMgr.Ins.玩家拥有的金币 += 100;
+    //}
+
+    //public void ShowMyTest()
+    //{
+    //    string a = "{0}{1}";
+
+    //    print(string.Format(a,"312","dsa"));
+    //}
     //public void Test13()
     //{
     //    unit.Anim.Play("idle");

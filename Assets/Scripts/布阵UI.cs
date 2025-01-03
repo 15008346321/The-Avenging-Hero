@@ -37,7 +37,7 @@ public class 布阵UI : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
             if (hit.collider != null && hit.collider.gameObject.CompareTag("布阵位置"))
             {
-                UnitData ud = TeamManager.Ins.TeamData.Find(td => td.Cell == (hit.collider.gameObject.transform.GetSiblingIndex() + 1));
+                UnitData ud = TeamMgr.Ins.TeamData.Find(td => td.Cell == (hit.collider.gameObject.transform.GetSiblingIndex() + 1));
                 //交换位置
                 if (ud != null)
                 {

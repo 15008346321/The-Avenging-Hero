@@ -7,9 +7,11 @@ public class StatePoolMgr : MonoBehaviour
     public GameObject Prefab;
     public int PoolMax,SameTimeStateCount;
     public float time;
-    public List<State> Pool;
-    public static StatePoolMgr Ins;
+    public List<提示信息> Pool;
     public Unit 上一个调用者;
+    public Transform 提示信息父节点;
+
+    public static StatePoolMgr Ins;
 
     private void Awake()
     {
@@ -21,8 +23,8 @@ public class StatePoolMgr : MonoBehaviour
         for (int i = 0; i < PoolMax; i++)
         {
             GameObject g = Instantiate(Prefab);
-            State s = g.GetComponent<State>();
-            s.transform.SetParent(transform);
+            提示信息 s = g.GetComponent<提示信息>();
+            s.transform.SetParent(提示信息父节点);
             s.gameObject.SetActive(false);
             Pool.Add(s);
         }
@@ -36,7 +38,7 @@ public class StatePoolMgr : MonoBehaviour
         }
     }
 
-    bool 检查是否需要延迟播放(State state)
+    bool 检查是否需要延迟播放(提示信息 state)
     {
         if(state.调用者 == 上一个调用者)
         {
@@ -46,7 +48,7 @@ public class StatePoolMgr : MonoBehaviour
         return false;
     }
 
-    public State Get()
+    public 提示信息 Get()
     {
         for (int i = 0; i < Pool.Count; i++)
         {
@@ -60,10 +62,10 @@ public class StatePoolMgr : MonoBehaviour
 
     public void 类型伤害(Unit u, float damage, string type)
     {
-        State s = Get();
+        提示信息 s = Get();
         s.调用者 = u;
         s.tmp.text = damage.ToString();
-        s.image.sprite = CSVManager.Ins.TypeIcon[type];
+        s.image.sprite = CSVMgr.Ins.TypeIcon[type];
         s.transform.position =  u.StatePos.position;
         float delay = 0;
         if(检查是否需要延迟播放(s))
@@ -76,7 +78,7 @@ public class StatePoolMgr : MonoBehaviour
 
     public void 状态(Unit u, string text) 
     {
-        State s = Get();
+        提示信息 s = Get();
         s.调用者 = u;
         s.tmp.text = text;
         s.transform.SetParent(u.StatePos);
@@ -89,7 +91,7 @@ public class StatePoolMgr : MonoBehaviour
         s.gameObject.SetActive(true);
         StartCoroutine(延迟播放(s, "状态", delay));
     }
-    public IEnumerator 延迟播放(State s,string 类型 ,float delay) 
+    public IEnumerator 延迟播放(提示信息 s,string 类型 ,float delay) 
     { 
         yield return new WaitForSeconds(delay);
         s.animator.Play(类型);

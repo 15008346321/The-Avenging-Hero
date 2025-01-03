@@ -95,9 +95,9 @@ public class Shop : MonoBehaviour
 
     public void Buy()
     {
-        if (BagManager.Ins.Gold >= int.Parse(GoodsList[GoodsIndex][4]))
+        if (BagMgr.Ins.玩家拥有的金币 >= int.Parse(GoodsList[GoodsIndex][4]))
         {
-            BagManager.Ins.Gold -= int.Parse(GoodsList[GoodsIndex][4]);
+            BagMgr.Ins.玩家拥有的金币 -= int.Parse(GoodsList[GoodsIndex][4]);
             GoodsNode.GetChild(GoodsIndex).gameObject.SetActive(false);
             DetailTitleTMP.text = "再来点什么";
             DetailContentTMP.text = null;

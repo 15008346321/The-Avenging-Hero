@@ -142,10 +142,10 @@ public class 神像管理器 : MonoBehaviour
     //    RequireCheck();
 
     //    //刷新花钱
-    //    EventsMgr.Ins.玩家拥有的金币 -= 剩余刷新次数;
-    //    EventsMgr.Ins.UIGoldTMP.text = EventsMgr.Ins.玩家拥有的金币.ToString();
+    //    BagMgr.Ins.玩家拥有的金币 -= 剩余刷新次数;
+    //    EventsMgr.Ins.UIGoldTMP.text = BagMgr.Ins.玩家拥有的金币.ToString();
     //    //没钱不能刷新
-    //    if (EventsMgr.Ins.玩家拥有的金币 < 剩余刷新次数)
+    //    if (BagMgr.Ins.玩家拥有的金币 < 剩余刷新次数)
     //    {
     //        RefreshBlock.SetActive(true);
     //    }
@@ -193,9 +193,9 @@ public class 神像管理器 : MonoBehaviour
     public void 当点击信仰()
     {
         PrayBtn.enabled = false;
-        for (int i = 0; i < TeamManager.Ins.拥有角色数据.Count; i++)
+        for (int i = 0; i < TeamMgr.Ins.拥有角色数据.Count; i++)
         {
-            var ud = TeamManager.Ins.拥有角色数据[i];
+            var ud = TeamMgr.Ins.拥有角色数据[i];
             if (ud.在神像位置 == -1) continue;
             switch (神像位置对应的神像编号[ud.在神像位置])
             {
@@ -227,7 +227,7 @@ public class 神像管理器 : MonoBehaviour
         UIMgr.Ins.显示小队();
         当前正在神像 = false;
         隐藏神像();
-        EventsMgr.Ins.生成新路线();
+        EventsMgr.Ins.生成一个战斗路线();
 
     }
 

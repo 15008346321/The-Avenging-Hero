@@ -24,12 +24,9 @@ public class Buff
         if (CurrStack <= 0)
         {
             Owner.BuffsList.Remove(this);
-            Owner.BuffListImgs[BuffListIdx].enabled = false;
-            Owner.BuffListImgs[BuffListIdx].sprite = null;
-            Owner.BuffListImgs[BuffListIdx].transform.SetAsLastSibling();
             for (int i = 0; i < Owner.BuffsList.Count; i++)
             {
-                Owner.BuffsList[i].BuffListIdx -= 1;
+                Owner.BuffListImgs[i].sprite = CSVMgr.Ins.TypeIcon[Owner.BuffsList[i].Name.ToString()];
             }
         }
     }
@@ -38,12 +35,10 @@ public class Buff
     {
         IsDebuff = true;
 
-        var buff = Owner.BuffListImgs.Find(img => img.sprite != null && img.sprite.name == Name.ToString());
-        if (buff != null) return;
-
-        BuffListIdx = Owner.BuffListImgs.Find(img=>img.enabled == false).transform.GetSiblingIndex();
-        Owner.BuffListImgs[BuffListIdx].sprite = CSVManager.Ins.TypeIcon[Name.ToString()];
-        Owner.BuffListImgs[BuffListIdx].enabled = true;
+        for (int i = 0; i < Owner.BuffsList.Count; i++)
+        {
+            Owner.BuffListImgs[i].sprite = CSVMgr.Ins.TypeIcon[Owner.BuffsList[i].Name.ToString()];
+        }
     }
 
     public virtual void 添加特效时() 

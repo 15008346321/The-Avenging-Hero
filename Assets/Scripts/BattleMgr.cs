@@ -54,7 +54,7 @@ public class BattleMgr : MonoBehaviour
         List<UnitData> Datas;
         if (_阵营 == 阵营Enum.我方)
         {
-            Datas = TeamManager.Ins.TeamData;
+            Datas = TeamMgr.Ins.TeamData;
         }
         else
         {
@@ -69,9 +69,9 @@ public class BattleMgr : MonoBehaviour
                 string Name = item.Split(':')[0];
                 int Cell = int.Parse(item.Split(':')[1]);
 
-                TeamManager.Ins.EnemyData.Add(new UnitData(CSVManager.Ins.Units[Name], Cell));
+                TeamMgr.Ins.EnemyData.Add(new UnitData(CSVMgr.Ins.Units[Name], Cell));
             }
-            Datas = TeamManager.Ins.EnemyData;
+            Datas = TeamMgr.Ins.EnemyData;
         }
         //根据data实例化
         for (int i = 0; i < Datas.Count; i++)
@@ -105,7 +105,7 @@ public class BattleMgr : MonoBehaviour
         else obj = eneObj;
 
         //找自己阵营有没空位
-        if (查找指定阵营位置上单位(u.Cell, u.阵营) != null) 
+        if (查找指定阵营位置上单位(u.阵营,u.Cell) != null) 
         {
             for (int i = 0; i < 9; i++)
             {
@@ -166,6 +166,7 @@ public class BattleMgr : MonoBehaviour
         实例化敌人小队();
         当前正在布阵 = true;
         UIMgr.Ins.显示角色栏();
+        SetPosSlotAlpha(1f);
         BattleBtn.gameObject.SetActive(true);
         UIMgr.Ins.UIBot.SetActive(false);
     }
@@ -203,7 +204,7 @@ public class BattleMgr : MonoBehaviour
         for (int i = 0; i < AllUnit.Count; i++)
         {
             AllUnit[i].战斗开始时();
-            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
+            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
         }
         战斗开始时 = false;
     }
@@ -216,7 +217,7 @@ public class BattleMgr : MonoBehaviour
         {
             AllUnit[i].ReloadAtk();
             AllUnit[i].回合开始时();
-            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
+            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
         }
 
         StartCoroutine(FindNextActionUnit());
@@ -263,7 +264,7 @@ public class BattleMgr : MonoBehaviour
                     //AnimQueue.Add(item.ID + ":NormalAtk");
 
                     AllUnit[i].ExecuteSkill();
-                    yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
+                    yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
                     break;
                 }
             }
@@ -277,7 +278,7 @@ public class BattleMgr : MonoBehaviour
                     AllUnit[i].AtkCountCurr -= 1;
 
                     AllUnit[i].ExecuteAtk();
-                    yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
+                    yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
                     break;
                 }
             }
@@ -304,7 +305,7 @@ public class BattleMgr : MonoBehaviour
         while (Wait)
         {
             yield return null;
-            if (StatePoolMgr.Ins.transform.childCount == 10)
+            if (StatePoolMgr.Ins.提示信息父节点.childCount == 10)
             {
                 Wait = false;
             }
@@ -351,6 +352,8 @@ public class BattleMgr : MonoBehaviour
         BattleBtn.gameObject.SetActive(false);
         BattleBtn.enabled = true;
 
+
+
         if (战斗胜利)
         {
             UIMgr.Ins.显示小队();
@@ -370,15 +373,20 @@ public class BattleMgr : MonoBehaviour
         {
             if(AllUnit[i].IsDead == true)continue;
             AllUnit[i].回合结束时();
-            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.transform.childCount == 10);
+            yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
+        }
+        for (int i = 0; i < BagMgr.Ins.遗物基类List.Count; i++)
+        {
+            BagMgr.Ins.遗物基类List[i].回合结束时();
         }
         BattleBtn.enabled = true;
     }
 
     public void ResetBattle()
     {
+        StopCoroutine("FindNextActionUnit");
         战斗开始时 = true;
-        TeamManager.Ins.EnemyData.Clear();
+        TeamMgr.Ins.EnemyData.Clear();
         AllUnit.Clear();
         玩家阵营单位列表.Clear();
 
@@ -407,7 +415,7 @@ public class BattleMgr : MonoBehaviour
         return Ins.TeamMain[0];
     }
 
-    public Unit 查找指定阵营位置上单位(int Cell,阵营Enum _阵营)
+    public Unit 查找指定阵营位置上单位(阵营Enum _阵营, int Cell)
     {
         GameObject findIn;
 

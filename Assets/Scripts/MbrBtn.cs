@@ -10,7 +10,7 @@ public class MbrBtn : MonoBehaviour
     public Image Arrow;
     public void ShowDetail()
     {
-        TeamManager.Ins.CurrMbrIdx = transform.GetSiblingIndex();
-        TeamManager.Ins.ShowTeam();
+        TeamMgr.Ins.CurrMbrIdx = transform.GetSiblingIndex();
+        TeamMgr.Ins.ShowTeam();
     }
 }

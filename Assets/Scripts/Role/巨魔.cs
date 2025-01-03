@@ -28,6 +28,6 @@ public class 巨魔 : Unit
 
     public void 召唤哥布林()
     {
-        BattleMgr.Ins.InitRole(new UnitData(CSVManager.Ins.Units["哥布林"], Cell), 阵营);
+        BattleMgr.Ins.InitRole(new UnitData(CSVMgr.Ins.Units["哥布林"], Cell), 阵营);
     }
 }

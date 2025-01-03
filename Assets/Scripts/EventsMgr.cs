@@ -18,19 +18,18 @@ public class EventsMgr : MonoBehaviour
     string[] currentEvent;
     public Image[] 路线Imgs = new Image[2];
     public Image FadeImg;
+    public Button 探索按钮;
     public Button[]
         RoadBtns = new Button[2],
         EventBtns = new Button[2],
         StatueBtns = new Button[3];
     public TextMeshProUGUI[]
-        路线TMPs     = new TextMeshProUGUI[3],
         EventChooseTMPs    = new TextMeshProUGUI[2],
         BounusRelicsName   = new TextMeshProUGUI[3],
         BounusRelicsEffect = new TextMeshProUGUI[3];
-    readonly float[] 事件出现率 = {50,60,10};//战斗，酒馆，商店
     public int EventPoint, MaxEventPoint, StatueIdx, StatueMbrIdx, BonusGold, 玩家拥有的金币, 危险级别, 战利品金币数;
     public string monsters, bonus;
-    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP,UIGoldTMP;
+    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP,UIGoldTMP,探索按钮TMP;
     public Transform RoadParentNode, EventParentNode, EventContentNode, EventResultNode,DailyNode,
         ShopNode, StatueNode, StatueParent,侧边栏父级;
     public GameObject 神像;
@@ -54,15 +53,6 @@ public class EventsMgr : MonoBehaviour
     {
         //初始化行动力
         EventPoint = MaxEventPoint = 10;
-
-        //初始化路线按钮
-        for (var i = 0; i < 2; i++)
-        {
-            路线TMPs[i] = RoadBtns[i].transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-            路线Imgs[i] = RoadBtns[i].transform.GetChild(1).GetComponent<Image>();
-            var j = i;
-            RoadBtns[i].onClick.AddListener(() => RoadChoose(j));
-        }
 
         //初始化事件按钮
         TitleTMP     = EventContentNode.Find("Bg/TitleBg/TMP").GetComponent<TextMeshProUGUI>();
@@ -125,103 +115,14 @@ public class EventsMgr : MonoBehaviour
             }
         );
     }
-
-    public void 生成新路线()
-    {
-       // ScrollBg.Ins.MoveBg = true;
-
-        RoadParentNode.gameObject.SetActive(true);
-        //RoadParentNode.transform.localPosition = new Vector2(1200, 0);
-        var ran = UnityEngine.Random.Range(0, 100);
-        int roomCount;
-        //30概率只有一个房间
-        if (ran < 30)
-        {
-            roomCount = 1;
-            RoadBtns[0].transform.localPosition = new Vector2(0, -50);
-            RoadBtns[1].gameObject.SetActive(false);
-        }
-        else
-        {
-            roomCount = 2;
-            RoadBtns[0].transform.localPosition = new Vector2(0,100);
-            RoadBtns[1].gameObject.SetActive(true);
-        }
-
-        //避免二选一是同样的选项
-        bool 战斗事件已出现 = false, 酒馆已出现 = false, 商店已出现 = false;
-        var count = 0;
-        for (var i = 0; i < roomCount; i++)
-        {
-            print("第"+ i + "个=============================================");
-            while (true)
-            {
-                count += 1;
-                if(count == 1000) 
-                {
-                    Debug.LogError("已循环1000次 break");
-                    break; 
-                }
-
-                ran = UnityEngine.Random.Range(0, (int)事件出现率.Sum());
-                print(ran);
-                if (ran < 事件出现率[0])
-                {
-                    print("战斗事件已出现");
-                    if (战斗事件已出现) continue;
-                    路线TMPs[i].text = "战斗";
-                    路线Imgs[i].sprite = Resources.Load<Sprite>("Texture/Icon/002_battle");
-                    战斗事件已出现 = true;
-                    break;
-                }
-                else if (ran < (事件出现率[0] + 事件出现率[1]))
-                {
-                    print("酒馆已出现");
-                    if (酒馆已出现) continue;
-                    路线TMPs[i].text = "酒馆";
-                    路线Imgs[i].sprite = Resources.Load<Sprite>("Texture/Icon/004_camp");
-                    酒馆已出现 = true;
-                    break;
-                }
-                else if (ran < 事件出现率[0] + 事件出现率[1] + 事件出现率[2])
-                {
-                    print("商店已出现");
-                    if (商店已出现) continue;
-                    路线TMPs[i].text = "商店";
-                    路线Imgs[i].sprite = Resources.Load<Sprite>("Texture/Icon/003_shop");
-                    商店已出现 = true;
-                    break;
-                }
-            }
-        }
-    }
-
     public void 生成一个战斗路线()
     {
-        RoadParentNode.gameObject.SetActive(true);
-        RoadBtns[1].gameObject.SetActive(false);
-        RoadBtns[0].transform.localPosition = new Vector2(0, -50);
-        路线TMPs[0].text = "战斗";
-        路线Imgs[0].sprite = Resources.Load<Sprite>("Texture/Icon/002_battle");
+        探索按钮.gameObject.SetActive(true);
     }
 
-    public void RoadChoose(int i)
+    public void 当点击探索按钮(int i)
     {
-        RoadParentNode.gameObject.SetActive(false);
-        switch (路线TMPs[i].text)
-        {
-            case "战斗":
-                去往战斗();
-                break;
-            case "酒馆":
-                去往酒馆();
-                break;
-            case "商店":
-                SetRoadToShop();
-                break;
-            default:
-                break;
-        }
+        设置战斗();
     }
 
     private void 去往酒馆()
@@ -231,20 +132,20 @@ public class EventsMgr : MonoBehaviour
         Fade();
     }
 
-    public void 去往战斗()
+    public void 设置战斗()
     {
         //设置敌人
         //战斗全打了就出boss
-        if(LevelManager.Ins.CurrentLevel.Battles.Count == 0)
+        if(LevelMgr.Ins.CurrentLevel.Battles.Count == 0)
         {
-            BattleMgr.Ins.EnemysStr = LevelManager.Ins.CurrentLevel.Boss;
+            BattleMgr.Ins.EnemysStr = LevelMgr.Ins.CurrentLevel.Boss;
         }
         //没打完就随机出小怪
         else
         {
-            var ranNum = UnityEngine.Random.Range(0, LevelManager.Ins.CurrentLevel.Battles.Count);
-            BattleMgr.Ins.EnemysStr = LevelManager.Ins.CurrentLevel.Battles[ranNum];
-            LevelManager.Ins.CurrentLevel.Battles.Remove(LevelManager.Ins.CurrentLevel.Battles[ranNum]);
+            var ranNum = UnityEngine.Random.Range(0, LevelMgr.Ins.CurrentLevel.Battles.Count);
+            BattleMgr.Ins.EnemysStr = LevelMgr.Ins.CurrentLevel.Battles[ranNum];
+            LevelMgr.Ins.CurrentLevel.Battles.Remove(LevelMgr.Ins.CurrentLevel.Battles[ranNum]);
         }
 
         危险级别 = int.Parse( BattleMgr.Ins.EnemysStr[1]);
@@ -275,11 +176,11 @@ public class EventsMgr : MonoBehaviour
         //    AreaFinished = true;
         //    return;
         //}
-        int random = UnityEngine.Random.Range(0, LevelManager.Ins.CurrentLevel.Events.Count - 1);
+        int random = UnityEngine.Random.Range(0, LevelMgr.Ins.CurrentLevel.Events.Count - 1);
         //0id,1事件,21选择,31结果,41结算code,52选择,62结果,72结算code
         //Option方法读取currentEvent中数据
-        currentEvent = LevelManager.Ins.CurrentLevel.Events[random];
-        LevelManager.Ins.CurrentLevel.Events.RemoveAt(random);
+        currentEvent = LevelMgr.Ins.CurrentLevel.Events[random];
+        LevelMgr.Ins.CurrentLevel.Events.RemoveAt(random);
 
         SetEventsUIAndContent();
     }
@@ -333,7 +234,7 @@ public class EventsMgr : MonoBehaviour
         }
     }
 
-    public void Fade()
+    public void Fade(Action Callback = null)
     {
         FadeImg.raycastTarget = true;
         //人往前走 变黑
@@ -348,7 +249,7 @@ public class EventsMgr : MonoBehaviour
                     //进入战斗 或者  探索
                     if (是否去往战斗)
                     {
-                        RoadParentNode.gameObject.SetActive(false);
+                        探索按钮.gameObject.SetActive(false);
                         BattleMgr.Ins.EnterBattle();
                     }
                     else if (是否去往酒馆)
@@ -358,9 +259,7 @@ public class EventsMgr : MonoBehaviour
                     }
                     else
                     {
-                        生成新路线();
-                        BattleMgr.Ins.OurRunningPos.DOKill();
-                        RoadParentNode.gameObject.SetActive(true);
+                        探索按钮.gameObject.SetActive(true);
                     }
 
                     //BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-1000, 0f);
@@ -380,6 +279,7 @@ public class EventsMgr : MonoBehaviour
                     FadeImg.DOFade(0f, 1f).OnComplete(
                         () =>
                             {
+                                Callback?.Invoke();
                                 FadeImg.raycastTarget = false;
                             }
                     );
@@ -421,13 +321,9 @@ public class EventsMgr : MonoBehaviour
     {
         获取空侧边栏并展示("金币+" + value, () => 
         {
-            获取金币(value);
+            BagMgr.Ins.获取金币(value);
         });
     }
 
-    public void 获取金币(int value) 
-    {
-        玩家拥有的金币 += value;
-        UIGoldTMP.text = 玩家拥有的金币.ToString();
-    }
+
 }

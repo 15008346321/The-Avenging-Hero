@@ -15,7 +15,7 @@ public class 蜥蜴人 : Unit
         base.获取攻击目标();
         if(BattleMgr.Ins.Targets.Count>0)
         {
-            Unit t2 = BattleMgr.Ins.查找指定阵营位置上单位(BattleMgr.Ins.Targets[0].Cell + 3, BattleMgr.Ins.Targets[0].阵营);
+            Unit t2 = BattleMgr.Ins.查找指定阵营位置上单位(BattleMgr.Ins.Targets[0].阵营, BattleMgr.Ins.Targets[0].Cell + 3);
             if (t2!=null)
             {
                 BattleMgr.Ins.Targets.Add(t2);

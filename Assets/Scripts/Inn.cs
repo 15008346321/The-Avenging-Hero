@@ -44,23 +44,23 @@ public class Inn : MonoBehaviour
         角色数据.Clear();
         for (int i = 0; i < 4; i++)
         {
-            int ran = Random.Range(0, CSVManager.Ins.Units.Count);
+            int ran = Random.Range(0, CSVMgr.Ins.Units.Count);
             while (已随机到角色编号.Contains(ran))
             {
-                ran = Random.Range(0, CSVManager.Ins.Units.Count);
+                ran = Random.Range(0, CSVMgr.Ins.Units.Count);
             }
             已随机到角色编号.Add(ran);
-            角色数据.Add(new UnitData(CSVManager.Ins.Units[CSVManager.Ins.角色名称数组[ran]]));
+            角色数据.Add(new UnitData(CSVMgr.Ins.Units[CSVMgr.Ins.角色名称数组[ran]]));
         }
     }
 
     public void 招募(int index) 
     {
-        if (EventsMgr.Ins.玩家拥有的金币 > 角色数据[index].角色价格) 
+        if (BagMgr.Ins.玩家拥有的金币 > 角色数据[index].角色价格) 
         {
-            EventsMgr.Ins.玩家拥有的金币 -= 角色数据[index].角色价格;
+            BagMgr.Ins.玩家拥有的金币 -= 角色数据[index].角色价格;
             角色[index].SetActive(false);
-            TeamManager.Ins.拥有角色数据.Add(角色数据[index]);
+            TeamMgr.Ins.拥有角色数据.Add(角色数据[index]);
         }
     }
 

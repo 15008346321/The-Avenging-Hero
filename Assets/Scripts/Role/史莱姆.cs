@@ -22,7 +22,7 @@ public class 史莱姆 : Unit
         CheckDeath();
         StatePoolMgr.Ins.状态(this, "分裂");
 
-        UnitData data = new(CSVManager.Ins.Units["史莱姆"], Cell);
+        UnitData data = new(CSVMgr.Ins.Units["史莱姆"], Cell);
 
         float 阵营scale = 阵营 == 阵营Enum.我方 ? 1 : -1;
 
