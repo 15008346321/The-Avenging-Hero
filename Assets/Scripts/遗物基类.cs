@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
+using UnityEngine.UI;
 
 public abstract class 遗物基类
 {
@@ -122,4 +124,15 @@ public abstract class 遗物基类
     {
         Debug.LogError("这是遗物基类");
     }
+
+    public void 触发动画()
+    {
+        Image img =  BagMgr.Ins.遗物实例List.Find(y=>y.遗物.Name == Name).遗物图片;
+
+        // 缩放
+        img.rectTransform.DOScale(Vector3.one * 1.5f, 0.1f).SetEase(Ease.OutQuad);
+
+        img.rectTransform.DOScale(Vector3.one, 0.2f).SetDelay(0.1f).SetEase(Ease.InQuad);
+    }
+
 }

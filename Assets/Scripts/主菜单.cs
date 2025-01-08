@@ -32,7 +32,7 @@ public class 主菜单 : MonoBehaviour
         InitRecord();
     }
 
-    public void OnClickNewGame()
+    public void 当点击出发()
     {
         初始化村庄();
     }
@@ -56,9 +56,10 @@ public class 主菜单 : MonoBehaviour
     private void 初始化村庄()
     {
         PlayerPrefs.SetInt("HaveRecord?", 1);
-        TeamMgr.Ins.生成随机初始角色();
+        TeamMgr.Ins.生成初始角色();
         UIMgr.Ins.显示小队();
         UIMgr.Ins.更换地图("村庄");
+        LevelMgr.Ins.SetLevel("后山");
         UIMgr.Ins.提示OBJ.SetActive(true);
         UIMgr.Ins.村长BTN.gameObject.SetActive(true);
         //添加当前角色 添加任务 添加目的地

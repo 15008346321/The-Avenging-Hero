@@ -10,13 +10,12 @@ public class BattleMgr : MonoBehaviour
 {
     public List<Unit> 玩家阵营单位列表 = new(), TeamMain = new(), 敌人阵营单位列表 = new(), EnemyMain = new(), AllUnit = new(), Targets = new();
     public List<int> TopRow = new() { 1, 4, 7 }, MidRow = new() { 2, 5, 8 }, BotRow = new() { 3, 6, 9 }, Col1 = new() { 1, 2, 3 }, Col2 = new() { 4, 5, 6 }, Col3 = new() { 7, 8, 9 };
-    public List<string> AnimQueue = new();
+    public List<string> AnimQueue = new(), EnemysStr = new();
     public float TimeCout, CurrTime;
     public GameObject ourObj, eneObj, Tips, CombDetailPrefab;
-    public Transform OurCombDetail, EneCombDetail,OurRunningPos, EneRunningPos,DeadParent;
+    public Transform DeadParent;
     public int currentDamage, AtkTotal,CombSkiIdx,IDCount,CombDetailCount;
     public string 当前追打状态;
-    public string[] EnemysStr;
     public bool isOurTurn, 正在战斗, 正在追打, 战斗中, 战斗开始时, 需要等待战斗开始协程,当前正在布阵,战斗胜利;
     public Button BattleBtn;
     public Image[] PosSlots = new Image[9], CombDetailImgs = new Image[6];
@@ -60,9 +59,7 @@ public class BattleMgr : MonoBehaviour
         {
             //根据读到的敌人 先生成data再生成Unit
 
-            var enemys = EnemysStr.Skip(2).ToArray();
-
-            foreach (var item in enemys)
+            foreach (var item in EnemysStr)
             {
                 if (item == "") continue;
 
@@ -84,6 +81,8 @@ public class BattleMgr : MonoBehaviour
     {
         string uname = data.Name;
         if (data.SkillDscrp[0] == "") uname = "Unit";
+
+        print(uname);
         GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
         
         Unit u = Instantiate(g).transform.GetComponent<Unit>();
@@ -288,7 +287,7 @@ public class BattleMgr : MonoBehaviour
         StartCoroutine( OnTurnEnd_Coro());
     }
 
-    public void 有单位阵亡时(阵营Enum _阵营)
+    public void 有其他单位阵亡时(阵营Enum _阵营)
     {
         foreach (var item in AllUnit)
         {

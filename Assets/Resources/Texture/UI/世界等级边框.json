@@ -1,0 +1,40 @@
+{
+  "frames": [
+    {
+      "filename": "世界等级边框.png",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 428,
+        "h": 92
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 41,
+        "y": 211,
+        "w": 428,
+        "h": 92
+      },
+      "sourceSize": {
+        "w": 512,
+        "h": 512
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  ],
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "世界等级边框.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 428,
+      "h": 92
+    },
+    "scale": 1
+  }
+}

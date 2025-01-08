@@ -72,11 +72,9 @@ public class TeamMgr : MonoBehaviour
         }
     }
 
-    public void 生成随机初始角色()
+    public void 生成初始角色()
     {
-        var idx = UnityEngine.Random.Range(0, CSVMgr.Ins.角色名称数组.Length);
-        var name = CSVMgr.Ins.角色名称数组[idx];
-        TeamData.Add(new UnitData(CSVMgr.Ins.Units[name]));
+        TeamData.Add(new UnitData(CSVMgr.Ins.Units["史莱姆勇者"]));
         拥有角色数据.Add(TeamData[0]);
     }
 
@@ -161,7 +159,7 @@ public class UnitData
         get
         {
             float 血脉总和 = 2* Bloods.Sum(u => u.Value);
-            float 属性总分 = 血脉总和 + MaxHp + 2 * Speed + 3 * Atk;
+            float 属性总分 = 血脉总和 + MaxHp + 1.5f * Speed + 2 * Atk;
             if (属性总分 <= 50)
             {
                 return 角色评级Enum.F;

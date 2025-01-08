@@ -11,7 +11,7 @@ public class 提示信息 : MonoBehaviour
     public TextMeshProUGUI tmp;
     public Animator animator;
     public Image image;
-    
+
     //heal动画帧上调用
 
     public void SetToPool()

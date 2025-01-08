@@ -95,6 +95,7 @@ public class Unit : MonoBehaviour
             BuffListImgs[i].enabled = false;
         }
     }
+
     #endregion
 
     #region ====战斗中移动
@@ -526,7 +527,8 @@ public class Unit : MonoBehaviour
         {
             IsDead = true;
             StartCoroutine(延时设置死亡());
-            BattleMgr.Ins.有单位阵亡时(阵营);
+            该单位阵亡时();
+            BattleMgr.Ins.有其他单位阵亡时(阵营);
             StartCoroutine(BattleMgr.Ins.CheckBattleEnd());
         }
     }
@@ -548,6 +550,10 @@ public class Unit : MonoBehaviour
     public virtual void 受到治疗时()
     {
 
+    }
+
+    public virtual void 该单位阵亡时()
+    { 
     }
 
     public virtual void 有单位阵亡时(阵营Enum _阵营) 

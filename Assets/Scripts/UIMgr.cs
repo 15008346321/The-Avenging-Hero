@@ -8,12 +8,12 @@ using UnityEngine.UI;
 public class UIMgr : MonoBehaviour
 {
     // Start is called before the first frame update
-    public GameObject UITop, UIBot,角色栏,提示OBJ;
+    public GameObject 资源OBJ, UIBot,角色栏,提示OBJ;
     public Material 滚动背景;
     public List<布阵UI> 布阵UI列表;
     public Image BG, 地图名横线1, 地图名横线2;
     public Button 村长BTN,提示BTN,离开BTN;
-    public TextMeshProUGUI 提示TMP, 地图名,金币TMP;
+    public TextMeshProUGUI 提示TMP, 地图名,关卡名;
 
     const float 滚动速度 = 0.1f, 停止速度 = 0f;
 
@@ -95,9 +95,8 @@ public class UIMgr : MonoBehaviour
 
     public void 更换地图(string name)
     {
-        UIMgr.Ins.BG.sprite = CSVMgr.Ins.BgSprites[name];
+        BG.sprite = CSVMgr.Ins.BgSprites[name];
         地图名.text = name;
-        LevelMgr.Ins.SetLevel("test");
         地图名.transform.SetAsLastSibling();
         地图名.DOFade(1, 1f).OnComplete(() => 地图名.DOFade(0, 1f));
         地图名横线1.DOFade(1, 1f).OnComplete(() => 地图名横线1.DOFade(0, 1f));
@@ -107,14 +106,15 @@ public class UIMgr : MonoBehaviour
     public void 当点击村长()
     { 
         提示OBJ.gameObject.SetActive(true);
-        提示TMP.text = "孩子,临别之前带上这个\n还有...有机会回来看看...";
+        提示TMP.text = "孩子,临别之前带上这些\n还有...有机会回来看看...";
         提示BTN.onClick.AddListener(获取村长的传家宝);
     }
 
     public void 获取村长的传家宝()
     {
-        print("得到遗物 村长的传家宝");
-        UITop.gameObject.SetActive(true);
+        资源OBJ.SetActive(true);
+        StartCoroutine(BagMgr.Ins.金币变动(20));
+        StartCoroutine(BagMgr.Ins.补给变动(30));
         BagMgr.Ins.获得遗物("村长的传家宝");
 
         提示OBJ.gameObject.SetActive(true);
@@ -122,6 +122,22 @@ public class UIMgr : MonoBehaviour
         村长BTN.gameObject.SetActive(false);
         提示BTN.onClick.RemoveListener(获取村长的传家宝);
         离开BTN.gameObject.SetActive(true);
-        离开BTN.onClick.AddListener(()=>EventsMgr.Ins.Fade(()=>更换地图("后山")));
+        离开BTN.onClick.AddListener(()=>EventsMgr.Ins.Fade());
+    }
+
+    public void 文字提示(string str)
+    {
+        提示TMP.text = str;
+        提示OBJ.gameObject.SetActive(true);
+    }
+
+    public string TMP图片化文字(string str)
+    {
+        string newString = "";
+        foreach (char c in str)
+        {
+            newString += string.Format("<sprite={0}>", c);
+        }
+        return newString;
     }
 }

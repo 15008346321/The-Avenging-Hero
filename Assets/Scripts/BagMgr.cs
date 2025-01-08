@@ -7,10 +7,10 @@ using UnityEngine.UI;
 public class BagMgr : MonoBehaviour
 {
     public GameObject 材料背包, 遗物详情;
-    public int 玩家拥有的金币;
+    public int 玩家拥有的金币,补给;
     public List<遗物基类> 遗物基类List = new();
     public List<遗物实例> 遗物实例List;
-    public TextMeshProUGUI 详情名称, 详情描述;
+    public TextMeshProUGUI 详情名称, 详情描述,金币TMP,补给TMP;
     public Image 详情图片;
 
     public static BagMgr Ins;
@@ -24,10 +24,18 @@ public class BagMgr : MonoBehaviour
     {
         
     }
-    public void 获取金币(int value)
+    public IEnumerator 金币变动(int value)
     {
-        玩家拥有的金币 += value;
-        UIMgr.Ins.金币TMP.text = 玩家拥有的金币.ToString();
+        int startCoin = 玩家拥有的金币;
+        int endCoin = startCoin + value;
+        for (int i = startCoin; i < endCoin; i++)
+        {
+            玩家拥有的金币 = i + 1;
+            金币TMP.text = UIMgr.Ins.TMP图片化文字(玩家拥有的金币.ToString());
+            yield return new WaitForSeconds(1f/value);
+        }
+        玩家拥有的金币 = endCoin;
+        yield break;
     }
 
     public void 获得遗物(string name)
@@ -62,5 +70,23 @@ public class BagMgr : MonoBehaviour
             _ => null,
         };
         return 遗物;
+    }
+
+    public IEnumerator 补给变动(int value)
+    {
+        int startSupply = 补给;
+        int endSupply = startSupply + value;
+        if (endSupply < 0)
+        {
+            endSupply = 0;
+        }
+        for (int i = startSupply; i < endSupply; i++)
+        {
+            补给 = i + 1;
+            补给TMP.text = UIMgr.Ins.TMP图片化文字(补给.ToString());
+            yield return new WaitForSeconds(1f/value);
+        }
+        补给 = endSupply;
+        yield break;
     }
 }

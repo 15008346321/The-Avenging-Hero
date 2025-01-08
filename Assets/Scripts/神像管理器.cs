@@ -212,7 +212,7 @@ public class 神像管理器 : MonoBehaviour
                     ud.Atk += 1;
                     break;
                 case 4:
-                    EventsMgr.Ins.ShowGetBonus(2);
+                    BagMgr.Ins.金币变动(2);
                     break;
                 default:
                     break;

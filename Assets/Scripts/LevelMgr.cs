@@ -7,9 +7,7 @@ using DG.Tweening;
 public class LevelMgr : MonoBehaviour
 {
     public Button StartBtn;
-    bool MapGenerated;
-    Transform Cities, Description, Pos, MapRoads;
-    public GameObject Map;
+    Transform Cities, Description, MapRoads;
     public TextMeshProUGUI CityNmaeTMP, CityDesctiptionTMP, DegreeTMP;
     public Dictionary<string, string> CityDescription = new Dictionary<string, string>();
     public Level CurrentLevel;
@@ -31,8 +29,6 @@ public class LevelMgr : MonoBehaviour
 
     private void InitMap()
     {
-        Map = transform.GetChild(0).gameObject;
-
         StartBtn = transform.GetChild(0).Find("StartBtn").GetComponent<Button>();
         //StartBtn.onClick.AddListener(() => GetLevel());
         StartBtn.enabled = false;
@@ -45,8 +41,6 @@ public class LevelMgr : MonoBehaviour
         Description = transform.GetChild(0).Find("Description");
         CityNmaeTMP = Description.GetChild(0).GetComponent<TextMeshProUGUI>();
         CityDesctiptionTMP = Description.GetChild(1).GetComponent<TextMeshProUGUI>();
-
-        Pos = transform.GetChild(0).Find("Pos");
 
 
         ChooseBg = MapRoads.Find("circles").GetComponentsInChildren<Image>();
@@ -149,18 +143,12 @@ public class LevelMgr : MonoBehaviour
 
 public class Level
 {
-    public string Name { get; set; }
-    public string[] Boss;
-    public List<string[]> Events { get; set; }
-    public List<string[]> Battles { get; set; }
+    public string Name;
+    public List<string> 小怪表 = new(), 精英表 = new(), 稀有表 = new(), Boss表 = new();
 
     public Level(string name)
     {
         Name = name;
-        //TODO目前只有一关
-        //Events = CSVManager.Ins.GetEventsByArea(name);
-        Battles = CSVMgr.Ins.GetBattlesByArea(name);
-        Boss = Battles[Battles.Count - 1];
-        Battles.RemoveAt(Battles.Count - 1);
+        CSVMgr.Ins.初始化关卡(this);
     }
 }

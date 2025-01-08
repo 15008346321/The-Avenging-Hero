@@ -14,10 +14,9 @@ public class EventsMgr : MonoBehaviour
     public List<魔力类型Enum> Level1Blood = new() { 魔力类型Enum.火元素, 魔力类型Enum.水元素, 魔力类型Enum.风元素, 魔力类型Enum.雷元素, 魔力类型Enum.土元素 };
     public List<魔力类型Enum> Level2Blood = new() { 魔力类型Enum.火元素, 魔力类型Enum.水元素, 魔力类型Enum.风元素, 魔力类型Enum.雷元素, 魔力类型Enum.土元素 };
     public List<魔力类型Enum> Level3Blood = new() { 魔力类型Enum.火元素, 魔力类型Enum.水元素, 魔力类型Enum.风元素, 魔力类型Enum.雷元素, 魔力类型Enum.土元素 };
-    List<string[]> RelicsList = new();
     string[] currentEvent;
     public Image[] 路线Imgs = new Image[2];
-    public Image FadeImg;
+    public Image FadeImg,世界等级填充IMG;
     public Button 探索按钮;
     public Button[]
         RoadBtns = new Button[2],
@@ -27,12 +26,12 @@ public class EventsMgr : MonoBehaviour
         EventChooseTMPs    = new TextMeshProUGUI[2],
         BounusRelicsName   = new TextMeshProUGUI[3],
         BounusRelicsEffect = new TextMeshProUGUI[3];
-    public int EventPoint, MaxEventPoint, StatueIdx, StatueMbrIdx, BonusGold, 玩家拥有的金币, 危险级别, 战利品金币数;
+    public int EventPoint, MaxEventPoint, StatueIdx, StatueMbrIdx, BonusGold, 玩家拥有的金币, 危险级别, 战利品金币数, 世界等级INT, 世界等级进度INT, 敌人数量INT, 敌人数量Max;
     public string monsters, bonus;
-    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP,UIGoldTMP,探索按钮TMP;
+    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP,UIGoldTMP,探索按钮TMP,世界等级进度TMP,世界等级TMP;
     public Transform RoadParentNode, EventParentNode, EventContentNode, EventResultNode,DailyNode,
         ShopNode, StatueNode, StatueParent,侧边栏父级;
-    public GameObject 神像;
+    public GameObject 神像,世界等级OBJ;
     public static EventsMgr Ins;
     public bool 是否去往战斗, 是否去往神像,是否去往酒馆;
     public List<TextMeshProUGUI> 侧边栏池;
@@ -73,48 +72,8 @@ public class EventsMgr : MonoBehaviour
             var j = i;
             StatueBtns[i].onClick.AddListener(() => StatueIdx = j);
         }
-
-        //初始化奖励侧边栏
-        for (int i = 0; i < 侧边栏父级.childCount; i++)
-        {
-            TextMeshProUGUI tmp = 侧边栏父级.GetChild(i).GetComponent<TextMeshProUGUI>();
-            侧边栏池.Add(tmp);
-        }
     }
 
-    public void 获取空侧边栏并展示(string str,Action action = null)
-    {
-        for (int i = 0; i < 侧边栏池.Count; i++)
-        {
-            if (侧边栏池[i].text == "")
-            {
-                侧边栏动画(侧边栏池[i], str, action);
-                break;
-            }
-        }
-    }
-
-    private void 侧边栏动画(TextMeshProUGUI tmp,string str, Action action)
-    {
-        if (str.StartsWith("金币")) 
-        {
-            str = str.Replace("金币", "<sprite=\"coin\" index=0>");
-        }
-        tmp.text = str;
-
-        tmp.rectTransform.DOLocalMoveX(210, 0.5f).OnComplete(
-            () =>
-            {
-                action?.Invoke();
-                tmp.rectTransform.DOLocalMoveX(0, 0.5f).SetDelay(0.5f).OnComplete
-                (
-                    () => {
-                        tmp.text = "";
-                        }
-                );
-            }
-        );
-    }
     public void 生成一个战斗路线()
     {
         探索按钮.gameObject.SetActive(true);
@@ -122,7 +81,32 @@ public class EventsMgr : MonoBehaviour
 
     public void 当点击探索按钮(int i)
     {
-        设置战斗();
+        if(BagMgr.Ins.补给 > 0)
+        {
+            StartCoroutine(BagMgr.Ins.补给变动(-5));
+            世界等级进度增加();
+            设置战斗();
+            是否去往战斗 = true;
+            Fade();
+        }
+        else
+        {
+            UIMgr.Ins.文字提示("补给不足,回城镇修整吧");
+        }
+        
+    }
+
+    public void 世界等级进度增加()
+    {
+        世界等级进度INT += 6;
+        if (世界等级进度INT >= 100)
+        {
+            世界等级进度INT = 100;
+            世界等级INT += 1;
+            世界等级TMP.text = UIMgr.Ins.TMP图片化文字(世界等级INT.ToString());
+        }
+        世界等级进度TMP.text = UIMgr.Ins.TMP图片化文字(世界等级进度INT.ToString()) + "<sprite=\"百分号\" index=0>";
+        世界等级填充IMG.fillAmount = 世界等级进度INT / 100f;
     }
 
     private void 去往酒馆()
@@ -136,53 +120,89 @@ public class EventsMgr : MonoBehaviour
     {
         //设置敌人
         //战斗全打了就出boss
-        if(LevelMgr.Ins.CurrentLevel.Battles.Count == 0)
+        var ranNum = UnityEngine.Random.Range(0, 10);
+        敌人数量Max = 世界等级INT switch
         {
-            BattleMgr.Ins.EnemysStr = LevelMgr.Ins.CurrentLevel.Boss;
+            0 => 1,
+            1 => 2,
+            2 => 3,
+            _ => 4,
+        };
+        敌人数量INT = UnityEngine.Random.Range(1, 敌人数量Max+1);
+        BattleMgr.Ins.EnemysStr.Clear();
+        string[] 怪物;
+        int ran;
+        //Boss
+        if (世界等级进度INT >= 100)
+        {
+            //表结构:
+            //级别  怪1         怪2   怪3
+            //小怪  哥布林
+            //小怪  史莱姆
+            //精英  巨魔
+            //稀有  黄金哥布林  牛头
+            //Boss  剑士        弓手  法师
+
+            //一个战斗Arr中0为级别 循环从1开始
+            怪物 = LevelMgr.Ins.CurrentLevel.Boss表[0].Split(',');
+            for (int i = 0; i < 怪物.Length; i++)
+            {
+                BattleMgr.Ins.EnemysStr.Add(怪物[i]);
+            }
         }
-        //没打完就随机出小怪
+        //稀有
+        else if( ranNum == 0 && LevelMgr.Ins.CurrentLevel.稀有表.Count > 0)
+        {
+            ran = UnityEngine.Random.Range(0, LevelMgr.Ins.CurrentLevel.稀有表.Count);
+
+            怪物 = LevelMgr.Ins.CurrentLevel.稀有表[ran].Split(',');
+            for (int i = 0; i < 怪物.Length; i++)
+            {
+                BattleMgr.Ins.EnemysStr.Add(怪物[i]);
+            }
+            LevelMgr.Ins.CurrentLevel.稀有表.RemoveAt(ran);
+        }
+        else if (ranNum >0 && ranNum <7)
+        {
+            for (int i = 0; i < 敌人数量INT; i++)
+            {
+                ran = UnityEngine.Random.Range(0, LevelMgr.Ins.CurrentLevel.小怪表.Count);
+                BattleMgr.Ins.EnemysStr.Add(LevelMgr.Ins.CurrentLevel.小怪表[ran]);
+            }
+        }
+        else if(ranNum >=7)
+        {
+            for (int i = 0; i < 敌人数量INT; i++)
+            {
+                if(i == 0)
+                {
+                    ran = UnityEngine.Random.Range(0, LevelMgr.Ins.CurrentLevel.精英表.Count);
+                    BattleMgr.Ins.EnemysStr.Add(LevelMgr.Ins.CurrentLevel.精英表[ran]);
+                }else
+                {
+                    ran = UnityEngine.Random.Range(0, LevelMgr.Ins.CurrentLevel.小怪表.Count);
+                    BattleMgr.Ins.EnemysStr.Add(LevelMgr.Ins.CurrentLevel.小怪表[ran]);
+                }
+                
+            }
+        }
         else
         {
-            var ranNum = UnityEngine.Random.Range(0, LevelMgr.Ins.CurrentLevel.Battles.Count);
-            BattleMgr.Ins.EnemysStr = LevelMgr.Ins.CurrentLevel.Battles[ranNum];
-            LevelMgr.Ins.CurrentLevel.Battles.Remove(LevelMgr.Ins.CurrentLevel.Battles[ranNum]);
+            //稀有怪那可能判定不上 在调用一次
+            设置战斗();
         }
 
-        危险级别 = int.Parse( BattleMgr.Ins.EnemysStr[1]);
-
-        //生成
-        是否去往战斗 = true;
-        Fade();
     }
 
     public void SetRoadToEvent()
     {
         EventContentNode.gameObject.SetActive(true);
-        SetRandomEvents();
+        //SetRandomEvents();
     }
 
     public void SetRoadToShop()
     {
         ShopNode.gameObject.SetActive(true);
-    }
-
-    public void SetRandomEvents()
-    {
-        //if (EventsList.Count == 0)
-        //{
-        //    Content.Text = "这里已经没有什么可探索的了，还是离开吧";
-        //    EventChooseLabel[0].Text = "好的";
-        //    EventChooseLabel[1].Visible = false;
-        //    AreaFinished = true;
-        //    return;
-        //}
-        int random = UnityEngine.Random.Range(0, LevelMgr.Ins.CurrentLevel.Events.Count - 1);
-        //0id,1事件,21选择,31结果,41结算code,52选择,62结果,72结算code
-        //Option方法读取currentEvent中数据
-        currentEvent = LevelMgr.Ins.CurrentLevel.Events[random];
-        LevelMgr.Ins.CurrentLevel.Events.RemoveAt(random);
-
-        SetEventsUIAndContent();
     }
 
     public void SetEventsUIAndContent()
@@ -237,10 +257,7 @@ public class EventsMgr : MonoBehaviour
     public void Fade(Action Callback = null)
     {
         FadeImg.raycastTarget = true;
-        //人往前走 变黑
-        BattleMgr.Ins.OurRunningPos.DOLocalMoveX(600, 2);
         //用一秒变黑
-
         FadeImg.DOFade(1f, 1f).OnComplete(
             () =>
                 {
@@ -298,32 +315,13 @@ public class EventsMgr : MonoBehaviour
 
     public void 设置战利品()
     {
-        switch (危险级别)
-        {
-            case 1:
-                战利品金币数 = 6;
-                break;
-            case 2:
-                战利品金币数 = 10;
-                break;
-            default:
-                break;
-        }
+        //根据打的怪来
     }
 
     public void 获取战利品金币()
     {
-        ShowGetBonus(战利品金币数);
+        StartCoroutine( BagMgr.Ins.金币变动(战利品金币数));
         战利品[0].gameObject.SetActive(false);
     }
-
-    public void ShowGetBonus(int value)
-    {
-        获取空侧边栏并展示("金币+" + value, () => 
-        {
-            BagMgr.Ins.获取金币(value);
-        });
-    }
-
 
 }

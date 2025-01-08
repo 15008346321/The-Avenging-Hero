@@ -25,6 +25,7 @@ public class StatePoolMgr : MonoBehaviour
             GameObject g = Instantiate(Prefab);
             提示信息 s = g.GetComponent<提示信息>();
             s.transform.SetParent(提示信息父节点);
+            s.transform.localPosition = Vector3.zero;
             s.gameObject.SetActive(false);
             Pool.Add(s);
         }
@@ -66,13 +67,15 @@ public class StatePoolMgr : MonoBehaviour
         s.调用者 = u;
         s.tmp.text = damage.ToString();
         s.image.sprite = CSVMgr.Ins.TypeIcon[type];
-        s.transform.position =  u.StatePos.position;
+
+        s.transform.SetParent(u.StatePos);
+        s.transform.localPosition = Vector2.zero;
         float delay = 0;
         if(检查是否需要延迟播放(s))
         {
             delay = 0.3f;
         };
-        s.gameObject.SetActive(true);
+
         StartCoroutine(延迟播放(s, "类型伤害", delay));
     }
 
@@ -88,12 +91,13 @@ public class StatePoolMgr : MonoBehaviour
         {
             delay = 0.3f;
         };
-        s.gameObject.SetActive(true);
+
         StartCoroutine(延迟播放(s, "状态", delay));
     }
     public IEnumerator 延迟播放(提示信息 s,string 类型 ,float delay) 
     { 
         yield return new WaitForSeconds(delay);
+        s.gameObject.SetActive(true);
         s.animator.Play(类型);
     }
 

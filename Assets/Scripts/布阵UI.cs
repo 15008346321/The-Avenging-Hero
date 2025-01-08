@@ -14,8 +14,7 @@ public class 布阵UI : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (isDragging && 角色图片 != null)
         {
-            Vector3 globalMousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 100));
-            角色图片.transform.position = globalMousePos;
+            角色图片.transform.position = Input.mousePosition;
         }
     }
 
@@ -33,7 +32,7 @@ public class 布阵UI : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (isDragging)
         {
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+            RaycastHit2D hit = Physics2D.Raycast(Input.mousePosition, Vector2.zero);
 
             if (hit.collider != null && hit.collider.gameObject.CompareTag("布阵位置"))
             {
