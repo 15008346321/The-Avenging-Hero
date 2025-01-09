@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 刺杀者 : Unit
+public class 刺杀者 : 技能基类
 {
     // Start is called before the first frame update
 
@@ -14,35 +14,34 @@ public class 刺杀者 : Unit
 
     public override void 技能帧()
     {
-        IsAtkChanged = true;
+        角色实例.IsAtkChanged = true;
 
-        print("cishazhe OnBattleStart");
-        foreach (var item in SkillPointIcon)
+        foreach (var item in 角色实例.SkillPointIcon)
         {
             item.DOFade(1f, 0);
         }
     }
     public override void 攻击特效()
     {
-        if (IsAtkChanged)
+        if (角色实例.IsAtkChanged)
         {
-            BattleMgr.Ins.Targets[0].TakeDamage(5);
-            IsAtkChanged = false;
-            foreach (var item in SkillPointIcon)
+            BattleMgr.Ins.Targets[0].技能.TakeDamage(5);
+            角色实例.IsAtkChanged = false;
+            foreach (var item in 角色实例.SkillPointIcon)
             {
                 item.DOFade(0.5f, 0);
             }
-            SkillPoint = 0;
+            角色实例.SkillPoint = 0;
         }
         else
         {
             //这里会设置IsSkillReady这个角色不需要
-            获取技能点();
+            角色实例.获取技能点();
             //永久保持false
-            if (SkillPoint == SkillPointMax)
+            if (角色实例.SkillPoint == 角色实例.SkillPointMax)
             {
-                IsSkillReady = false;
-                IsAtkChanged = true;
+                角色实例.IsSkillReady = false;
+                角色实例.IsAtkChanged = true;
             }
         }
     }
@@ -50,9 +49,9 @@ public class 刺杀者 : Unit
     public override void 获取攻击目标()
     {
 
-        if(IsAtkChanged)
+        if(角色实例.IsAtkChanged)
         {
-            BattleMgr.Ins.获取敌方阵营血量最低目标(阵营);
+            BattleMgr.Ins.获取敌方阵营血量最低目标(角色实例.阵营);
         }
         else
         {

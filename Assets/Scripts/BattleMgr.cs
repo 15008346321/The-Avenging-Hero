@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class BattleMgr : MonoBehaviour
 {
-    public List<Unit> 玩家阵营单位列表 = new(), TeamMain = new(), 敌人阵营单位列表 = new(), EnemyMain = new(), AllUnit = new(), Targets = new();
+    public List<Unit> 玩家阵营单位列表 = new(), TeamMain = new(), 敌人阵营单位列表 = new(), EnemyMain = new(), AllUnit = new(), Targets = new(),实例;
     public List<int> TopRow = new() { 1, 4, 7 }, MidRow = new() { 2, 5, 8 }, BotRow = new() { 3, 6, 9 }, Col1 = new() { 1, 2, 3 }, Col2 = new() { 4, 5, 6 }, Col3 = new() { 7, 8, 9 };
     public List<string> AnimQueue = new(), EnemysStr = new();
     public float TimeCout, CurrTime;
@@ -77,15 +77,29 @@ public class BattleMgr : MonoBehaviour
         }
     }
 
-    public Unit InitRole(UnitData data, 阵营Enum _阵营 = 阵营Enum.我方, bool 加入背包 = false)
+    public Unit 激活实例()
+    {
+
+        for (int i = 0; i < 实例.Count; i++)
+        {
+            if (!实例[i].gameObject.activeInHierarchy)
+            {
+                实例[i].gameObject.SetActive(true);
+                return 实例[i];
+            }
+        }
+
+        return null;
+    }
+
+    public Unit InitRole(UnitData data, 阵营Enum _阵营 = 阵营Enum.我方)
     {
         string uname = data.Name;
         if (data.SkillDscrp[0] == "") uname = "Unit";
 
         print(uname);
-        GameObject g = Resources.Load("Prefabs/Unit/" + uname) as GameObject;
-        
-        Unit u = Instantiate(g).transform.GetComponent<Unit>();
+
+        Unit u = 激活实例();
         u.name += u.GetInstanceID();
         u.OriData = data;//修改属性 存档时修改
         u.阵营 = _阵营;
@@ -94,10 +108,6 @@ public class BattleMgr : MonoBehaviour
         u.Init(data);//把data属性赋予unit
 
         //购买或其他途径获得之后放进背包
-        if (加入背包) 
-        { 
-            //TODO加入背包的功能
-        }
 
         GameObject obj;
         if (_阵营 == 阵营Enum.我方) obj = ourObj;
@@ -202,7 +212,7 @@ public class BattleMgr : MonoBehaviour
 
         for (int i = 0; i < AllUnit.Count; i++)
         {
-            AllUnit[i].战斗开始时();
+            AllUnit[i].技能.战斗开始时();
             yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
         }
         战斗开始时 = false;
@@ -215,7 +225,7 @@ public class BattleMgr : MonoBehaviour
         for (int i = 0; i < AllUnit.Count; i++)
         {
             AllUnit[i].ReloadAtk();
-            AllUnit[i].回合开始时();
+            AllUnit[i].技能.回合开始时();
             yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
         }
 
@@ -262,7 +272,7 @@ public class BattleMgr : MonoBehaviour
                     //用ID遍历AllUnit找到对应的Unit调用普攻
                     //AnimQueue.Add(item.ID + ":NormalAtk");
 
-                    AllUnit[i].ExecuteSkill();
+                    AllUnit[i].技能.ExecuteSkill();
                     yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
                     break;
                 }
@@ -276,7 +286,7 @@ public class BattleMgr : MonoBehaviour
                     //AnimQueue.Add(item.ID + ":NormalAtk");
                     AllUnit[i].AtkCountCurr -= 1;
 
-                    AllUnit[i].ExecuteAtk();
+                    AllUnit[i].技能.ExecuteAtk();
                     yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
                     break;
                 }
@@ -293,7 +303,7 @@ public class BattleMgr : MonoBehaviour
         {
             if (!item.IsDead)
             {
-                item.有单位阵亡时(_阵营);
+                item.技能.有单位阵亡时(_阵营);
             }
         }
     }
@@ -344,7 +354,7 @@ public class BattleMgr : MonoBehaviour
         for (int i = 0; i < AllUnit.Count; i++)
         {
             if (AllUnit[i].IsDead == true) continue;
-            AllUnit[i].战斗结束时();
+            AllUnit[i].技能.战斗结束时();
         }
         ResetBattle();
 
@@ -371,7 +381,7 @@ public class BattleMgr : MonoBehaviour
         for (int i = 0; i < AllUnit.Count; i++)
         {
             if(AllUnit[i].IsDead == true)continue;
-            AllUnit[i].回合结束时();
+            AllUnit[i].技能.回合结束时();
             yield return new WaitUntil(() => AllUnit[i].动画播放完毕 && StatePoolMgr.Ins.提示信息父节点.childCount == 10);
         }
         for (int i = 0; i < BagMgr.Ins.遗物基类List.Count; i++)
@@ -438,7 +448,7 @@ public class BattleMgr : MonoBehaviour
     {
         foreach (var item in Targets)
         {
-            item.TakeDamage(damage);
+            item.技能.TakeDamage(damage);
         }
     }
 
@@ -446,7 +456,7 @@ public class BattleMgr : MonoBehaviour
     {
         foreach (var item in Targets)
         { 
-            item.TakeDamage(damage); 
+            item.技能.TakeDamage(damage); 
         }
     }
 

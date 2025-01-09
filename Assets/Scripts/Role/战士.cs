@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 战士 : Unit
+public class 战士 : 技能基类
 {
     // Start is called before the first frame update
     public bool 可以击退当前单个目标 = false;

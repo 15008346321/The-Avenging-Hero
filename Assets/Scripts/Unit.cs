@@ -14,7 +14,7 @@ public class Unit : MonoBehaviour
     public int Cell, Damage, AtkCountMax, AtkCountCurr, SkillPoint, SkillPointMax, 物理伤害减免;
     public float 生命值, MaxHp, Atk, 护盾, Speed;
     public string Element;
-    public bool isBoss, IsDead,该单位是否是玩家阵营,单位是否进行了移动, 技能1已触发, 技能2已触发, IsSkillReady,IsAtkChanged,动画播放完毕,伤害字体已消失;
+    public bool isBoss, IsDead,该单位是否是玩家阵营,单位是否进行了移动, IsSkillReady,IsAtkChanged,动画播放完毕,伤害字体已消失;
     public List<Buff> BuffsList = new();
     public List<Blood> Bloods = new();
     public string[] Tags = new string[4];
@@ -29,12 +29,10 @@ public class Unit : MonoBehaviour
     public EventSystem _EventSystem;
     public GraphicRaycaster gra;
     public UnitData OriData;
-    public Action FinishAtkAction, FinishBehaviorAction;
+    public Action FinishAtkAction;
+    public 技能基类 技能;
     public void Awake()
     {
-        _EventSystem = FindObjectOfType<EventSystem>();
-        gra = FindObjectOfType<GraphicRaycaster>();
-        FinishAtkAction += 行动结束;
         生命值TMP = transform.Find("Canvas/生命值/生命值TMP").GetComponent<TextMeshProUGUI>();
         护盾TMP = transform.Find("Canvas/护盾/护盾TMP").GetComponent<TextMeshProUGUI>();
         Icon = transform.Find("Canvas/Icon").GetComponent<Image>();
@@ -51,7 +49,6 @@ public class Unit : MonoBehaviour
     #region====初始化方法
     public void Init(UnitData data)
     {
-        //TMP.text = data.Name;
         Icon.sprite = data.角色图片;
         生命值 = MaxHp = data.MaxHp;
         生命值TMP.text = 生命值.ToString();
@@ -62,6 +59,26 @@ public class Unit : MonoBehaviour
         SkillPointMax = data.SkillPointMax;
         InitSkillPointIcon();
         InitBuffListImgs();
+        设置角色脚本(data.Name);
+    }
+
+    public void 设置角色脚本(string name)
+    {
+        技能 = name switch
+        {
+            "史莱姆勇者" => new 史莱姆勇者(),
+            "小水"       => new 小水(),
+            "黄金哥布林" => new 黄金哥布林(),
+            "史莱姆" => new 史莱姆(),
+            "哥布林" => new 哥布林(),
+            "猫妖" => new 猫妖(),
+            "魔兔" => new 魔兔(),
+            "牛头人" => new 牛头人(),
+            "猪头人" => new 猪头人(),
+            _ => null,
+        };
+
+        技能?.Init(this);
     }
 
     public void InitSkillPointIcon()
@@ -123,7 +140,7 @@ public class Unit : MonoBehaviour
         );
     }
 
-    private void 移动到目标同一列()
+    public void 移动到目标同一列()
     {
         单位是否进行了移动 = false;
         GameObject 该单位阵营;
@@ -359,167 +376,7 @@ public class Unit : MonoBehaviour
     
     #endregion
 #region====战斗方法
-    public virtual void ExecuteAtk()
-    {
-        Buff 盲目 = BuffsList.Find(item => item.Name == BuffsEnum.盲目);
-        if (盲目 != null)
-        {
-            StatePoolMgr.Ins.状态(this, "盲目-行动失败");
-            return;
-        }
 
-        动画播放完毕 = false;
-        获取攻击目标();
-        if (BattleMgr.Ins.Targets.Count == 0)//没有目标就走位 然后进行下一个
-        {
-            移动到目标同一列();
-        }
-        else
-        {
-            Anim.Play("atk");//后面两方法在动画帧后段调用
-        }
-    }
-
-    //特殊攻击目标需要重写 默认正前方 
-    public virtual void 获取攻击目标()
-    {
-        BattleMgr.Ins.获取正前方目标(阵营, Cell);
-    }
-
-    //如果攻击有特殊逻辑则重写 动画上调用
-    public virtual void 攻击帧()
-    {
-        BattleMgr.Ins.CaculDamage(Atk);
-        攻击特效();
-    }
-
-    //攻击帧()时调用 攻击时特效重写实现(获取技能点 附加伤害...)
-    public virtual void 攻击特效()
-    {
-    }
-
-    public void ExecuteSkill()
-    {
-        //需要重写实现逻辑
-        获取技能目标();
-
-        //之后调用base执行下面代码 把技能点消了
-        SkillPoint = 0;
-        foreach (var item in SkillPointIcon)
-        {
-            item.DOFade(0.5f, 0);
-        }
-        IsSkillReady = false;
-
-        //动画中会执行 技能帧();
-        动画播放完毕 = false;
-        Anim.Play("skill", 0, 0);
-    }
-
-    //需要重写 默认正前方目标 
-    public virtual void 获取技能目标() 
-    {
-        BattleMgr.Ins.获取正前方目标(阵营, Cell);
-    }
-    public virtual void 技能帧()
-    {
-    }
-    //AttrType:Atk/Fire/Water/Wind/Thunder/Earth  AtkType:Atk/Comb
-    public void TakeDamage(float Damage,ElementType elementType = ElementType.物理伤害, DamageType damageType = DamageType.攻击伤害)
-    {
-        Damage = Mathf.RoundToInt(Damage);
-        //伤害减免
-        更新伤害减免();
-        switch (elementType)
-        {
-            case ElementType.物理伤害:
-                Damage -= 物理伤害减免;
-                break;
-            case ElementType.火元素伤害:
-                break;
-            case ElementType.土元素伤害:
-                break;
-            case ElementType.燃烧伤害:
-                break;
-            case ElementType.出血伤害:
-                break;
-            case ElementType.中毒伤害:
-                break;
-        }
-
-        if (护盾 > 0)
-        {
-            if (护盾 >= Damage)
-            {
-                护盾 -= Damage;
-                Damage = 0;
-            }
-            else
-            {
-                Damage -= 护盾;
-                护盾 = 0;
-            }
-        }
-        生命值 -= Damage;
-        更新生命值();
-        CheckDeath();
-
-        //出类型伤害和特效
-        switch (elementType)
-        {
-            case ElementType.物理伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage, "物理");
-                break;
-            case ElementType.火元素伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage, "火元素");
-                break;
-            case ElementType.土元素伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage, "土元素");
-                break;
-            case ElementType.燃烧伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage, "燃烧");
-                break;
-            case ElementType.出血伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage, "出血");
-                break;
-            case ElementType.中毒伤害:
-                StatePoolMgr.Ins.类型伤害(this, Damage, "中毒");
-                break;
-        }
-
-        switch (damageType)
-        {
-            case DamageType.攻击伤害:
-                受到攻击时();
-                break;
-            case DamageType.技能伤害:
-                break;
-            case DamageType.异常伤害:
-                break;
-        }
-    }//被攻击时特效 减伤 养成
-
-    public virtual void 更新伤害减免() 
-    { 
-    }
-
-    public void TakeHeal(float HealValue)
-    {
-        if (BuffsList.Exists(b => b.Name == BuffsEnum.燃烧)) HealValue = 0;
-        HealValue = Mathf.Round(HealValue);
-        if (生命值 + HealValue >= MaxHp)
-        {
-            HealValue = MaxHp - 生命值;
-            生命值 = MaxHp;
-        }
-        else
-        {
-            生命值 += HealValue;
-        }
-        StatePoolMgr.Ins.类型伤害(this, HealValue, "治疗");
-        更新生命值() ;
-        受到治疗时();
-    }
 
     public void CheckDeath()
     {
@@ -527,7 +384,7 @@ public class Unit : MonoBehaviour
         {
             IsDead = true;
             StartCoroutine(延时设置死亡());
-            该单位阵亡时();
+            技能.该单位阵亡时();
             BattleMgr.Ins.有其他单位阵亡时(阵营);
             StartCoroutine(BattleMgr.Ins.CheckBattleEnd());
         }
@@ -537,93 +394,6 @@ public class Unit : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         transform.SetParent(BattleMgr.Ins.DeadParent);
         transform.localPosition = Vector3.zero;
-    }
-
-    public virtual void 受到攻击时()
-    {
-        foreach (var item in BuffsList)
-        {
-            //item.RcAtk();
-        }
-    }
-
-    public virtual void 受到治疗时()
-    {
-
-    }
-
-    public virtual void 该单位阵亡时()
-    { 
-    }
-
-    public virtual void 有单位阵亡时(阵营Enum _阵营) 
-    { 
-    }
-
-    public void RcComb()
-    {
-        foreach (var item in BuffsList)
-        {
-            //item.RcComb();
-        }
-    }
-    public void RcPhs()
-    {
-        foreach (var item in BuffsList)
-        {
-            //item.RcPhs();
-        }
-    }
-    public void RcFire()
-    {
-        foreach (var item in BuffsList)
-        {
-            //item.RcFire();
-        }
-    }
-    public void RcWater()
-    {
-        foreach (var item in BuffsList)
-        {
-            //item.RcWater();
-        }
-    }
-    public void RcWind()
-    {
-        foreach (var item in BuffsList)
-        {
-            //item.RcWind();
-        }
-    }
-    public void RcThunder()
-    {
-        foreach (var item in BuffsList)
-        {
-            //item.RcThunder();
-        }
-    }
-    public void RcEarth()
-    {
-        foreach (var item in BuffsList)
-        {
-            //item.RcEarth();
-        }
-    }
-    public virtual void 战斗开始时()
-    {
-    }
-    public virtual void 战斗结束时()
-    {
-    }
-    public virtual void 回合开始时()
-    {
-    }
-    public virtual void 回合结束时()
-    {
-        for (int i = 0; i < BuffsList.Count; i++)
-        {
-            BuffsList[i].OnTurnEnd();
-        }
     }
 
     #endregion

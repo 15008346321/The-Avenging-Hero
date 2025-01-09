@@ -64,7 +64,7 @@ public class 燃烧 : Buff
     public override void OnTurnEnd()
     {
         float damage = Mathf.Round(Owner.MaxHp * 0.05f);
-        Owner.TakeDamage(damage, ElementType.燃烧伤害,DamageType.异常伤害);
+        Owner.技能.TakeDamage(damage, ElementType.燃烧伤害,DamageType.异常伤害);
         层数改变(-1);
     }
 }
@@ -101,7 +101,7 @@ public class 出血 : Buff
     public override void OnTurnEnd()
     {
         float damage = Mathf.Round(Owner.MaxHp * 0.05f);
-        Owner.TakeDamage(damage, ElementType.出血伤害, DamageType.异常伤害);
+        Owner.技能.TakeDamage(damage, ElementType.出血伤害, DamageType.异常伤害);
         层数改变(-1);
     }
 }
@@ -164,7 +164,7 @@ public class 中毒 : Buff
     public override void OnTurnEnd()
     {
         float damage = Mathf.Round(Owner.MaxHp * 0.05f * CurrStack);
-        Owner.TakeDamage(damage, ElementType.中毒伤害, DamageType.异常伤害);
+        Owner.技能.TakeDamage(damage, ElementType.中毒伤害, DamageType.异常伤害);
         层数改变(-1);
     }
 }

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 巨魔 : Unit
+public class 巨魔 : 技能基类
 {
     public override void 战斗开始时()
     {
@@ -19,15 +19,15 @@ public class 巨魔 : Unit
     public override void 受到攻击时()
     {
         base.受到攻击时();
-        if (生命值 * 2 < MaxHp && !技能2已触发)
+        if (角色实例.生命值 * 2 < 角色实例.MaxHp && !技能2已触发)
         {
             技能2已触发 = true;
-            IsSkillReady = true;
+            角色实例.IsSkillReady = true;
         }
     }
 
     public void 召唤哥布林()
     {
-        BattleMgr.Ins.InitRole(new UnitData(CSVMgr.Ins.Units["哥布林"], Cell), 阵营);
+        BattleMgr.Ins.InitRole(new UnitData(CSVMgr.Ins.Units["哥布林"], 角色实例.Cell), 角色实例.阵营);
     }
 }

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 骑士 : Unit
+public class 骑士 : 技能基类
 {
     public override void 战斗开始时()
     {
@@ -14,22 +14,18 @@ public class 骑士 : Unit
 
     public override void 技能帧()
     {
-
-        print(技能1已触发);
         if (!技能1已触发) 
         {
             foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
             {
-
-                print("群体护盾值" + Mathf.Round(MaxHp * 0.2f));
-                item.获取护盾(Mathf.Round(MaxHp * 0.2f));
+                item.获取护盾(Mathf.Round(角色实例.MaxHp * 0.2f));
             }
             技能1已触发 = true;
         }
 
         if (!技能2已触发)
         {
-            获取护盾(Mathf.Round(MaxHp * 0.05f));
+            角色实例.获取护盾(Mathf.Round(角色实例.MaxHp * 0.05f));
         }
 
     }

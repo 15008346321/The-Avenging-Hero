@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-public class 毒蛛 : Unit
+public class 毒蛛 : 技能基类
 {
     // Start is called before the first frame update
 

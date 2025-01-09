@@ -24,19 +24,6 @@ public class BagMgr : MonoBehaviour
     {
         
     }
-    public IEnumerator 金币变动(int value)
-    {
-        int startCoin = 玩家拥有的金币;
-        int endCoin = startCoin + value;
-        for (int i = startCoin; i < endCoin; i++)
-        {
-            玩家拥有的金币 = i + 1;
-            金币TMP.text = UIMgr.Ins.TMP图片化文字(玩家拥有的金币.ToString());
-            yield return new WaitForSeconds(1f/value);
-        }
-        玩家拥有的金币 = endCoin;
-        yield break;
-    }
 
     public void 获得遗物(string name)
     {
@@ -72,6 +59,33 @@ public class BagMgr : MonoBehaviour
         return 遗物;
     }
 
+    public IEnumerator 金币变动(int value)
+    {
+        int startCoin = 玩家拥有的金币;
+        int endCoin = startCoin + value;
+        if (value > 0)
+        {
+            for (int i = startCoin; i < endCoin; i++)
+            {
+                玩家拥有的金币 = i + 1;
+                金币TMP.text = UIMgr.Ins.TMP图片化文字(玩家拥有的金币.ToString());
+                yield return new WaitForSeconds(1f / value);
+            }
+        }
+        else if (value < 0)
+        {
+            for (int i = startCoin; i > endCoin; i--)
+            {
+                玩家拥有的金币 = i - 1;
+                金币TMP.text = UIMgr.Ins.TMP图片化文字(玩家拥有的金币.ToString());
+                yield return new WaitForSeconds(1f / Mathf.Abs(value));
+            }
+        }
+
+        玩家拥有的金币 = endCoin;
+        yield break;
+    }
+
     public IEnumerator 补给变动(int value)
     {
         int startSupply = 补给;
@@ -80,12 +94,26 @@ public class BagMgr : MonoBehaviour
         {
             endSupply = 0;
         }
-        for (int i = startSupply; i < endSupply; i++)
+
+        if (value > 0)
         {
-            补给 = i + 1;
-            补给TMP.text = UIMgr.Ins.TMP图片化文字(补给.ToString());
-            yield return new WaitForSeconds(1f/value);
+            for (int i = startSupply; i < endSupply; i++)
+            {
+                补给 = i + 1;
+                补给TMP.text = UIMgr.Ins.TMP图片化文字(补给.ToString());
+                yield return new WaitForSeconds(1f / value);
+            }
         }
+        else if (value < 0)
+        {
+            for (int i = startSupply; i > endSupply; i--)
+            {
+                补给 = i - 1;
+                补给TMP.text = UIMgr.Ins.TMP图片化文字(补给.ToString());
+                yield return new WaitForSeconds(1f / Mathf.Abs(value));
+            }
+        }
+
         补给 = endSupply;
         yield break;
     }

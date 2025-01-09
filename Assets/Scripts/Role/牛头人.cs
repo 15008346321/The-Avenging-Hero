@@ -4,13 +4,13 @@ using UnityEngine;
 using System.Linq;
 using DG.Tweening;
 
-public class 牛头人 : Unit
+public class 牛头人 : 技能基类
 {
     // Start is called before the first frame update
 
     public override void 受到攻击时()
     {
-        获取技能点();
+        角色实例.获取技能点();
     }
 
     public override void 技能帧()
