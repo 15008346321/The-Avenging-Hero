@@ -28,6 +28,6 @@ public class 巨魔 : 技能基类
 
     public void 召唤哥布林()
     {
-        BattleMgr.Ins.InitRole(new UnitData(CSVMgr.Ins.Units["哥布林"], 角色实例.Cell), 角色实例.阵营);
+        BattleMgr.Ins.实例化角色(new UnitData(CSVMgr.Ins.Units["哥布林"], 角色实例.Cell), 角色实例.阵营);
     }
 }

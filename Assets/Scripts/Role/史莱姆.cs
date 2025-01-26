@@ -26,11 +26,11 @@ public class 史莱姆 : 技能基类
 
         float 阵营scale = 角色实例.阵营 == 阵营Enum.我方 ? 1 : -1;
 
-        Unit u1 = BattleMgr.Ins.InitRole(data, 角色实例.阵营);
+        Unit u1 = BattleMgr.Ins.实例化角色(data, 角色实例.阵营);
         u1.技能.技能1已触发 = true;
         u1.transform.localScale = 0.8f * new Vector2(1 * 阵营scale, 1);
 
-        Unit u2 = BattleMgr.Ins.InitRole(data, 角色实例.阵营);
+        Unit u2 = BattleMgr.Ins.实例化角色(data, 角色实例.阵营);
         u2.技能.技能1已触发 = true;
         u2.transform.localScale = 0.8f * new Vector2(1 * 阵营scale, 1);
     }

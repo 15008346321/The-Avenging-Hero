@@ -12,11 +12,11 @@ public class 哥布林 : 技能基类
         int value;
         if (角色实例.阵营 == 阵营Enum.我方)
         {
-            value = BattleMgr.Ins.玩家阵营单位列表.Count(item => !item.IsDead);
+            value = BattleMgr.Ins.小队列表.Count(item => !item.IsDead);
         }
         else
         {
-            value = BattleMgr.Ins.敌人阵营单位列表.Count(item=>!item.IsDead);
+            value = BattleMgr.Ins.敌方小队列表.Count(item=>!item.IsDead);
         }
         角色实例.Atk += value;
 

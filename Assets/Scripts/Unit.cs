@@ -8,10 +8,10 @@ using System.Linq;
 using System;
 using TMPro;
 
-
+[Serializable]
 public class Unit : MonoBehaviour
 {
-    public int Cell, Damage, AtkCountMax, AtkCountCurr, SkillPoint, SkillPointMax, 物理伤害减免;
+    public int Cell, Damage, AtkCountMax, AtkCountCurr, SkillPoint, SkillPointMax, 伤害减免;
     public float 生命值, MaxHp, Atk, 护盾, Speed;
     public string Element;
     public bool isBoss, IsDead,该单位是否是玩家阵营,单位是否进行了移动, IsSkillReady,IsAtkChanged,动画播放完毕,伤害字体已消失;
@@ -20,16 +20,14 @@ public class Unit : MonoBehaviour
     public string[] Tags = new string[4];
     public 阵营Enum 阵营;
     public TextMeshProUGUI SpeedTMP,生命值TMP,护盾TMP;
-    public Animator Anim;
     public Image Icon;
     public Button Btn;
     public List<Image> SkillPointIcon = new(), BuffListImgs = new();
-    public Transform StartParent,StatePos,RunPosParent,DragParent,BuffListImgNode,SkillPointImgNode;
+    public Transform StartParent,伤害飘字父节点,RunPosParent,DragParent,BuffListImgNode,SkillPointImgNode;
     public RectTransform TMPNameNode;
     public EventSystem _EventSystem;
     public GraphicRaycaster gra;
     public UnitData OriData;
-    public Action FinishAtkAction;
     public 技能基类 技能;
     public void Awake()
     {
@@ -39,9 +37,8 @@ public class Unit : MonoBehaviour
         BuffListImgNode = transform.Find("Canvas/BuffList");
         SkillPointImgNode = transform.Find("Canvas/SkillPointIcon");
         SpeedTMP = transform.Find("Canvas/Speed/TMP").GetComponent<TextMeshProUGUI>();
-        Anim = transform.GetComponent<Animator>();
         //DragParent = GameObject.Find("Canvas/UI/DragParent").transform;
-        StatePos = transform.Find("Canvas/FontPos");
+        伤害飘字父节点 = transform.Find("Canvas/FontPos");
 
         动画播放完毕 = true;
     }
@@ -115,6 +112,40 @@ public class Unit : MonoBehaviour
 
     #endregion
 
+    #region 动画
+
+    public void 动画待机()
+    {
+        // 使用DOTween进行往返重复的缩放动画
+        Icon.rectTransform.DOKill();
+        Icon.rectTransform.localScale = Vector2.one;
+        Icon.rectTransform.DOScale(new Vector2(1.05f, 0.95f), 0.5f).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.InOutSine);
+    }
+
+    public void 动画攻击()
+    {
+        var queue = DOTween.Sequence();
+        var 阵营动画方向 = 阵营 == 阵营Enum.我方 ? 1 : -1;
+        // 后移并改变scale
+        queue.Append(transform.DOLocalMoveX(-30 * 阵营动画方向, 0.3f)).Join(transform.DOScale(new Vector2(0.9f * 阵营动画方向, 1.15f), 0.3f));
+        // 前移并改变scale
+        queue.Append(transform.DOLocalMoveX(100 * 阵营动画方向, 0.2f).OnComplete(技能.攻击帧)).Join(transform.DOScale(new Vector2(1.1f * 阵营动画方向, 0.9f), 0.2f));
+        // 回到0点并恢复scale
+        queue.Append(transform.DOLocalMoveX(0, 0.2f)).Join(transform.DOScale(new Vector2(1f * 阵营动画方向, 1f), 0.2f));
+        queue.Play().OnComplete(()=>动画播放完毕 = true);
+    }
+
+    public void 动画技能()
+    {
+        var queue = DOTween.Sequence();
+        queue.Append(transform.DOLocalMoveY(30f, 0.2f));
+        queue.Append(transform.DOLocalMoveY(0f, 0.1f));
+        queue.Append(transform.DOLocalMoveY(30f, 0.2f));
+        queue.Append(transform.DOLocalMoveY(0f, 0.1f).OnComplete(技能.技能帧));
+        queue.Play().OnComplete(() => 动画播放完毕 = true); ;
+    }
+    #endregion
+
     #region ====战斗中移动
     public void 单位移动(int TargetCell)
     {
@@ -128,13 +159,11 @@ public class Unit : MonoBehaviour
         {
             obj = BattleMgr.Ins.eneObj;
         }
-        Anim.enabled = false;
         transform.DOMove(obj.transform.GetChild(TargetCell - 1).position, 1f).OnComplete(
             () => 
             {
                 transform.SetParent(obj.transform.GetChild(TargetCell - 1));
                 Cell = TargetCell;
-                Anim.enabled = true;
                 动画播放完毕 = true;
             }
         );
@@ -380,29 +409,19 @@ public class Unit : MonoBehaviour
 
     public void CheckDeath()
     {
+        print("CheckDeath");
         if (生命值 <= 0|| IsDead == true)
         {
             IsDead = true;
-            StartCoroutine(延时设置死亡());
             技能.该单位阵亡时();
+
             BattleMgr.Ins.有其他单位阵亡时(阵营);
-            StartCoroutine(BattleMgr.Ins.CheckBattleEnd());
+            BattleMgr.Ins.放回实例到对象池(this);
+            BattleMgr.Ins.CheckBattleEnd();
         }
-    }
-    public IEnumerator 延时设置死亡() 
-    {
-        yield return new WaitForSeconds(0.5f);
-        transform.SetParent(BattleMgr.Ins.DeadParent);
-        transform.localPosition = Vector3.zero;
     }
 
     #endregion
-
-    public void 行动结束()
-    {
-        Anim.Play("idle");
-        动画播放完毕 = true;
-    }
 
     public void 添加Buff(BuffsEnum BuffName)
     {

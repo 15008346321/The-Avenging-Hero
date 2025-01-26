@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class TeamMgr : MonoBehaviour
 {
     public static TeamMgr Ins;
-    public List<UnitData> TeamData = new(),拥有角色数据 = new(), EnemyData = new();
+    public List<UnitData> /*TeamData = new(),*/拥有角色数据 = new(), EnemyData = new();
     public List<角色栏拖拽> 角色栏列表;
     public Button[] MbrBtn = new Button[4];
     public TextMeshProUGUI[]
@@ -49,33 +49,42 @@ public class TeamMgr : MonoBehaviour
     private void Init()
     {
         //TODO改到配置表中
-        TeamData.Add(new UnitData(CSVMgr.Ins.Units["火焰剑士"]));
-        TeamData.Add(new UnitData(CSVMgr.Ins.Units["火焰法师"], 2));
-        TeamData.Add(new UnitData(CSVMgr.Ins.Units["猫妖"], 3));
-        TeamData.Add(new UnitData(CSVMgr.Ins.Units["嗜血战士"], 4));
-        for (int i = 0; i < TeamData.Count; i++)
-        {
-            拥有角色数据.Add(TeamData[i]);
-        }
-        拥有角色数据.Add(new UnitData(CSVMgr.Ins.Units["骑士"]));
-        //TeamData.Add(new UnitData(CSVManager.Ins.Units["猫妖"], 3));
-        //TeamData.Add(new UnitData(CSVManager.Ins.Units["嗜血战士"], 4));
+        //TeamData.Add(new UnitData(CSVMgr.Ins.Units["火焰剑士"]));
+        //TeamData.Add(new UnitData(CSVMgr.Ins.Units["火焰法师"], 2));
+        //TeamData.Add(new UnitData(CSVMgr.Ins.Units["猫妖"], 3));
+        //TeamData.Add(new UnitData(CSVMgr.Ins.Units["嗜血战士"], 4));
+        //for (int i = 0; i < TeamData.Count; i++)
+        //{
+        //    拥有角色数据.Add(TeamData[i]);
+        //}
+        //拥有角色数据.Add(new UnitData(CSVMgr.Ins.Units["骑士"]));
+        ////TeamData.Add(new UnitData(CSVManager.Ins.Units["猫妖"], 3));
+        ////TeamData.Add(new UnitData(CSVManager.Ins.Units["嗜血战士"], 4));
 
-        for (int i = 0; i < BloodInsNum; i++)
-        {
-            GameObject g = Instantiate(BloodPrefab);
-            g.transform.SetParent(BloodParent);
-            TextMeshProUGUI[] uGUIs = g.transform.GetComponentsInChildren<TextMeshProUGUI>();
-            BloodNameTMP[i] = uGUIs[0];
-            BloodPointTMP[i] = uGUIs[1];
-            BloodImgs[i] = g.transform.GetChild(0).GetComponent<Image>();
-        }
+        //for (int i = 0; i < BloodInsNum; i++)
+        //{
+        //    GameObject g = Instantiate(BloodPrefab);
+        //    g.transform.SetParent(BloodParent);
+        //    TextMeshProUGUI[] uGUIs = g.transform.GetComponentsInChildren<TextMeshProUGUI>();
+        //    BloodNameTMP[i] = uGUIs[0];
+        //    BloodPointTMP[i] = uGUIs[1];
+        //    BloodImgs[i] = g.transform.GetChild(0).GetComponent<Image>();
+        //}
     }
 
     public void 生成初始角色()
     {
-        TeamData.Add(new UnitData(CSVMgr.Ins.Units["史莱姆勇者"]));
-        拥有角色数据.Add(TeamData[0]);
+        //TeamData.Add(new UnitData(CSVMgr.Ins.Units["史莱姆勇者"]));
+        拥有角色数据.Add(new UnitData(CSVMgr.Ins.Units["史莱姆勇者"]));
+        实例化小队角色();
+    }
+
+    public void 实例化小队角色()
+    {
+        for (int i = 0; i < 拥有角色数据.Count; i++)
+        {
+            BattleMgr.Ins.实例化角色(拥有角色数据[i]);
+        }
     }
 
     public void 更新角色栏数据() 
@@ -105,43 +114,43 @@ public class TeamMgr : MonoBehaviour
         Arrows[CurrMbrIdx].enabled = true;
 
         //属性
-        int counter = 0;
-        foreach (var item in TeamData[CurrMbrIdx].Bloods)
-        {
-            if (item.Value == 0) continue;
-            BloodNameTMP[counter].transform.parent.parent.gameObject.SetActive(true);
-            BloodNameTMP[counter].text = item.Name.ToString();
-            BloodPointTMP[counter].text = item.Value.ToString();
-            BloodImgs[counter].sprite = CSVMgr.Ins.TypeIcon[item.Name.ToString()];
-            counter += 1;
-        }
-        for (int i = counter; i < BloodInsNum; i++)
-        {
-            BloodNameTMP[i].transform.parent.parent.gameObject.SetActive(false);
-        }
+        //int counter = 0;
+        //foreach (var item in TeamData[CurrMbrIdx].Bloods)
+        //{
+        //    if (item.Value == 0) continue;
+        //    BloodNameTMP[counter].transform.parent.parent.gameObject.SetActive(true);
+        //    BloodNameTMP[counter].text = item.Name.ToString();
+        //    BloodPointTMP[counter].text = item.Value.ToString();
+        //    BloodImgs[counter].sprite = CSVMgr.Ins.TypeIcon[item.Name.ToString()];
+        //    counter += 1;
+        //}
+        //for (int i = counter; i < BloodInsNum; i++)
+        //{
+        //    BloodNameTMP[i].transform.parent.parent.gameObject.SetActive(false);
+        //}
 
-        //队员按钮
-        int TCounter = 0;
-        for (int i = 0; i < TeamData.Count; i++)
-        {
-            //MbrImgs[i].sprite = CSVManager.Ins.Character[TeamData[i].Name];
-            MbrBtnTMP[i].text = TeamData[i].Name;
-            TCounter += 1;
-        }
-        if (TCounter < 4)
-        {
-            for (int i = TCounter; i < 4; i++)
-            { 
-                MbrBtnTMP[i].transform.parent.gameObject.SetActive(false);
-            }
-        }
+        ////队员按钮
+        //int TCounter = 0;
+        //for (int i = 0; i < TeamData.Count; i++)
+        //{
+        //    //MbrImgs[i].sprite = CSVManager.Ins.Character[TeamData[i].Name];
+        //    MbrBtnTMP[i].text = TeamData[i].Name;
+        //    TCounter += 1;
+        //}
+        //if (TCounter < 4)
+        //{
+        //    for (int i = TCounter; i < 4; i++)
+        //    { 
+        //        MbrBtnTMP[i].transform.parent.gameObject.SetActive(false);
+        //    }
+        //}
 
-        StringBuilder sb = new();
-        foreach (var item in TeamData[CurrMbrIdx].SkillDscrp)
-        {
-            sb.AppendLine(item);
-        }
-        SkillInfoTMP.text = sb.ToString();
+        //StringBuilder sb = new();
+        //foreach (var item in TeamData[CurrMbrIdx].SkillDscrp)
+        //{
+        //    sb.AppendLine(item);
+        //}
+        //SkillInfoTMP.text = sb.ToString();
 
     }
 

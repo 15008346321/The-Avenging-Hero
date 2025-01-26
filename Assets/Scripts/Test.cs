@@ -21,27 +21,42 @@ public class Test : MonoBehaviour
 
     public 遗物基类 遗物;
 
-    private void Update()
-    {
-        //print(Screen.width +" "+ Screen.height);
-    }
-    public void SetResolutionMax()
-    {
-        Screen.SetResolution(2560,1440,false);
-
-        print("2560,1440");
+    public void 待机()
+    { 
+        unit.动画待机();
     }
 
-    public void SetResolutionMid()
+    public void 技能()
     {
-        Screen.SetResolution(1920, 1080, false);
+        unit.动画技能();
+    }
 
-        print("1920, 1080");
-    }
-    public void 创建传家宝()
+    public void 攻击()
     {
-        BagMgr.Ins.获得遗物("村长的传家宝");
+        unit.动画攻击();
     }
+
+    //private void Update()
+    //{
+    //    //print(Screen.width +" "+ Screen.height);
+    //}
+    //public void SetResolutionMax()
+    //{
+    //    Screen.SetResolution(2560,1440,false);
+
+    //    print("2560,1440");
+    //}
+
+    //public void SetResolutionMid()
+    //{
+    //    Screen.SetResolution(1920, 1080, false);
+
+    //    print("1920, 1080");
+    //}
+    //public void 创建传家宝()
+    //{
+    //    BagMgr.Ins.获得遗物("村长的传家宝");
+
     //public void Atk999()
     //{
     //    foreach (var item in BattleMgr.Ins.玩家阵营单位列表)

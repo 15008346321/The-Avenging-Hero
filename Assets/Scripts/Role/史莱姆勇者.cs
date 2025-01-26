@@ -7,6 +7,8 @@ public class 史莱姆勇者 : 技能基类
 {
     public override void 战斗开始时()
     {
+
+        Debug.LogError("史莱姆勇者 战斗开始时");
         ExecuteSkill();
     }
 
@@ -25,7 +27,7 @@ public class 史莱姆勇者 : 技能基类
 
     public void 召唤小水()
     {
-        Unit 小水 = BattleMgr.Ins.InitRole(new UnitData(CSVMgr.Ins.Units["小水"], 设置召唤物位置()), 角色实例.阵营);
+        Unit 小水 = BattleMgr.Ins.实例化角色(new UnitData(CSVMgr.Ins.Units["小水"], 设置召唤物位置()), 角色实例.阵营);
         if (小水.技能 is 小水 小水技能)
         {
             小水技能.召唤者 = 角色实例;

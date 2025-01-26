@@ -8,7 +8,7 @@ public class 蜥蜴人 : 技能基类
     // Start is called before the first frame update
     public override void 更新伤害减免()
     {
-        角色实例.物理伤害减免 =  2 + Mathf.RoundToInt(角色实例.Bloods.Find(b => b.Name == 魔力类型Enum.水元素).Value * 0.33f);
+        角色实例.伤害减免 =  2;
     }
     public override void 获取攻击目标()
     {

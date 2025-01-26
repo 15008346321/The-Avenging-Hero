@@ -224,7 +224,7 @@ public class 神像管理器 : MonoBehaviour
         //出探索按钮
         神像节点.SetActive(false);
         UIMgr.Ins.收起角色栏();
-        UIMgr.Ins.显示小队();
+        BattleMgr.Ins.ResetBattle();
         当前正在神像 = false;
         隐藏神像();
         EventsMgr.Ins.生成一个战斗路线();

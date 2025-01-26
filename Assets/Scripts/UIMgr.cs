@@ -10,7 +10,6 @@ public class UIMgr : MonoBehaviour
     // Start is called before the first frame update
     public GameObject 资源OBJ, UIBot,角色栏,提示OBJ;
     public Material 滚动背景;
-    public List<布阵UI> 布阵UI列表;
     public Image BG, 地图名横线1, 地图名横线2;
     public Button 村长BTN,提示BTN,离开BTN;
     public TextMeshProUGUI 提示TMP, 地图名,关卡名;
@@ -40,22 +39,6 @@ public class UIMgr : MonoBehaviour
         滚动背景.SetFloat("SpeedX", 停止速度);
     }
 
-    public void 角色模拟移动动画()
-    {
-        for (int i = 0; i < 布阵UI列表.Count; i++)
-        {
-            //布阵UI列表[i].transform.DOMoveX()
-        }
-    }
-
-    public void 隐藏小队()
-    {
-        for (int i = 0; i < 布阵UI列表.Count; i++)
-        {
-            布阵UI列表[i].gameObject.SetActive(false);
-        }
-    }
-
     public void 显示角色栏()
     {
         角色栏.gameObject.SetActive(true);
@@ -67,31 +50,20 @@ public class UIMgr : MonoBehaviour
         角色栏.gameObject.SetActive(false);
     }
 
-    public void 显示小队()
-    {
-        for (int i = 0; i < TeamMgr.Ins.TeamData.Count; i++)
-        {
-            布阵UI列表[i].gameObject.SetActive(true);
-            布阵UI列表[i].unitData = TeamMgr.Ins.TeamData[i];
-            布阵UI列表[i].角色图片.sprite = TeamMgr.Ins.TeamData[i].角色图片;
-            布阵UI列表[i].transform.position = BattleMgr.Ins.ourObj.transform.GetChild(布阵UI列表[i].unitData.Cell - 1).position;
-        }
-    }
-
-    public void 设置拖动的图片到指定布阵栏(UnitData ud)
-    {
-        for (int i = 0; i < 布阵UI列表.Count; i++)
-        {
-            if (!布阵UI列表[i].gameObject.activeInHierarchy)
-            {
-                布阵UI列表[i].角色图片.sprite = ud.角色图片;
-                布阵UI列表[i].gameObject.SetActive(true);
-                布阵UI列表[i].transform.position = BattleMgr.Ins.ourObj.transform.GetChild(ud.Cell - 1).position;
-                布阵UI列表[i].transform.GetComponent<布阵UI>().unitData = ud;
-                break;
-            }
-        }
-    }
+    //public void 设置拖动的图片到指定布阵栏(UnitData ud)
+    //{
+    //    for (int i = 0; i < 布阵UI列表.Count; i++)
+    //    {
+    //        if (!布阵UI列表[i].gameObject.activeInHierarchy)
+    //        {
+    //            布阵UI列表[i].角色图片.sprite = ud.角色图片;
+    //            布阵UI列表[i].gameObject.SetActive(true);
+    //            布阵UI列表[i].transform.position = BattleMgr.Ins.ourObj.transform.GetChild(ud.Cell - 1).position;
+    //            布阵UI列表[i].transform.GetComponent<布阵UI>().unitData = ud;
+    //            break;
+    //        }
+    //    }
+    //}
 
     public void 更换地图(string name)
     {

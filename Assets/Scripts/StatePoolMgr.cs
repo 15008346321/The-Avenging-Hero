@@ -7,7 +7,7 @@ public class StatePoolMgr : MonoBehaviour
     public GameObject Prefab;
     public int PoolMax,SameTimeStateCount;
     public float time;
-    public List<提示信息> Pool;
+    public List<伤害飘字> Pool;
     public Unit 上一个调用者;
     public Transform 提示信息父节点;
 
@@ -23,7 +23,7 @@ public class StatePoolMgr : MonoBehaviour
         for (int i = 0; i < PoolMax; i++)
         {
             GameObject g = Instantiate(Prefab);
-            提示信息 s = g.GetComponent<提示信息>();
+            伤害飘字 s = g.GetComponent<伤害飘字>();
             s.transform.SetParent(提示信息父节点);
             s.transform.localPosition = Vector3.zero;
             s.gameObject.SetActive(false);
@@ -39,7 +39,7 @@ public class StatePoolMgr : MonoBehaviour
         }
     }
 
-    bool 检查是否需要延迟播放(提示信息 state)
+    bool 检查是否需要延迟播放(伤害飘字 state)
     {
         if(state.调用者 == 上一个调用者)
         {
@@ -49,7 +49,7 @@ public class StatePoolMgr : MonoBehaviour
         return false;
     }
 
-    public 提示信息 Get()
+    public 伤害飘字 Get()
     {
         for (int i = 0; i < Pool.Count; i++)
         {
@@ -63,12 +63,13 @@ public class StatePoolMgr : MonoBehaviour
 
     public void 类型伤害(Unit u, float damage, string type)
     {
-        提示信息 s = Get();
+        伤害飘字 s = Get();
         s.调用者 = u;
         s.tmp.text = damage.ToString();
         s.image.sprite = CSVMgr.Ins.TypeIcon[type];
 
-        s.transform.SetParent(u.StatePos);
+        s.transform.SetParent(u.伤害飘字父节点);
+
         s.transform.localPosition = Vector2.zero;
         float delay = 0;
         if(检查是否需要延迟播放(s))
@@ -81,10 +82,10 @@ public class StatePoolMgr : MonoBehaviour
 
     public void 状态(Unit u, string text) 
     {
-        提示信息 s = Get();
+        伤害飘字 s = Get();
         s.调用者 = u;
         s.tmp.text = text;
-        s.transform.SetParent(u.StatePos);
+        s.transform.SetParent(u.伤害飘字父节点);
         s.transform.localPosition = Vector2.zero;
         float delay = 0;
         if (检查是否需要延迟播放(s))
@@ -94,7 +95,7 @@ public class StatePoolMgr : MonoBehaviour
 
         StartCoroutine(延迟播放(s, "状态", delay));
     }
-    public IEnumerator 延迟播放(提示信息 s,string 类型 ,float delay) 
+    public IEnumerator 延迟播放(伤害飘字 s,string 类型 ,float delay) 
     { 
         yield return new WaitForSeconds(delay);
         s.gameObject.SetActive(true);

@@ -16,7 +16,7 @@ public class 村长的治愈护符 :遗物基类
     public override void 回合结束时()
     {
         触发动画();
-        Unit u = BattleMgr.Ins.玩家阵营单位列表.Where(u => u.IsDead == false && u.生命值 < u.MaxHp).OrderBy(u => u.生命值).FirstOrDefault();
+        Unit u = BattleMgr.Ins.小队列表.Where(u => u.IsDead == false && u.生命值 < u.MaxHp).OrderBy(u => u.生命值).FirstOrDefault();
         if (u != null)
         {
             u.技能.TakeHeal(5);

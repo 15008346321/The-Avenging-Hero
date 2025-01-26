@@ -16,7 +16,7 @@ public class 骑士 : 技能基类
     {
         if (!技能1已触发) 
         {
-            foreach (var item in BattleMgr.Ins.玩家阵营单位列表)
+            foreach (var item in BattleMgr.Ins.小队列表)
             {
                 item.获取护盾(Mathf.Round(角色实例.MaxHp * 0.2f));
             }

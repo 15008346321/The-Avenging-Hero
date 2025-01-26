@@ -136,7 +136,7 @@ public class CSVMgr : MonoBehaviour
     {
         string filePath = Path.Combine(Application.persistentDataPath, "Team.csv");
         using StreamWriter writer = new StreamWriter(filePath);
-        foreach (var unit in TeamMgr.Ins.TeamData)
+        foreach (var unit in TeamMgr.Ins.拥有角色数据)
         {
             //writer.WriteLine($"{unit.Name},{unit.MaxHp},{unit.Atk},{unit.Fire},{unit.Water}" +
             //    $",{unit.Wind},{unit.Thunder},{unit.Earth},{unit.Special},{unit.NormalAtk},{unit.Comb}" +

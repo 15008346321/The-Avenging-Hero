@@ -57,7 +57,6 @@ public class 主菜单 : MonoBehaviour
     {
         PlayerPrefs.SetInt("HaveRecord?", 1);
         TeamMgr.Ins.生成初始角色();
-        UIMgr.Ins.显示小队();
         UIMgr.Ins.更换地图("村庄");
         LevelMgr.Ins.SetLevel("后山");
         UIMgr.Ins.提示OBJ.SetActive(true);

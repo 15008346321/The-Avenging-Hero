@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class 提示信息 : MonoBehaviour
+public class 伤害飘字 : MonoBehaviour
 {
     public Unit 调用者;
     public TextMeshProUGUI tmp;

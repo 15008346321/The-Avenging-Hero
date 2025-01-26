@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System;
 
+[Serializable]
 public class 技能基类
 {
     public Unit 角色实例;
@@ -48,7 +50,9 @@ public class 技能基类
         }
         else
         {
-            角色实例.Anim.Play("atk");//后面两方法在动画帧后段调用
+            //TODO 改为dotween动画
+            //角色实例.Anim.Play("atk");//后面两方法在动画帧后段调用
+            角色实例.动画攻击();
         }
     }
 
@@ -85,7 +89,8 @@ public class 技能基类
 
         //动画中会执行 技能帧();
         角色实例.动画播放完毕 = false;
-        角色实例.Anim.Play("skill", 0, 0);
+        //TODO改为DOTWEEN动画
+        角色实例.动画技能();
     }
 
     //需要重写 默认正前方目标 
@@ -102,22 +107,8 @@ public class 技能基类
         Damage = Mathf.RoundToInt(Damage);
         //伤害减免
         更新伤害减免();
-        switch (elementType)
-        {
-            case ElementType.物理伤害:
-                Damage -= 角色实例.物理伤害减免;
-                break;
-            case ElementType.火元素伤害:
-                break;
-            case ElementType.土元素伤害:
-                break;
-            case ElementType.燃烧伤害:
-                break;
-            case ElementType.出血伤害:
-                break;
-            case ElementType.中毒伤害:
-                break;
-        }
+        Damage -= 角色实例.伤害减免;
+
 
         if (角色实例.护盾 > 0)
         {
@@ -132,9 +123,6 @@ public class 技能基类
                 角色实例.护盾 = 0;
             }
         }
-        角色实例.生命值 -= Damage;
-        角色实例.更新生命值();
-        角色实例.CheckDeath();
 
         //出类型伤害和特效
         switch (elementType)
@@ -169,6 +157,10 @@ public class 技能基类
             case DamageType.异常伤害:
                 break;
         }
+
+        角色实例.生命值 -= Damage;
+        角色实例.更新生命值();
+        角色实例.CheckDeath();
     }//被攻击时特效 减伤 养成
 
     public virtual void 更新伤害减免()

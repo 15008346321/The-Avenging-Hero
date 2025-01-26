@@ -40,11 +40,11 @@ public class 角色栏拖拽 : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             }
             else if(BattleMgr.Ins.当前正在布阵)
             {
-                if (TeamMgr.Ins.TeamData.Exists(ud => ud == unitData))
+                //角色栏拖一个出来时 如果实例化的已经有了 把已有的放回去
+                if (BattleMgr.Ins.小队列表.Exists(u => u.name == unitData.Name))
                 {
-                    UIMgr.Ins.布阵UI列表.Find(UI => UI.unitData == unitData).gameObject.SetActive(false);
+                    BattleMgr.Ins.放回实例到对象池(BattleMgr.Ins.小队列表.Find(u => u.name == unitData.Name));
                 }
-
             }
 
             公用的拖动图片.gameObject.SetActive(true);
@@ -63,23 +63,16 @@ public class 角色栏拖拽 : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             //拖到了格子上
             if (hit.collider != null && hit.collider.gameObject.CompareTag("布阵位置"))
             {
-                UnitData ud = TeamMgr.Ins.TeamData.Find(td => td.Cell == (hit.collider.gameObject.transform.GetSiblingIndex() + 1));
+                Unit u = BattleMgr.Ins.小队列表.Find(td => td.Cell == (hit.collider.gameObject.transform.GetSiblingIndex() + 1));
 
-                if (ud != null)
+                //如果格子上有和this.unitdata不同的数据了 就移除
+                if (u != null && u.name != unitData.Name)
                 {
-                    //如果格子上有和this.unitdata不同的数据了 就移除
-                    if (ud != unitData)
-                    {
-                        TeamMgr.Ins.TeamData.Remove(ud);
-                        UIMgr.Ins.布阵UI列表.Find(img => img.角色图片.sprite == ud.角色图片).gameObject.SetActive(false);
-                    }
-                    else
-                    {
-
-                    }
+                    BattleMgr.Ins.放回实例到对象池(u);
+                    //UIMgr.Ins.布阵UI列表.Find(img => img.角色图片.sprite == ud.角色图片).gameObject.SetActive(false);
                 }
                 //已经放了四个了 并且this.unitdata在已知四个之外 就不管
-                else if (TeamMgr.Ins.TeamData.Count == 4 && !TeamMgr.Ins.TeamData.Exists(ud=>ud==unitData))
+                else if (BattleMgr.Ins.小队列表.Count == 4 && !BattleMgr.Ins.小队列表.Exists(u=>u.name==unitData.Name))
                 {
                     isDragging = false;
                     公用的拖动图片.gameObject.SetActive(false);
@@ -88,27 +81,16 @@ public class 角色栏拖拽 : MonoBehaviour, IPointerDownHandler, IPointerUpHan
                 //到空位置并且没满四个
 
                 //新的就加进TeamData
-                if (!TeamMgr.Ins.TeamData.Exists(ud=>ud == unitData))
+                if (!BattleMgr.Ins.小队列表.Exists(u => u.name == unitData.Name))
                 {
-                    TeamMgr.Ins.TeamData.Add(unitData);
-                }
-
-                unitData.Cell = hit.collider.gameObject.transform.GetSiblingIndex() + 1;
-
-                UIMgr.Ins.设置拖动的图片到指定布阵栏(unitData);
-                
-            }
-            //没拖到格子上
-            else
-            {
-                if (TeamMgr.Ins.TeamData.Exists(ud => ud == unitData))
-                {
-                    TeamMgr.Ins.TeamData.Remove(unitData);
+                    unitData.Cell = hit.collider.gameObject.transform.GetSiblingIndex() + 1;
+                    BattleMgr.Ins.实例化角色(unitData);
                 }
             }
             isDragging = false;
             公用的拖动图片.gameObject.SetActive(false);
         }
+
         if (isDragging && 神像管理器.Ins.当前正在神像)
         {
             RaycastHit2D hit = Physics2D.Raycast(Input.mousePosition, Vector2.zero);

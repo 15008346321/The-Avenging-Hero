@@ -28,7 +28,7 @@ public class EventsMgr : MonoBehaviour
         BounusRelicsEffect = new TextMeshProUGUI[3];
     public int EventPoint, MaxEventPoint, StatueIdx, StatueMbrIdx, BonusGold, 玩家拥有的金币, 危险级别, 战利品金币数, 世界等级INT, 世界等级进度INT, 敌人数量INT, 敌人数量Max;
     public string monsters, bonus;
-    public TextMeshProUGUI EPTMP, TitleTMP, ContentTMP, ResultTMP, MainTMP,UIGoldTMP,探索按钮TMP,世界等级进度TMP,世界等级TMP;
+    public TextMeshProUGUI TitleTMP, ContentTMP, ResultTMP, MainTMP,UIGoldTMP,探索按钮TMP,世界等级进度TMP,世界等级TMP;
     public Transform RoadParentNode, EventParentNode, EventContentNode, EventResultNode,DailyNode,
         ShopNode, StatueNode, StatueParent,侧边栏父级;
     public GameObject 神像,世界等级OBJ;
@@ -111,7 +111,6 @@ public class EventsMgr : MonoBehaviour
 
     private void 去往酒馆()
     {
-        BattleMgr.Ins.TeamRun();
         是否去往酒馆 = true;
         Fade();
     }
@@ -233,25 +232,9 @@ public class EventsMgr : MonoBehaviour
             _ => "",
         };
         //TODO道具属性飞入动画
-        BattleMgr.Ins.TeamRun();
         //ExecuteMgr.Ins.ExecuteCode(code);
         EventContentNode.gameObject.SetActive(false);
         RoadParentNode.gameObject.SetActive(true);
-    }
-
-    public void OnClickExplore()
-    {
-        if(EventPoint == 0)
-        {
-            //GameOver
-        }
-        else
-        {
-            EventPoint -= 1;
-            EPTMP.text = "" + EventPoint;
-            //UIMgr.Ins.背景滚动();
-            Fade();
-        }
     }
 
     public void Fade(Action Callback = null)
@@ -271,7 +254,6 @@ public class EventsMgr : MonoBehaviour
                     }
                     else if (是否去往酒馆)
                     {
-                        UIMgr.Ins.隐藏小队();
                         Inn.Ins.展示可招募单位();
                     }
                     else
@@ -279,12 +261,9 @@ public class EventsMgr : MonoBehaviour
                         探索按钮.gameObject.SetActive(true);
                     }
 
-                    //BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-1000, 0f);
-                    //BattleMgr.Ins.OurRunningPos.DOLocalMoveX(-579, 1f);
 
                     if (!是否去往酒馆)
                     {
-                        UIMgr.Ins.显示小队();
                     }
 
                     //if (!是否去往战斗)
